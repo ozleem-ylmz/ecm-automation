@@ -335,4 +335,212 @@ public class FolderPage {
                         .setExact(true)
         ).first().isVisible();
     }
+    public void klasorOlusturBeklemeden(String folderName) {
+
+        page.locator("input[placeholder='e.g. Finance']")
+                .fill(folderName);
+
+        page.getByRole(
+                AriaRole.BUTTON,
+                new Page.GetByRoleOptions()
+                        .setName("Create folder")
+                        .setExact(true)
+        ).click();
+    }
+
+    public void altKlasorOlusturBeklemeden(String childFolder) {
+
+        Locator input = page.locator(
+                "input[placeholder='Subfolder name']"
+        );
+
+        if (input.isVisible()) {
+
+            input.fill(childFolder);
+
+            page.getByRole(
+                    AriaRole.BUTTON,
+                    new Page.GetByRoleOptions()
+                            .setName("Create")
+                            .setExact(true)
+            ).click();
+        }
+    }
+
+    public boolean duplicateKlasorHatasiGorunuyorMu() {
+
+        try {
+
+            page.getByText(
+                    "A folder with this name already exists.",
+                    new Page.GetByTextOptions()
+                            .setExact(true)
+            ).waitFor(
+                    new Locator.WaitForOptions()
+                            .setTimeout(5000)
+            );
+
+            return true;
+
+        } catch (Exception e) {
+
+            return false;
+        }
+    }
+
+    public boolean altKlasorMaxLength255Mi() {
+
+        Locator input = page.locator(
+                "input[placeholder='Subfolder name']"
+        );
+
+        String maxLength = input.getAttribute("maxlength");
+
+        return "255".equals(maxLength);
+    }
+
+    public void renameFormunuAc() {
+
+        page.getByRole(
+                AriaRole.BUTTON,
+                new Page.GetByRoleOptions()
+                        .setName("Rename")
+                        .setExact(true)
+        ).click();
+
+        page.locator(
+                "input[maxlength='255']:not([placeholder='Subfolder name'])"
+        ).waitFor();
+    }
+
+    public boolean renameMaxLength255Mi() {
+
+        Locator input = page.locator(
+                "input[maxlength='255']:not([placeholder='Subfolder name'])"
+        );
+
+        String maxLength = input.getAttribute("maxlength");
+
+        return "255".equals(maxLength);
+    }
+
+    public boolean explorerGorunuyorMu() {
+
+        try {
+
+            page.getByRole(
+                    AriaRole.HEADING,
+                    new Page.GetByRoleOptions()
+                            .setName("Explorer")
+                            .setExact(true)
+            ).waitFor(
+                    new Locator.WaitForOptions()
+                            .setTimeout(5000)
+            );
+
+            return true;
+
+        } catch (Exception e) {
+
+            return false;
+        }
+    }
+
+    public boolean breadcrumbKlasorleriGorunuyorMu(
+            String parentName,
+            String childName
+    ) {
+
+        try {
+
+            page.getByText(
+                    parentName,
+                    new Page.GetByTextOptions()
+                            .setExact(true)
+            ).first().waitFor(
+                    new Locator.WaitForOptions()
+                            .setTimeout(5000)
+            );
+
+            page.getByText(
+                    childName,
+                    new Page.GetByTextOptions()
+                            .setExact(true)
+            ).first().waitFor(
+                    new Locator.WaitForOptions()
+                            .setTimeout(5000)
+            );
+
+            return true;
+
+        } catch (Exception e) {
+
+            return false;
+        }
+    }
+
+    public boolean inactiveEtiketiGorunuyorMu() {
+
+        try {
+
+            Locator inactiveLabels = page.getByText(
+                    "Inactive",
+                    new Page.GetByTextOptions()
+                            .setExact(true)
+            );
+
+            if (inactiveLabels.count() == 0) {
+                return false;
+            }
+
+            inactiveLabels.first().waitFor(
+                    new Locator.WaitForOptions()
+                            .setTimeout(5000)
+            );
+
+            return inactiveLabels.first().isVisible();
+
+        } catch (Exception e) {
+
+            return false;
+        }
+    }
+
+    public boolean pasifKlasordeAltKlasorOlusturulamiyorMu(
+            String childFolder
+    ) {
+
+        Locator input = page.locator(
+                "input[placeholder='Subfolder name']"
+        );
+
+        /*
+         * UI pasif klasörde formu tamamen gizliyorsa
+         * zaten oluşturma mümkün değildir.
+         */
+        if (!input.isVisible()) {
+            return true;
+        }
+
+        /*
+         * Form görünüyorsa backend isteğinin reddedildiğini
+         * doğrulamak için oluşturmayı deneriz.
+         */
+        input.fill(childFolder);
+
+        page.getByRole(
+                AriaRole.BUTTON,
+                new Page.GetByRoleOptions()
+                        .setName("Create")
+                        .setExact(true)
+        ).click();
+
+        page.waitForTimeout(1500);
+
+        return !page.getByText(
+                childFolder,
+                new Page.GetByTextOptions()
+                        .setExact(true)
+        ).first().isVisible();
+    }
 }

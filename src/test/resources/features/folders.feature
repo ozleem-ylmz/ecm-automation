@@ -61,3 +61,50 @@ Feature: ECM klasör işlemleri
   Scenario: Klasör breadcrumb bilgisi görüntülenmelidir
     Given admin kullanıcı bir alt klasörün detay sayfasındadır
     Then klasör breadcrumb bilgisi görüntülenmelidir
+
+  Scenario: Aynı isimde root klasör ikinci kez oluşturulamamalıdır
+    Given admin kullanıcı duplicate testi için benzersiz bir klasör oluşturmuştur
+    When kullanıcı aynı isimde klasörü tekrar oluşturmaya çalışır
+    Then duplicate klasör hatası görüntülenmelidir
+
+  Scenario: Aynı parent altında aynı isimde alt klasör oluşturulamamalıdır
+    Given admin kullanıcı duplicate alt klasör testi için benzersiz bir parent ve child oluşturmuştur
+    When kullanıcı aynı child klasörü tekrar oluşturmaya çalışır
+    Then duplicate klasör hatası görüntülenmelidir
+
+  Scenario: Tek karakterli alt klasör oluşturulabilmelidir
+    Given admin kullanıcı benzersiz bir parent klasörün detay sayfasındadır
+    When kullanıcı "A" isimli tek karakterli alt klasör oluşturur
+    Then "A" alt klasörü görüntülenmelidir
+
+  Scenario: Alt klasör adı alanının maksimum uzunluğu 255 olmalıdır
+    Given admin kullanıcı benzersiz bir parent klasörün detay sayfasındadır
+    Then alt klasör adı alanının maksimum uzunluğu 255 olmalıdır
+
+  Scenario: Rename alanının maksimum uzunluğu 255 olmalıdır
+    Given admin kullanıcı benzersiz bir parent klasörün detay sayfasındadır
+    When kullanıcı rename formunu açar
+    Then rename alanının maksimum uzunluğu 255 olmalıdır
+
+  Scenario: Klasör detayında Explorer bölümü görüntülenmelidir
+    Given admin kullanıcı benzersiz bir parent klasörün detay sayfasındadır
+    Then Explorer bölümü görüntülenmelidir
+
+  Scenario: Alt klasör breadcrumb alanında parent ve child görünmelidir
+    Given admin kullanıcı benzersiz parent ve child klasör oluşturup child detayını açmıştır
+    Then breadcrumb alanında parent ve child klasör adları görüntülenmelidir
+
+  Scenario: Pasif klasörde Inactive etiketi görüntülenmelidir
+    Given admin kullanıcı benzersiz bir parent klasörün detay sayfasındadır
+    When kullanıcı test klasörünü pasif hale getirir
+    Then Inactive etiketi görüntülenmelidir
+
+  Scenario: Pasif klasör altında yeni alt klasör oluşturulamamalıdır
+    Given admin kullanıcı benzersiz bir parent klasörün detay sayfasındadır
+    When kullanıcı test klasörünü pasif hale getirir
+    Then pasif klasör altında yeni alt klasör oluşturulamamalıdır
+
+  Scenario: Tekrar aktif edilen klasörde alt klasör oluşturulabilmelidir
+    Given admin kullanıcı benzersiz bir parent klasörün detay sayfasındadır
+    When kullanıcı test klasörünü pasif hale getirip tekrar aktif eder
+    Then aktif klasör altında yeni alt klasör oluşturulabilmelidir

@@ -15,6 +15,9 @@ public class FolderSteps {
     private String renameSourceName;
     private String renameTargetName;
 
+    private String testFolderName;
+    private String testChildName;
+
     private void adminGirisYap() {
 
         BrowserManager.startBrowser();
@@ -149,13 +152,17 @@ public class FolderSteps {
                 "QA Rename Target " + System.currentTimeMillis();
 
         folderPage.klasoruAc(renameSourceName);
-        folderPage.klasoruYenidenAdlandir(renameTargetName);
+
+        folderPage.klasoruYenidenAdlandir(
+                renameTargetName
+        );
     }
 
     @Then("klasör yeni adıyla görüntülenmelidir")
     public void klasorYeniAdiylaGoruntulenmelidir() {
 
         if (!folderPage.klasorBasligiMi(renameTargetName)) {
+
             throw new AssertionError(
                     renameTargetName
                             + " klasör adı detay sayfasında görüntülenmedi!"
@@ -167,7 +174,10 @@ public class FolderSteps {
     public void kullaniciKlasoruPasifHaleGetirir() {
 
         folderPage.klasorlerSayfasiniAc();
-        folderPage.klasoruAc("QA Folder Renamed");
+
+        folderPage.klasoruAc(
+                "QA Folder Renamed"
+        );
 
         if (folderPage.klasorAktifMi()) {
             folderPage.klasoruPasifYap();
@@ -178,6 +188,7 @@ public class FolderSteps {
     public void klasorPasifGoruntulenmelidir() {
 
         if (!folderPage.klasorPasifMi()) {
+
             throw new AssertionError(
                     "Klasör pasif olarak görüntülenmedi!"
             );
@@ -191,11 +202,16 @@ public class FolderSteps {
 
         if (!folderPage.klasorGorunuyorMu("QA Folder Renamed")) {
 
-            folderPage.klasorOlustur("QA Folder Renamed");
+            folderPage.klasorOlustur(
+                    "QA Folder Renamed"
+            );
+
             folderPage.klasorlerSayfasiniAc();
         }
 
-        folderPage.klasoruAc("QA Folder Renamed");
+        folderPage.klasoruAc(
+                "QA Folder Renamed"
+        );
 
         if (folderPage.klasorAktifMi()) {
             folderPage.klasoruPasifYap();
@@ -212,6 +228,7 @@ public class FolderSteps {
     public void klasorAktifGoruntulenmelidir() {
 
         if (!folderPage.klasorAktifMi()) {
+
             throw new AssertionError(
                     "Klasör aktif olarak görüntülenmedi!"
             );
@@ -225,11 +242,16 @@ public class FolderSteps {
 
         if (!folderPage.klasorGorunuyorMu("QA Folder 01")) {
 
-            folderPage.klasorOlustur("QA Folder 01");
+            folderPage.klasorOlustur(
+                    "QA Folder 01"
+            );
+
             folderPage.klasorlerSayfasiniAc();
         }
 
-        folderPage.klasoruAc("QA Folder 01");
+        folderPage.klasoruAc(
+                "QA Folder 01"
+        );
 
         if (!folderPage.altKlasorGorunuyorMu("QA Child Folder")) {
 
@@ -249,6 +271,7 @@ public class FolderSteps {
     public void mevcutAltKlasorlerListelenmelidir() {
 
         if (!folderPage.altKlasorGorunuyorMu("QA Child Folder")) {
+
             throw new AssertionError(
                     "Alt klasörler görüntülenmedi!"
             );
@@ -265,6 +288,7 @@ public class FolderSteps {
     public void klasorGecmisiGoruntulenmelidir() {
 
         if (!folderPage.historyGorunuyorMu()) {
+
             throw new AssertionError(
                     "Klasör geçmişi görüntülenmedi!"
             );
@@ -281,6 +305,7 @@ public class FolderSteps {
     public void klasorAclBilgileriGoruntulenmelidir() {
 
         if (!folderPage.aclAlaniGorunuyorMu()) {
+
             throw new AssertionError(
                     "Folder access alanı görüntülenmedi!"
             );
@@ -297,6 +322,7 @@ public class FolderSteps {
     public void izinVerilenClassBilgileriGoruntulenmelidir() {
 
         if (!folderPage.allowedClassesAlaniGorunuyorMu()) {
+
             throw new AssertionError(
                     "Allowed document classes alanı görüntülenmedi!"
             );
@@ -310,11 +336,16 @@ public class FolderSteps {
 
         if (!folderPage.klasorGorunuyorMu("QA Folder 01")) {
 
-            folderPage.klasorOlustur("QA Folder 01");
+            folderPage.klasorOlustur(
+                    "QA Folder 01"
+            );
+
             folderPage.klasorlerSayfasiniAc();
         }
 
-        folderPage.klasoruAc("QA Folder 01");
+        folderPage.klasoruAc(
+                "QA Folder 01"
+        );
 
         if (!folderPage.altKlasorGorunuyorMu("QA Child Folder")) {
 
@@ -323,15 +354,267 @@ public class FolderSteps {
             );
         }
 
-        folderPage.klasoruAc("QA Child Folder");
+        folderPage.klasoruAc(
+                "QA Child Folder"
+        );
     }
 
     @Then("klasör breadcrumb bilgisi görüntülenmelidir")
     public void klasorBreadcrumbBilgisiGoruntulenmelidir() {
 
         if (!folderPage.breadcrumbGorunuyorMu()) {
+
             throw new AssertionError(
                     "Klasör breadcrumb bilgisi görüntülenmedi!"
+            );
+        }
+    }
+
+    // ---------------------------------------------------------
+    // YENİ FOLDER TESTLERİ
+    // ---------------------------------------------------------
+
+    @Given("admin kullanıcı duplicate testi için benzersiz bir klasör oluşturmuştur")
+    public void adminKullaniciDuplicateTestiIcinBenzersizKlasorOlusturmustur() {
+
+        adminKullaniciKlasorlerSayfasindadir();
+
+        testFolderName =
+                "QA Duplicate Root " + System.currentTimeMillis();
+
+        folderPage.klasorOlustur(
+                testFolderName
+        );
+    }
+
+    @When("kullanıcı aynı isimde klasörü tekrar oluşturmaya çalışır")
+    public void kullaniciAyniIsimdeKlasoruTekrarOlusturmayaCalisir() {
+
+        folderPage.klasorlerSayfasiniAc();
+
+        folderPage.klasorOlusturBeklemeden(
+                testFolderName
+        );
+    }
+
+    @Then("duplicate klasör hatası görüntülenmelidir")
+    public void duplicateKlasorHatasiGoruntulenmelidir() {
+
+        if (!folderPage.duplicateKlasorHatasiGorunuyorMu()) {
+
+            throw new AssertionError(
+                    "Duplicate klasör hatası görüntülenmedi!"
+            );
+        }
+    }
+
+    @Given("admin kullanıcı duplicate alt klasör testi için benzersiz bir parent ve child oluşturmuştur")
+    public void adminKullaniciDuplicateAltKlasorTestiIcinBenzersizParentVeChildOlusturmustur() {
+
+        adminKullaniciKlasorlerSayfasindadir();
+
+        long timestamp =
+                System.currentTimeMillis();
+
+        testFolderName =
+                "QA Duplicate Parent " + timestamp;
+
+        testChildName =
+                "QA Duplicate Child " + timestamp;
+
+        folderPage.klasorOlustur(
+                testFolderName
+        );
+
+        folderPage.klasoruAc(
+                testFolderName
+        );
+
+        folderPage.altKlasorOlusturDetaySayfasinda(
+                testChildName
+        );
+    }
+
+    @When("kullanıcı aynı child klasörü tekrar oluşturmaya çalışır")
+    public void kullaniciAyniChildKlasoruTekrarOlusturmayaCalisir() {
+
+        folderPage.altKlasorOlusturBeklemeden(
+                testChildName
+        );
+    }
+
+    @Given("admin kullanıcı benzersiz bir parent klasörün detay sayfasındadır")
+    public void adminKullaniciBenzersizBirParentKlasorunDetaySayfasindadir() {
+
+        adminKullaniciKlasorlerSayfasindadir();
+
+        testFolderName =
+                "QA Parent " + System.currentTimeMillis();
+
+        folderPage.klasorOlustur(
+                testFolderName
+        );
+
+        folderPage.klasoruAc(
+                testFolderName
+        );
+    }
+
+    @When("kullanıcı {string} isimli tek karakterli alt klasör oluşturur")
+    public void kullaniciTekKarakterliAltKlasorOlusturur(
+            String childFolder
+    ) {
+
+        folderPage.altKlasorOlusturDetaySayfasinda(
+                childFolder
+        );
+    }
+
+    @Then("alt klasör adı alanının maksimum uzunluğu 255 olmalıdır")
+    public void altKlasorAdiAlanininMaksimumUzunlugu255Olmalidir() {
+
+        if (!folderPage.altKlasorMaxLength255Mi()) {
+
+            throw new AssertionError(
+                    "Alt klasör input maxlength değeri 255 değil!"
+            );
+        }
+    }
+
+    @When("kullanıcı rename formunu açar")
+    public void kullaniciRenameFormunuAcar() {
+
+        folderPage.renameFormunuAc();
+    }
+
+    @Then("rename alanının maksimum uzunluğu 255 olmalıdır")
+    public void renameAlanininMaksimumUzunlugu255Olmalidir() {
+
+        if (!folderPage.renameMaxLength255Mi()) {
+
+            throw new AssertionError(
+                    "Rename input maxlength değeri 255 değil!"
+            );
+        }
+    }
+
+    @Then("Explorer bölümü görüntülenmelidir")
+    public void explorerBolumuGoruntulenmelidir() {
+
+        if (!folderPage.explorerGorunuyorMu()) {
+
+            throw new AssertionError(
+                    "Explorer bölümü görüntülenmedi!"
+            );
+        }
+    }
+
+    @Given("admin kullanıcı benzersiz parent ve child klasör oluşturup child detayını açmıştır")
+    public void adminKullaniciBenzersizParentVeChildKlasorOlusturupChildDetayiniAcmistir() {
+
+        adminKullaniciKlasorlerSayfasindadir();
+
+        long timestamp =
+                System.currentTimeMillis();
+
+        testFolderName =
+                "QA Breadcrumb Parent " + timestamp;
+
+        testChildName =
+                "QA Breadcrumb Child " + timestamp;
+
+        folderPage.klasorOlustur(
+                testFolderName
+        );
+
+        folderPage.klasoruAc(
+                testFolderName
+        );
+
+        folderPage.altKlasorOlusturDetaySayfasinda(
+                testChildName
+        );
+
+        folderPage.klasoruAc(
+                testChildName
+        );
+    }
+
+    @Then("breadcrumb alanında parent ve child klasör adları görüntülenmelidir")
+    public void breadcrumbAlanindaParentVeChildKlasorAdlariGoruntulenmelidir() {
+
+        if (!folderPage.breadcrumbKlasorleriGorunuyorMu(
+                testFolderName,
+                testChildName
+        )) {
+
+            throw new AssertionError(
+                    "Breadcrumb içinde parent ve child klasör adları görüntülenmedi!"
+            );
+        }
+    }
+
+    @When("kullanıcı test klasörünü pasif hale getirir")
+    public void kullaniciTestKlasorunuPasifHaleGetirir() {
+
+        if (folderPage.klasorAktifMi()) {
+
+            folderPage.klasoruPasifYap();
+        }
+    }
+
+    @Then("Inactive etiketi görüntülenmelidir")
+    public void inactiveEtiketiGoruntulenmelidir() {
+
+        if (!folderPage.inactiveEtiketiGorunuyorMu()) {
+
+            throw new AssertionError(
+                    "Inactive etiketi görüntülenmedi!"
+            );
+        }
+    }
+
+    @Then("pasif klasör altında yeni alt klasör oluşturulamamalıdır")
+    public void pasifKlasorAltindaYeniAltKlasorOlusturulamamalidir() {
+
+        testChildName =
+                "QA Inactive Child " + System.currentTimeMillis();
+
+        if (!folderPage.pasifKlasordeAltKlasorOlusturulamiyorMu(
+                testChildName
+        )) {
+
+            throw new AssertionError(
+                    "Pasif klasör altında alt klasör oluşturuldu!"
+            );
+        }
+    }
+
+    @When("kullanıcı test klasörünü pasif hale getirip tekrar aktif eder")
+    public void kullaniciTestKlasorunuPasifHaleGetiripTekrarAktifEder() {
+
+        if (folderPage.klasorAktifMi()) {
+
+            folderPage.klasoruPasifYap();
+        }
+
+        folderPage.klasoruAktifYap();
+    }
+
+    @Then("aktif klasör altında yeni alt klasör oluşturulabilmelidir")
+    public void aktifKlasorAltindaYeniAltKlasorOlusturulabilmelidir() {
+
+        testChildName =
+                "QA Reactivated Child " + System.currentTimeMillis();
+
+        folderPage.altKlasorOlusturDetaySayfasinda(
+                testChildName
+        );
+
+        if (!folderPage.altKlasorGorunuyorMu(testChildName)) {
+
+            throw new AssertionError(
+                    "Tekrar aktif edilen klasörde alt klasör oluşturulamadı!"
             );
         }
     }
