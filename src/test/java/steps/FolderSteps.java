@@ -18,6 +18,10 @@ public class FolderSteps {
     private String testFolderName;
     private String testChildName;
 
+    private String originalFolderName;
+    private String temporaryFolderName;
+    private String expectedTrimmedName;
+
     private void adminGirisYap() {
 
         BrowserManager.startBrowser();
@@ -371,7 +375,7 @@ public class FolderSteps {
     }
 
     // ---------------------------------------------------------
-    // YENİ FOLDER TESTLERİ
+    // FOLDER BATCH 2
     // ---------------------------------------------------------
 
     @Given("admin kullanıcı duplicate testi için benzersiz bir klasör oluşturmuştur")
@@ -615,6 +619,312 @@ public class FolderSteps {
 
             throw new AssertionError(
                     "Tekrar aktif edilen klasörde alt klasör oluşturulamadı!"
+            );
+        }
+    }
+
+    // ---------------------------------------------------------
+    // FOLDER BATCH 3
+    // ---------------------------------------------------------
+
+    @Then("permission inheritance açık olmalıdır")
+    public void permissionInheritanceAcikOlmalidir() {
+
+        if (!folderPage.permissionInheritanceAcikMi()) {
+
+            throw new AssertionError(
+                    "Permission inheritance açık değil!"
+            );
+        }
+    }
+
+    @When("kullanıcı permission inheritance özelliğini kapatır")
+    public void kullaniciPermissionInheritanceOzelliginiKapatir() {
+
+        if (folderPage.permissionInheritanceAcikMi()) {
+
+            folderPage.permissionInheritanceDegistir();
+        }
+    }
+
+    @Then("permission inheritance kapalı olmalıdır")
+    public void permissionInheritanceKapaliOlmalidir() {
+
+        if (folderPage.permissionInheritanceAcikMi()) {
+
+            throw new AssertionError(
+                    "Permission inheritance kapanmadı!"
+            );
+        }
+    }
+
+    @When("kullanıcı permission inheritance özelliğini kapatıp tekrar açar")
+    public void kullaniciPermissionInheritanceOzelliginiKapatipTekrarAcar() {
+
+        if (folderPage.permissionInheritanceAcikMi()) {
+            folderPage.permissionInheritanceDegistir();
+        }
+
+        if (!folderPage.permissionInheritanceAcikMi()) {
+            folderPage.permissionInheritanceDegistir();
+        }
+    }
+
+    @Given("admin kullanıcı rename cancel testi için benzersiz bir klasör oluşturmuştur")
+    public void adminKullaniciRenameCancelTestiIcinBenzersizKlasorOlusturmustur() {
+
+        adminKullaniciKlasorlerSayfasindadir();
+
+        originalFolderName =
+                "QA Rename Cancel " + System.currentTimeMillis();
+
+        temporaryFolderName =
+                "QA Should Not Save " + System.currentTimeMillis();
+
+        folderPage.klasorOlustur(
+                originalFolderName
+        );
+
+        folderPage.klasoruAc(
+                originalFolderName
+        );
+    }
+
+    @When("kullanıcı rename formunu açıp yeni isim girer ve Cancel butonuna basar")
+    public void kullaniciRenameFormunuAcipYeniIsimGirerVeCancelButonunaBasar() {
+
+        folderPage.renameFormunuAc();
+
+        folderPage.renameInputDoldur(
+                temporaryFolderName
+        );
+
+        folderPage.renameIptalEt();
+    }
+
+    @Then("klasörün eski adı korunmalıdır")
+    public void klasorunEskiAdiKorunmalidir() {
+
+        if (!folderPage.klasorBasligiMi(
+                originalFolderName
+        )) {
+
+            throw new AssertionError(
+                    "Cancel sonrası klasörün eski adı korunmadı!"
+            );
+        }
+
+        if (!folderPage.renameFormuKapaliMi()) {
+
+            throw new AssertionError(
+                    "Cancel sonrası rename formu kapanmadı!"
+            );
+        }
+    }
+
+    @Given("admin kullanıcı same name rename testi için benzersiz bir klasör oluşturmuştur")
+    public void adminKullaniciSameNameRenameTestiIcinBenzersizKlasorOlusturmustur() {
+
+        adminKullaniciKlasorlerSayfasindadir();
+
+        originalFolderName =
+                "QA Same Rename " + System.currentTimeMillis();
+
+        folderPage.klasorOlustur(
+                originalFolderName
+        );
+
+        folderPage.klasoruAc(
+                originalFolderName
+        );
+    }
+
+    @When("kullanıcı klasörü mevcut adıyla yeniden kaydeder")
+    public void kullaniciKlasoruMevcutAdiylaYenidenKaydeder() {
+
+        folderPage.renameFormunuAc();
+
+        folderPage.renameInputDoldur(
+                originalFolderName
+        );
+
+        folderPage.renameKaydet();
+    }
+
+    @Then("klasörün mevcut adı korunmalıdır")
+    public void klasorunMevcutAdiKorunmalidir() {
+
+        if (!folderPage.klasorBasligiMi(
+                originalFolderName
+        )) {
+
+            throw new AssertionError(
+                    "Aynı isimle rename sonrası klasör adı değişti!"
+            );
+        }
+    }
+
+    @Given("admin kullanıcı trim testi için benzersiz bir parent klasörün detay sayfasındadır")
+    public void adminKullaniciTrimTestiIcinBenzersizParentKlasorDetaySayfasindadir() {
+
+        adminKullaniciKlasorlerSayfasindadir();
+
+        testFolderName =
+                "QA Trim Parent " + System.currentTimeMillis();
+
+        folderPage.klasorOlustur(
+                testFolderName
+        );
+
+        folderPage.klasoruAc(
+                testFolderName
+        );
+    }
+
+    @When("kullanıcı başında ve sonunda boşluk olan benzersiz bir alt klasör oluşturur")
+    public void kullaniciBoslukOlanBenzersizAltKlasorOlusturur() {
+
+        expectedTrimmedName =
+                "QA Trim Child " + System.currentTimeMillis();
+
+        String nameWithSpaces =
+                "   " + expectedTrimmedName + "   ";
+
+        folderPage.altKlasorInputunaYaz(
+                nameWithSpaces
+        );
+
+        folderPage.altKlasorCreateButonunaTikla();
+    }
+
+    @Then("alt klasör adı boşluklar olmadan görüntülenmelidir")
+    public void altKlasorAdiBosluklarOlmadanGoruntulenmelidir() {
+
+        if (!folderPage.klasorLinkiGorunuyorMu(
+                expectedTrimmedName
+        )) {
+
+            throw new AssertionError(
+                    "Alt klasör adı trim edilmedi!"
+            );
+        }
+    }
+
+    @Given("admin kullanıcı rename trim testi için benzersiz bir klasör oluşturmuştur")
+    public void adminKullaniciRenameTrimTestiIcinBenzersizKlasorOlusturmustur() {
+
+        adminKullaniciKlasorlerSayfasindadir();
+
+        originalFolderName =
+                "QA Rename Trim Source " + System.currentTimeMillis();
+
+        folderPage.klasorOlustur(
+                originalFolderName
+        );
+
+        folderPage.klasoruAc(
+                originalFolderName
+        );
+    }
+
+    @When("kullanıcı klasörü başında ve sonunda boşluk olan yeni isimle yeniden adlandırır")
+    public void kullaniciKlasoruBoslukOlanYeniIsimleYenidenAdlandirir() {
+
+        expectedTrimmedName =
+                "QA Rename Trim Target " + System.currentTimeMillis();
+
+        folderPage.renameFormunuAc();
+
+        folderPage.renameInputDoldur(
+                "   " + expectedTrimmedName + "   "
+        );
+
+        folderPage.renameKaydet();
+    }
+
+    @Then("klasör adı boşluklar olmadan görüntülenmelidir")
+    public void klasorAdiBosluklarOlmadanGoruntulenmelidir() {
+
+        if (!folderPage.klasorBasligiMi(
+                expectedTrimmedName
+        )) {
+
+            throw new AssertionError(
+                    "Rename sonrası klasör adı trim edilmedi!"
+            );
+        }
+    }
+
+    @When("kullanıcı boş isimle alt klasör oluşturmaya çalışır")
+    public void kullaniciBosIsimleAltKlasorOlusturmayaCalisir() {
+
+        folderPage.altKlasorInputunaYaz("");
+
+        if (!folderPage.altKlasorCreateButonuDisabledMi()) {
+
+            throw new AssertionError(
+                    "Boş isim girildiğinde Create butonu disabled olmadı!"
+            );
+        }
+    }
+
+    @Then("yeni alt klasör oluşturulmamalıdır")
+    public void yeniAltKlasorOlusturulmamali() {
+
+        if (!folderPage.altKlasorCreateButonuDisabledMi()) {
+
+            throw new AssertionError(
+                    "Geçersiz klasör isminde Create butonu aktif!"
+            );
+        }
+    }
+
+    @When("kullanıcı sadece boşluk içeren isimle alt klasör oluşturmaya çalışır")
+    public void kullaniciSadeceBoslukIcerenIsimleAltKlasorOlusturmayaCalisir() {
+
+        folderPage.altKlasorInputunaYaz(
+                "     "
+        );
+
+        if (!folderPage.altKlasorCreateButonuDisabledMi()) {
+
+            throw new AssertionError(
+                    "Sadece boşluk girildiğinde Create butonu disabled olmadı!"
+            );
+        }
+    }
+
+    @Given("admin kullanıcı rename input testi için benzersiz bir klasör oluşturmuştur")
+    public void adminKullaniciRenameInputTestiIcinBenzersizKlasorOlusturmustur() {
+
+        adminKullaniciKlasorlerSayfasindadir();
+
+        originalFolderName =
+                "QA Rename Input " + System.currentTimeMillis();
+
+        folderPage.klasorOlustur(
+                originalFolderName
+        );
+
+        folderPage.klasoruAc(
+                originalFolderName
+        );
+    }
+
+    @Then("rename alanında mevcut klasör adı bulunmalıdır")
+    public void renameAlanindaMevcutKlasorAdiBulunmalidir() {
+
+        String inputValue =
+                folderPage.renameInputDegeri();
+
+        if (!originalFolderName.equals(inputValue)) {
+
+            throw new AssertionError(
+                    "Rename input değeri beklenen klasör adı değil! "
+                            + "Beklenen: "
+                            + originalFolderName
+                            + " | Gelen: "
+                            + inputValue
             );
         }
     }

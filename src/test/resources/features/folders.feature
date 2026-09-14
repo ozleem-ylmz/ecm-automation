@@ -108,3 +108,52 @@ Feature: ECM klasör işlemleri
     Given admin kullanıcı benzersiz bir parent klasörün detay sayfasındadır
     When kullanıcı test klasörünü pasif hale getirip tekrar aktif eder
     Then aktif klasör altında yeni alt klasör oluşturulabilmelidir
+
+  Scenario: Yeni klasörde permission inheritance varsayılan olarak açık olmalıdır
+    Given admin kullanıcı benzersiz bir parent klasörün detay sayfasındadır
+    Then permission inheritance açık olmalıdır
+
+  Scenario: Admin permission inheritance özelliğini kapatabilmelidir
+    Given admin kullanıcı benzersiz bir parent klasörün detay sayfasındadır
+    When kullanıcı permission inheritance özelliğini kapatır
+    Then permission inheritance kapalı olmalıdır
+
+  Scenario: Admin kapatılan permission inheritance özelliğini tekrar açabilmelidir
+    Given admin kullanıcı benzersiz bir parent klasörün detay sayfasındadır
+    When kullanıcı permission inheritance özelliğini kapatıp tekrar açar
+    Then permission inheritance açık olmalıdır
+
+  Scenario: Rename işlemi Cancel ile iptal edilebilmelidir
+    Given admin kullanıcı rename cancel testi için benzersiz bir klasör oluşturmuştur
+    When kullanıcı rename formunu açıp yeni isim girer ve Cancel butonuna basar
+    Then klasörün eski adı korunmalıdır
+
+  Scenario: Klasör aynı isimle yeniden adlandırıldığında adı değişmemelidir
+    Given admin kullanıcı same name rename testi için benzersiz bir klasör oluşturmuştur
+    When kullanıcı klasörü mevcut adıyla yeniden kaydeder
+    Then klasörün mevcut adı korunmalıdır
+
+  Scenario: Klasör adı başındaki ve sonundaki boşluklar trim edilmelidir
+    Given admin kullanıcı trim testi için benzersiz bir parent klasörün detay sayfasındadır
+    When kullanıcı başında ve sonunda boşluk olan benzersiz bir alt klasör oluşturur
+    Then alt klasör adı boşluklar olmadan görüntülenmelidir
+
+  Scenario: Rename sırasında başındaki ve sonundaki boşluklar trim edilmelidir
+    Given admin kullanıcı rename trim testi için benzersiz bir klasör oluşturmuştur
+    When kullanıcı klasörü başında ve sonunda boşluk olan yeni isimle yeniden adlandırır
+    Then klasör adı boşluklar olmadan görüntülenmelidir
+
+  Scenario: Boş isim ile alt klasör oluşturulamamalıdır
+    Given admin kullanıcı benzersiz bir parent klasörün detay sayfasındadır
+    When kullanıcı boş isimle alt klasör oluşturmaya çalışır
+    Then yeni alt klasör oluşturulmamalıdır
+
+  Scenario: Sadece boşluk içeren isim ile alt klasör oluşturulamamalıdır
+    Given admin kullanıcı benzersiz bir parent klasörün detay sayfasındadır
+    When kullanıcı sadece boşluk içeren isimle alt klasör oluşturmaya çalışır
+    Then yeni alt klasör oluşturulmamalıdır
+
+  Scenario: Rename formu açıldığında mevcut klasör adı input içinde görünmelidir
+    Given admin kullanıcı rename input testi için benzersiz bir klasör oluşturmuştur
+    When kullanıcı rename formunu açar
+    Then rename alanında mevcut klasör adı bulunmalıdır

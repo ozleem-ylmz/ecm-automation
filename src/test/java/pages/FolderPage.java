@@ -335,6 +335,7 @@ public class FolderPage {
                         .setExact(true)
         ).first().isVisible();
     }
+
     public void klasorOlusturBeklemeden(String folderName) {
 
         page.locator("input[placeholder='e.g. Finance']")
@@ -514,18 +515,10 @@ public class FolderPage {
                 "input[placeholder='Subfolder name']"
         );
 
-        /*
-         * UI pasif klasörde formu tamamen gizliyorsa
-         * zaten oluşturma mümkün değildir.
-         */
         if (!input.isVisible()) {
             return true;
         }
 
-        /*
-         * Form görünüyorsa backend isteğinin reddedildiğini
-         * doğrulamak için oluşturmayı deneriz.
-         */
         input.fill(childFolder);
 
         page.getByRole(
@@ -542,5 +535,194 @@ public class FolderPage {
                 new Page.GetByTextOptions()
                         .setExact(true)
         ).first().isVisible();
+    }
+
+    public boolean permissionInheritanceAcikMi() {
+
+        try {
+
+            Locator checkbox = page.getByRole(
+                    AriaRole.CHECKBOX,
+                    new Page.GetByRoleOptions()
+                            .setName("Inherit access from parent folders")
+                            .setExact(true)
+            );
+
+            checkbox.waitFor(
+                    new Locator.WaitForOptions()
+                            .setTimeout(5000)
+            );
+
+            return checkbox.isChecked();
+
+        } catch (Exception e) {
+
+            return false;
+        }
+    }
+
+    public void permissionInheritanceDegistir() {
+
+        Locator checkbox = page.getByRole(
+                AriaRole.CHECKBOX,
+                new Page.GetByRoleOptions()
+                        .setName("Inherit access from parent folders")
+                        .setExact(true)
+        );
+
+        checkbox.waitFor(
+                new Locator.WaitForOptions()
+                        .setTimeout(5000)
+        );
+
+        boolean eskiDurum = checkbox.isChecked();
+        boolean beklenenDurum = !eskiDurum;
+
+        checkbox.click(
+                new Locator.ClickOptions()
+                        .setForce(true)
+        );
+
+        long bitisZamani =
+                System.currentTimeMillis() + 15000;
+
+        while (System.currentTimeMillis() < bitisZamani) {
+
+            if (checkbox.isChecked() == beklenenDurum) {
+                return;
+            }
+
+            page.waitForTimeout(250);
+        }
+
+        throw new AssertionError(
+                "Permission inheritance değişmedi! "
+                        + "Eski durum: "
+                        + eskiDurum
+                        + " | Beklenen durum: "
+                        + beklenenDurum
+                        + " | Son durum: "
+                        + checkbox.isChecked()
+        );
+    }
+
+    public void renameInputDoldur(String newName) {
+
+        Locator renameInput = page.locator(
+                "input[maxlength='255']:not([placeholder='Subfolder name'])"
+        );
+
+        renameInput.waitFor();
+        renameInput.fill(newName);
+    }
+
+    public void renameKaydet() {
+
+        page.getByRole(
+                AriaRole.BUTTON,
+                new Page.GetByRoleOptions()
+                        .setName("Save")
+                        .setExact(true)
+        ).click();
+    }
+
+    public void renameIptalEt() {
+
+        page.getByRole(
+                AriaRole.BUTTON,
+                new Page.GetByRoleOptions()
+                        .setName("Cancel")
+                        .setExact(true)
+        ).click();
+    }
+
+    public boolean renameFormuKapaliMi() {
+
+        try {
+
+            Locator renameInput = page.locator(
+                    "input[maxlength='255']:not([placeholder='Subfolder name'])"
+            );
+
+            return !renameInput.isVisible();
+
+        } catch (Exception e) {
+
+            return true;
+        }
+    }
+
+    public String renameInputDegeri() {
+
+        Locator renameInput = page.locator(
+                "input[maxlength='255']:not([placeholder='Subfolder name'])"
+        );
+
+        renameInput.waitFor();
+
+        return renameInput.inputValue();
+    }
+
+    public boolean klasorLinkiGorunuyorMu(String folderName) {
+
+        try {
+
+            page.getByRole(
+                    AriaRole.LINK,
+                    new Page.GetByRoleOptions()
+                            .setName(folderName)
+                            .setExact(true)
+            ).waitFor(
+                    new Locator.WaitForOptions()
+                            .setTimeout(5000)
+            );
+
+            return true;
+
+        } catch (Exception e) {
+
+            return false;
+        }
+    }
+
+    public void altKlasorInputunaYaz(String folderName) {
+
+        page.locator(
+                "input[placeholder='Subfolder name']"
+        ).fill(folderName);
+    }
+
+    public void altKlasorCreateButonunaTikla() {
+
+        page.getByRole(
+                AriaRole.BUTTON,
+                new Page.GetByRoleOptions()
+                        .setName("Create")
+                        .setExact(true)
+        ).click();
+    }
+
+    public boolean altKlasorCreateButonuDisabledMi() {
+
+        Locator createButton = page.getByRole(
+                AriaRole.BUTTON,
+                new Page.GetByRoleOptions()
+                        .setName("Create")
+                        .setExact(true)
+        );
+
+        createButton.waitFor();
+
+        return createButton.isDisabled();
+    }
+
+    public int altKlasorSayisi(String folderName) {
+
+        return page.getByRole(
+                AriaRole.LINK,
+                new Page.GetByRoleOptions()
+                        .setName(folderName)
+                        .setExact(true)
+        ).count();
     }
 }
