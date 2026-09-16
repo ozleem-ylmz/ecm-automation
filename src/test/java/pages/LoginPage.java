@@ -27,7 +27,26 @@ public class LoginPage {
     }
 
     public boolean klasorlerSayfasindaMi() {
-        return page.url().contains("/folders");
+
+        try {
+
+            page.waitForURL(
+                    "**/folders",
+                    new Page.WaitForURLOptions()
+                            .setTimeout(15000)
+            );
+
+            return true;
+
+        } catch (Exception e) {
+
+            System.out.println(
+                    "Login sonrası mevcut URL: " + page.url()
+            );
+
+            return false;
+        }
+
     }
     public boolean loginSayfasindaMi() {
         return page.url().contains("/login")

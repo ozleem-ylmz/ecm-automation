@@ -1,0 +1,2 @@
+ECM UI automation test document.
+This file is used by Java Playwright document upload tests.
