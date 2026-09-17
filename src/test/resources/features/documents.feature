@@ -82,3 +82,30 @@ Feature: ECM Documents işlemleri
     Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
     When kullanıcı Documents sayfasına döner
     Then Documents sayfası görüntülenmelidir
+      # =========================
+  # Documents Batch 3
+  # Download / Preview / Version
+  # =========================
+
+  Scenario: Admin kullanıcı yüklenen belgeyi indirebilmelidir
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    When kullanıcı belgeyi indirir
+    Then belge dosyası başarıyla indirilmelidir
+
+  Scenario: Admin kullanıcı TXT belgenin önizlemesini görüntüleyebilmelidir
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    Then belge önizlemesi görüntülenmelidir
+
+  Scenario Outline: Admin kullanıcı belgeye yeni <versionType> versiyonu ekleyebilmelidir
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "<versionType>" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    Then belge versiyonu "<expectedVersion>" olmalıdır
+
+    Examples:
+      | versionType | expectedVersion |
+      | Patch       | v1.0.1          |
+      | Minor       | v1.1.0          |
+      | Major       | v2.0.0          |

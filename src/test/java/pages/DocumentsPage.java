@@ -3,6 +3,7 @@ package pages;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
+import com.microsoft.playwright.Download;
 
 import java.nio.file.Paths;
 
@@ -556,6 +557,229 @@ public class DocumentsPage {
 
             System.out.println(
                     "Under review status kontrol hatası: "
+                            + e.getMessage()
+            );
+
+            return false;
+        }
+    }
+    // =========================
+// DOCUMENT DOWNLOAD
+// =========================
+
+    public Download belgeyiIndir() {
+
+        Download download = page.waitForDownload(
+                () -> page.getByRole(
+                        AriaRole.BUTTON,
+                        new Page.GetByRoleOptions()
+                                .setName("Download")
+                                .setExact(true)
+                ).click()
+        );
+
+        return download;
+    }
+
+    public boolean downloadBasariliMi(Download download) {
+
+        if (download == null) {
+            return false;
+        }
+
+        try {
+
+            // Download sırasında Playwright bir hata bildirmiş mi?
+            if (download.failure() != null) {
+                System.out.println(
+                        "Download hatası: " + download.failure()
+                );
+                return false;
+            }
+
+            // Playwright'ın indirdiği geçici dosya gerçekten var mı?
+            return java.nio.file.Files.exists(download.path())
+                    && java.nio.file.Files.size(download.path()) > 0;
+
+        } catch (Exception e) {
+
+            System.out.println(
+                    "Download kontrol hatası: " + e.getMessage()
+            );
+
+            return false;
+        }
+    }
+    // =========================
+// DOCUMENT PREVIEW
+// =========================
+
+    // =========================
+// DOCUMENT PREVIEW
+// =========================
+
+    // =========================
+// DOCUMENT PREVIEW
+// =========================
+
+    public boolean txtPreviewGorunuyorMu() {
+
+        try {
+
+            Locator previewButton = page.getByText(
+                    "Preview",
+                    new Page.GetByTextOptions()
+                            .setExact(true)
+            ).first();
+
+            previewButton.waitFor(
+                    new Locator.WaitForOptions()
+                            .setTimeout(10000)
+            );
+
+            previewButton.click();
+
+            Locator previewContent = page.locator("pre").filter(
+                    new Locator.FilterOptions()
+                            .setHasText(
+                                    "ECM UI automation test document."
+                            )
+            );
+
+            previewContent.waitFor(
+                    new Locator.WaitForOptions()
+                            .setTimeout(10000)
+            );
+
+            return previewContent.isVisible();
+
+        } catch (Exception e) {
+
+            System.out.println(
+                    "TXT preview kontrol hatası: "
+                            + e.getMessage()
+            );
+
+            return false;
+        }
+    }
+    // =========================
+// DOCUMENT NEW VERSION
+// =========================
+
+    public void yeniVersiyonSayfasiniAc() {
+
+        page.getByRole(
+                AriaRole.BUTTON,
+                new Page.GetByRoleOptions()
+                        .setName("New version")
+                        .setExact(true)
+        ).click();
+
+        // "Save new version" hem heading hem button olduğu için
+        // özellikle heading'i seçiyoruz.
+        Locator heading = page.getByRole(
+                AriaRole.HEADING,
+                new Page.GetByRoleOptions()
+                        .setName("Save new version")
+                        .setExact(true)
+        );
+
+        heading.waitFor(
+                new Locator.WaitForOptions()
+                        .setTimeout(10000)
+        );
+    }
+
+    public void versionTipiniSec(String versionType) {
+
+        Locator radio = page.getByRole(
+                AriaRole.RADIO,
+                new Page.GetByRoleOptions()
+                        .setName(versionType)
+        );
+
+        radio.waitFor(
+                new Locator.WaitForOptions()
+                        .setTimeout(5000)
+        );
+
+        radio.check();
+    }
+
+    public void yeniVersiyonDosyasiniSec() {
+
+        page.locator("input[type='file']")
+                .setInputFiles(
+                        java.nio.file.Paths.get(
+                                "src/test/resources/test-files/test-document.txt"
+                        )
+                );
+    }
+
+    public void yeniVersiyonuKaydet() {
+
+        page.getByRole(
+                AriaRole.BUTTON,
+                new Page.GetByRoleOptions()
+                        .setName("Save new version")
+                        .setExact(true)
+        ).click();
+
+        // Kayıt tamamlanınca tekrar document detail'e
+        // dönmesini bekliyoruz.
+        page.waitForURL(
+                url -> url.matches(
+                        ".*/documents/[0-9a-fA-F-]{36}$"
+                ),
+                new Page.WaitForURLOptions()
+                        .setTimeout(20000)
+        );
+    }
+
+    public boolean belgeVersiyonuMu(String expectedVersion) {
+
+        try {
+
+            // Yeni version kaydedildikten sonra
+            // document detail sayfasındaki Current version
+            // bölümünü buluyoruz.
+            Locator currentVersionHeading = page.getByRole(
+                    AriaRole.HEADING,
+                    new Page.GetByRoleOptions()
+                            .setName("Current version")
+                            .setExact(true)
+            );
+
+            currentVersionHeading.waitFor(
+                    new Locator.WaitForOptions()
+                            .setTimeout(10000)
+            );
+
+            // Current version başlığının bulunduğu container içerisinde
+            // beklenen version değerini arıyoruz.
+            Locator currentVersionContainer =
+                    currentVersionHeading.locator("xpath=..");
+
+            Locator version = currentVersionContainer.getByText(
+                    expectedVersion,
+                    new Locator.GetByTextOptions()
+                            .setExact(true)
+            );
+
+            version.waitFor(
+                    new Locator.WaitForOptions()
+                            .setTimeout(10000)
+            );
+
+            return version.isVisible();
+
+        } catch (Exception e) {
+
+            System.out.println(
+                    "Current version kontrol hatası: "
+                            + expectedVersion
+                            + " | "
                             + e.getMessage()
             );
 

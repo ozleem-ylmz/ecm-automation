@@ -6,11 +6,13 @@ import io.cucumber.java.en.When;
 import pages.DocumentsPage;
 import pages.LoginPage;
 import utils.BrowserManager;
+import com.microsoft.playwright.Download;
 
 public class DocumentSteps {
 
     private DocumentsPage documentsPage;
     private String documentTitle;
+    private Download downloadedFile;
 
     // =========================
     // HELPER METHODS
@@ -338,6 +340,81 @@ public class DocumentSteps {
         if (!documentsPage.statusUnderReviewMu()) {
             throw new AssertionError(
                     "Belgenin yeni status bilgisi Under review olarak görüntülenmedi!"
+            );
+        }
+    }
+    // =========================
+// DOCUMENT DOWNLOAD
+// =========================
+
+    @When("kullanıcı belgeyi indirir")
+    public void kullaniciBelgeyiIndirir() {
+
+        downloadedFile = documentsPage.belgeyiIndir();
+    }
+
+    @Then("belge dosyası başarıyla indirilmelidir")
+    public void belgeDosyasiBasariylaIndirilmelidir() {
+
+        if (!documentsPage.downloadBasariliMi(downloadedFile)) {
+            throw new AssertionError(
+                    "Belge dosyası başarıyla indirilemedi!"
+            );
+        }
+    }
+    // =========================
+// DOCUMENT PREVIEW
+// =========================
+
+    @Then("belge önizlemesi görüntülenmelidir")
+    public void belgeOnizlemesiGoruntulenmelidir() {
+
+        if (!documentsPage.txtPreviewGorunuyorMu()) {
+            throw new AssertionError(
+                    "TXT belgenin önizlemesi görüntülenmedi!"
+            );
+        }
+    }
+    // =========================
+// DOCUMENT NEW VERSION
+// =========================
+
+    @When("kullanıcı yeni versiyon sayfasını açar")
+    public void kullaniciYeniVersiyonSayfasiniAcar() {
+
+        documentsPage.yeniVersiyonSayfasiniAc();
+    }
+
+    @When("kullanıcı {string} versiyon tipini seçer")
+    public void kullaniciVersiyonTipiniSecer(
+            String versionType
+    ) {
+
+        documentsPage.versionTipiniSec(versionType);
+    }
+
+    @When("kullanıcı yeni versiyon dosyasını yükler")
+    public void kullaniciYeniVersiyonDosyasiniYukler() {
+
+        documentsPage.yeniVersiyonDosyasiniSec();
+    }
+
+    @When("kullanıcı yeni versiyonu kaydeder")
+    public void kullaniciYeniVersiyonuKaydeder() {
+
+        documentsPage.yeniVersiyonuKaydet();
+    }
+
+    @Then("belge versiyonu {string} olmalıdır")
+    public void belgeVersiyonuOlmalidir(
+            String expectedVersion
+    ) {
+
+        if (!documentsPage.belgeVersiyonuMu(expectedVersion)) {
+
+            throw new AssertionError(
+                    "Beklenen belge versiyonu görüntülenmedi: "
+                            + expectedVersion
             );
         }
     }
