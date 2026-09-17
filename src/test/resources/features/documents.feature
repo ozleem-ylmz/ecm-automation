@@ -58,3 +58,27 @@ Feature: ECM Documents işlemleri
     When kullanıcı belgeyi soft delete yapar
     And kullanıcı belgeyi restore eder
     Then belge artık Deleted durumunda olmamalıdır
+      # =========================
+  # Documents Batch 2
+  # Status işlemleri
+  # =========================
+
+  Scenario: Yüklenen belgenin mevcut durumu görüntülenebilmelidir
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    Then belgenin status bilgisi görüntülenmelidir
+
+  Scenario: Admin kullanıcı belgenin status bilgisini değiştirebilmelidir
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    When kullanıcı belgenin status bilgisini değiştirir
+    Then belgenin yeni status bilgisi görüntülenmelidir
+
+  Scenario: Admin kullanıcı Documents listesinden belge detayına gidebilmelidir
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    When kullanıcı Documents sayfasına döner
+    And kullanıcı yüklenen belgeyi listeden açar
+    Then yüklenen belgenin detay sayfası görüntülenmelidir
+
+  Scenario: Belge detay sayfasından Documents listesine dönülebilmelidir
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    When kullanıcı Documents sayfasına döner
+    Then Documents sayfası görüntülenmelidir

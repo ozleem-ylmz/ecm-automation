@@ -31,7 +31,6 @@ public class DocumentsPage {
     }
 
     public boolean documentsSayfasindaMi() {
-
         return page.url().endsWith("/documents");
     }
 
@@ -120,6 +119,7 @@ public class DocumentsPage {
          * documents wildcard desenine uyduğu için
          * doğrudan UUID'li gerçek detail URL'sini bekliyoruz.
          */
+
         long bitisZamani =
                 System.currentTimeMillis() + 20000;
 
@@ -220,7 +220,6 @@ public class DocumentsPage {
 
     public void belgeyiSoftDeleteYap() {
 
-        // Document Detail sayfasındaki Delete butonu
         page.getByRole(
                 AriaRole.BUTTON,
                 new Page.GetByRoleOptions()
@@ -228,7 +227,6 @@ public class DocumentsPage {
                         .setExact(true)
         ).click();
 
-        // ECM'nin kendi confirmation modalını bekle
         page.getByRole(
                 AriaRole.HEADING,
                 new Page.GetByRoleOptions()
@@ -239,7 +237,6 @@ public class DocumentsPage {
                         .setTimeout(5000)
         );
 
-        // Modal içerisindeki Delete butonuna bas
         page.getByRole(
                 AriaRole.BUTTON,
                 new Page.GetByRoleOptions()
@@ -247,7 +244,6 @@ public class DocumentsPage {
                         .setExact(true)
         ).last().click();
 
-        // Soft delete sonrasında Documents listesine dönüyor
         page.waitForURL(
                 "**/documents",
                 new Page.WaitForURLOptions()
@@ -270,7 +266,6 @@ public class DocumentsPage {
                             .setTimeout(5000)
             );
 
-            // Sadece ilgili belgenin tablo satırını kontrol ediyoruz
             Locator documentRow =
                     titleLocator.locator("xpath=ancestor::tr[1]");
 
@@ -301,6 +296,7 @@ public class DocumentsPage {
          * Soft delete sonrasında Documents listesindeyiz.
          * Önce kendi oluşturduğumuz belgeyi tekrar açıyoruz.
          */
+
         Locator titleLocator = page.getByText(
                 title,
                 new Page.GetByTextOptions()
@@ -314,7 +310,6 @@ public class DocumentsPage {
 
         titleLocator.click();
 
-        // UUID'li Document Detail URL'sini bekle
         long detailBitisZamani =
                 System.currentTimeMillis() + 10000;
 
@@ -335,7 +330,6 @@ public class DocumentsPage {
             );
         }
 
-        // Restore butonunu bul
         Locator restoreButton = page.getByRole(
                 AriaRole.BUTTON,
                 new Page.GetByRoleOptions()
@@ -348,13 +342,8 @@ public class DocumentsPage {
                         .setTimeout(5000)
         );
 
-        // Restore işlemini gerçekleştir
         restoreButton.click();
 
-        /*
-         * Restore sonrasında detail sayfasındaki
-         * Deleted etiketinin kaybolmasını bekliyoruz.
-         */
         long restoreBitisZamani =
                 System.currentTimeMillis() + 10000;
 
@@ -395,5 +384,182 @@ public class DocumentsPage {
 
         return belgeDetaySayfasindaMi()
                 && !detailSayfasindaDeletedGorunuyorMu();
+    }
+
+    // =========================
+    // DOCUMENT LIST -> DETAIL
+    // =========================
+
+    public void belgeyiListedenAc(String title) {
+
+        Locator belge = page.getByText(
+                title,
+                new Page.GetByTextOptions()
+                        .setExact(true)
+        ).first();
+
+        belge.waitFor(
+                new Locator.WaitForOptions()
+                        .setTimeout(5000)
+        );
+
+        belge.click();
+
+        long bitisZamani =
+                System.currentTimeMillis() + 10000;
+
+        while (System.currentTimeMillis() < bitisZamani) {
+
+            if (belgeDetaySayfasindaMi()) {
+                return;
+            }
+
+            page.waitForTimeout(250);
+        }
+
+        throw new AssertionError(
+                "Belge listeden açıldı ancak detay sayfasına gidilemedi! URL: "
+                        + page.url()
+        );
+    }
+
+    // =========================
+    // DOCUMENT STATUS
+    // =========================
+
+    public boolean statusBilgisiGorunuyorMu() {
+
+        try {
+
+            Locator updateStatusButton = page.getByRole(
+                    AriaRole.BUTTON,
+                    new Page.GetByRoleOptions()
+                            .setName("Update status")
+                            .setExact(true)
+            );
+
+            updateStatusButton.waitFor(
+                    new Locator.WaitForOptions()
+                            .setTimeout(5000)
+            );
+
+            Locator statusSelect = page.locator("select").filter(
+                    new Locator.FilterOptions()
+                            .setHasText("Draft")
+            ).first();
+
+            statusSelect.waitFor(
+                    new Locator.WaitForOptions()
+                            .setTimeout(5000)
+            );
+
+            return updateStatusButton.isVisible()
+                    && statusSelect.isVisible();
+
+        } catch (Exception e) {
+
+            System.out.println(
+                    "Status kontrol hatası: "
+                            + e.getMessage()
+            );
+
+            return false;
+        }
+    }
+
+    public void statusuUnderReviewYap() {
+
+        Locator statusSelect = page.locator("select").filter(
+                new Locator.FilterOptions()
+                        .setHasText("Draft")
+        ).first();
+
+        statusSelect.waitFor(
+                new Locator.WaitForOptions()
+                        .setTimeout(5000)
+        );
+
+        /*
+         * ECM'deki gerçek option value:
+         * Draft        -> draft
+         * Under review -> under_review
+         * Published    -> published
+         * Archived     -> archived
+         */
+        statusSelect.selectOption("under_review");
+
+        page.getByRole(
+                AriaRole.BUTTON,
+                new Page.GetByRoleOptions()
+                        .setName("Update status")
+                        .setExact(true)
+        ).click();
+
+        long bitisZamani =
+                System.currentTimeMillis() + 10000;
+
+        while (System.currentTimeMillis() < bitisZamani) {
+
+            if (statusUnderReviewMu()) {
+                return;
+            }
+
+            page.waitForTimeout(250);
+        }
+
+        throw new AssertionError(
+                "Belge statusu Under review olarak güncellenmedi!"
+        );
+    }
+
+    public boolean statusUnderReviewMu() {
+
+        try {
+
+            /*
+             * Status değiştikten sonra artık locator'ı "Draft"
+             * üzerinden aramıyoruz.
+             *
+             * Status alanını, aynı Admin actions bölümündeki
+             * Update status butonuna göre buluyoruz.
+             */
+            Locator updateStatusButton = page.getByRole(
+                    AriaRole.BUTTON,
+                    new Page.GetByRoleOptions()
+                            .setName("Update status")
+                            .setExact(true)
+            );
+
+            updateStatusButton.waitFor(
+                    new Locator.WaitForOptions()
+                            .setTimeout(5000)
+            );
+
+            Locator statusSelect = page.locator("select").filter(
+                    new Locator.FilterOptions()
+                            .setHas(
+                                    page.locator(
+                                            "option[value='under_review']"
+                                    )
+                            )
+            ).first();
+
+            statusSelect.waitFor(
+                    new Locator.WaitForOptions()
+                            .setTimeout(5000)
+            );
+
+            return statusSelect.inputValue()
+                    .equals("under_review");
+
+        } catch (Exception e) {
+
+            System.out.println(
+                    "Under review status kontrol hatası: "
+                            + e.getMessage()
+            );
+
+            return false;
+        }
     }
 }

@@ -12,6 +12,10 @@ public class DocumentSteps {
     private DocumentsPage documentsPage;
     private String documentTitle;
 
+    // =========================
+    // HELPER METHODS
+    // =========================
+
     private void adminLogin() {
 
         BrowserManager.startBrowser();
@@ -48,6 +52,7 @@ public class DocumentSteps {
     private void uploadWithoutClassSayfasinaGit() {
 
         documentsSayfasinaGit();
+
         documentsPage.uploadWithoutClassSayfasiniAc();
 
         if (!documentsPage.uploadWithoutClassSayfasindaMi()) {
@@ -71,6 +76,9 @@ public class DocumentSteps {
         }
     }
 
+    // =========================
+    // GIVEN
+    // =========================
 
     @Given("admin kullanıcı Documents sayfasındadır")
     public void adminKullaniciDocumentsSayfasindadir() {
@@ -94,6 +102,10 @@ public class DocumentSteps {
         benzersizBelgeYukle();
     }
 
+    // =========================
+    // DOCUMENTS NAVIGATION
+    // =========================
+
     @When("kullanıcı Documents sayfasını açar")
     public void kullaniciDocumentsSayfasiniAcar() {
 
@@ -101,43 +113,12 @@ public class DocumentSteps {
                 new DocumentsPage(BrowserManager.page);
 
         documentsSayfasinaGit();
-
-    }
-
-    @When("kullanıcı Upload without class butonuna tıklar")
-    public void kullaniciUploadWithoutClassButonunaTiklar() {
-
-        documentsPage.uploadWithoutClassSayfasiniAc();
-    }
-
-    @When("kullanıcı benzersiz başlıkla TXT belge yükler")
-    public void kullaniciBenzersizBasliklaTxtBelgeYukler() {
-
-        documentTitle =
-                "QA Document " + System.currentTimeMillis();
-
-        documentsPage.belgeYukle(documentTitle);
     }
 
     @When("kullanıcı Documents sayfasına döner")
     public void kullaniciDocumentsSayfasinaDoner() {
 
         documentsPage.documentsSayfasiniAc();
-    }
-
-    @When("kullanıcı dosya seçer ancak başlık girmez")
-    public void kullaniciDosyaSecerAncakBaslikGirmez() {
-
-        documentsPage.testDosyasiSec();
-    }
-
-    @When("kullanıcı belge başlığı girer ancak dosya seçmez")
-    public void kullaniciBelgeBasligiGirerAncakDosyaSecmez() {
-
-        documentTitle =
-                "QA Document " + System.currentTimeMillis();
-
-        documentsPage.belgeBasligiGir(documentTitle);
     }
 
     @Then("Documents sayfası görüntülenmelidir")
@@ -150,6 +131,16 @@ public class DocumentSteps {
         }
     }
 
+    // =========================
+    // UPLOAD WITHOUT CLASS
+    // =========================
+
+    @When("kullanıcı Upload without class butonuna tıklar")
+    public void kullaniciUploadWithoutClassButonunaTiklar() {
+
+        documentsPage.uploadWithoutClassSayfasiniAc();
+    }
+
     @Then("Upload without class sayfası görüntülenmelidir")
     public void uploadWithoutClassSayfasiGoruntulenmelidir() {
 
@@ -158,6 +149,19 @@ public class DocumentSteps {
                     "Upload without class sayfası görüntülenmedi!"
             );
         }
+    }
+
+    // =========================
+    // DOCUMENT UPLOAD
+    // =========================
+
+    @When("kullanıcı benzersiz başlıkla TXT belge yükler")
+    public void kullaniciBenzersizBasliklaTxtBelgeYukler() {
+
+        documentTitle =
+                "QA Document " + System.currentTimeMillis();
+
+        documentsPage.belgeYukle(documentTitle);
     }
 
     @Then("yüklenen belgenin detay sayfası görüntülenmelidir")
@@ -192,29 +196,23 @@ public class DocumentSteps {
         }
     }
 
-    @Then("Upload document butonu disabled olmalıdır")
-    public void uploadDocumentButonuDisabledOlmalidir() {
+    // =========================
+    // FORM VALIDATION
+    // =========================
 
-        if (!documentsPage.uploadDocumentButonuDisabledMi()) {
-            throw new AssertionError(
-                    "Upload document butonu disabled değil!"
-            );
-        }
-    }
-    @When("kullanıcı Upload document butonuna tıklar")
-    public void kullaniciUploadDocumentButonunaTiklar() {
+    @When("kullanıcı dosya seçer ancak başlık girmez")
+    public void kullaniciDosyaSecerAncakBaslikGirmez() {
 
-        documentsPage.uploadDocumentButonunaTikla();
+        documentsPage.testDosyasiSec();
     }
 
-    @Then("kullanıcı Upload without class sayfasında kalmalıdır")
-    public void kullaniciUploadWithoutClassSayfasindaKalmalidir() {
+    @When("kullanıcı belge başlığı girer ancak dosya seçmez")
+    public void kullaniciBelgeBasligiGirerAncakDosyaSecmez() {
 
-        if (!documentsPage.uploadWithoutClassSayfasindaMi()) {
-            throw new AssertionError(
-                    "Başlık boş olmasına rağmen Upload without class sayfasından çıkıldı!"
-            );
-        }
+        documentTitle =
+                "QA Document " + System.currentTimeMillis();
+
+        documentsPage.belgeBasligiGir(documentTitle);
     }
 
     @When("kullanıcı benzersiz belge başlığı girer")
@@ -225,6 +223,37 @@ public class DocumentSteps {
 
         documentsPage.belgeBasligiGir(documentTitle);
     }
+
+    @When("kullanıcı Upload document butonuna tıklar")
+    public void kullaniciUploadDocumentButonunaTiklar() {
+
+        documentsPage.uploadDocumentButonunaTikla();
+    }
+
+    @Then("Upload document butonu disabled olmalıdır")
+    public void uploadDocumentButonuDisabledOlmalidir() {
+
+        if (!documentsPage.uploadDocumentButonuDisabledMi()) {
+            throw new AssertionError(
+                    "Upload document butonu disabled değil!"
+            );
+        }
+    }
+
+    @Then("kullanıcı Upload without class sayfasında kalmalıdır")
+    public void kullaniciUploadWithoutClassSayfasindaKalmalidir() {
+
+        if (!documentsPage.uploadWithoutClassSayfasindaMi()) {
+            throw new AssertionError(
+                    "Upload without class sayfasında kalınmadı!"
+            );
+        }
+    }
+
+    // =========================
+    // SOFT DELETE
+    // =========================
+
     @When("kullanıcı belgeyi soft delete yapar")
     public void kullaniciBelgeyiSoftDeleteYapar() {
 
@@ -242,8 +271,13 @@ public class DocumentSteps {
         }
     }
 
+    // =========================
+    // RESTORE
+    // =========================
+
     @When("kullanıcı belgeyi restore eder")
     public void kullaniciBelgeyiRestoreEder() {
+
         documentsPage.belgeyiRestoreEt(documentTitle);
     }
 
@@ -268,4 +302,43 @@ public class DocumentSteps {
         }
     }
 
+    // =========================
+    // DOCUMENT LIST -> DETAIL
+    // =========================
+
+    @When("kullanıcı yüklenen belgeyi listeden açar")
+    public void kullaniciYuklenenBelgeyiListedenAcar() {
+
+        documentsPage.belgeyiListedenAc(documentTitle);
+    }
+
+    // =========================
+    // DOCUMENT STATUS
+    // =========================
+
+    @Then("belgenin status bilgisi görüntülenmelidir")
+    public void belgeninStatusBilgisiGoruntulenmelidir() {
+
+        if (!documentsPage.statusBilgisiGorunuyorMu()) {
+            throw new AssertionError(
+                    "Belgenin status bilgisi görüntülenmedi!"
+            );
+        }
+    }
+
+    @When("kullanıcı belgenin status bilgisini değiştirir")
+    public void kullaniciBelgeninStatusBilgisiniDegistirir() {
+
+        documentsPage.statusuUnderReviewYap();
+    }
+
+    @Then("belgenin yeni status bilgisi görüntülenmelidir")
+    public void belgeninYeniStatusBilgisiGoruntulenmelidir() {
+
+        if (!documentsPage.statusUnderReviewMu()) {
+            throw new AssertionError(
+                    "Belgenin yeni status bilgisi Under review olarak görüntülenmedi!"
+            );
+        }
+    }
 }
