@@ -1539,3 +1539,430 @@ Feature: ECM Documents işlemleri
     Then belge detay sayfası aktif olarak görüntülenmelidir
     And hedef klasör adı belge detayında görüntülenmelidir
 
+# ============================================================
+  # BATCH 13 - COPY / DESTINATION / INDEPENDENCE
+  # ============================================================
+
+  @documents @regression @batch13
+  Scenario: Copy penceresi açılabilmelidir
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    When kullanıcı Copy penceresini açar
+    Then Copy penceresi görüntülenmelidir
+
+  @documents @regression @batch13
+  Scenario: Copy penceresinde açıklama görüntülenmelidir
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    When kullanıcı Copy penceresini açar
+    Then Copy açıklaması görüntülenmelidir
+
+  @documents @regression @batch13
+  Scenario: Copy penceresinde varsayılan başlık doğru oluşturulmalıdır
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    And Batch 13 kaynak belge bilgileri kaydedilmiştir
+    When kullanıcı Copy penceresini açar
+    Then Copy varsayılan başlığı kaynak belge başlığı ve copy eki olmalıdır
+
+  @documents @regression @batch13
+  Scenario: Copy penceresinde varsayılan hedef Root olmalıdır
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    When kullanıcı Copy penceresini açar
+    Then Copy varsayılan hedef klasörü Root olmalıdır
+
+  @documents @regression @batch13
+  Scenario: Copy başlığı değiştirilebilmelidir
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    When kullanıcı Copy penceresini açar
+    And kullanıcı Copy başlığına benzersiz bir değer girer
+    Then Copy başlığı girilen değer olmalıdır
+
+  @documents @regression @batch13
+  Scenario: Copy başlığı boş bırakıldığında varsayılan başlık kullanılmalıdır
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    And Batch 13 kaynak belge bilgileri kaydedilmiştir
+    When kullanıcı Copy penceresini açar
+    And kullanıcı Copy başlığını boş bırakır
+    And kullanıcı Copy işlemini onaylar
+    Then Copy penceresi kapanmalıdır
+    And kopyalanan belge varsayılan copy başlığıyla görüntülenmelidir
+
+  @documents @regression @batch13
+  Scenario: Copy işlemi Cancel ile iptal edilebilmelidir
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    When kullanıcı Copy penceresini açar
+    And kullanıcı Copy işlemini iptal eder
+    Then Copy penceresi kapanmalıdır
+    And belge detay sayfasında kalınmalıdır
+
+  @documents @regression @batch13
+  Scenario: Copy penceresi X ile kapatılabilmelidir
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    When kullanıcı Copy penceresini açar
+    And kullanıcı Copy penceresini X ile kapatır
+    Then Copy penceresi kapanmalıdır
+    And belge detay sayfasında kalınmalıdır
+
+  @documents @regression @batch13
+  Scenario: Cancel sonrasında Copy tekrar açılabilmelidir
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    When kullanıcı Copy penceresini açar
+    And kullanıcı Copy işlemini iptal eder
+    And kullanıcı Copy penceresini açar
+    Then Copy penceresi görüntülenmelidir
+
+  @documents @regression @batch13
+  Scenario: X ile kapatma sonrasında Copy tekrar açılabilmelidir
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    When kullanıcı Copy penceresini açar
+    And kullanıcı Copy penceresini X ile kapatır
+    And kullanıcı Copy penceresini açar
+    Then Copy penceresi görüntülenmelidir
+
+  @documents @regression @batch13
+  Scenario: Copy hedef klasörü seçilebilmelidir
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    And Batch 13 kaynak belge bilgileri kaydedilmiştir
+    And benzersiz bir Copy hedef klasörü oluşturulmuştur
+    When kullanıcı Copy penceresini açar
+    And kullanıcı Copy hedef klasörünü seçer
+    Then Copy hedef klasörü seçili olmalıdır
+
+  @documents @regression @batch13
+  Scenario: Hedef klasör seçildikten sonra Copy iptal edilebilmelidir
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    And Batch 13 kaynak belge bilgileri kaydedilmiştir
+    And benzersiz bir Copy hedef klasörü oluşturulmuştur
+    When kullanıcı Copy penceresini açar
+    And kullanıcı Copy hedef klasörünü seçer
+    And kullanıcı Copy işlemini iptal eder
+    Then Copy penceresi kapanmalıdır
+    And belge detay sayfasında kalınmalıdır
+
+  @documents @regression @batch13
+  Scenario: Özel başlıkla Root klasörüne Copy oluşturulabilmelidir
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    And Batch 13 kaynak belge bilgileri kaydedilmiştir
+    When kullanıcı Copy penceresini açar
+    And kullanıcı Copy başlığına benzersiz bir değer girer
+    And kullanıcı Copy işlemini onaylar
+    Then Copy penceresi kapanmalıdır
+    And kopyalanan belge başlığı görüntülenmelidir
+    And kopyalanan belge kaynak belgeden farklı detay adresine sahip olmalıdır
+
+  @documents @regression @batch13
+  Scenario: Özel başlıkla farklı klasöre Copy oluşturulabilmelidir
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    And Batch 13 kaynak belge bilgileri kaydedilmiştir
+    And benzersiz bir Copy hedef klasörü oluşturulmuştur
+    When kullanıcı Copy penceresini açar
+    And kullanıcı Copy başlığına benzersiz bir değer girer
+    And kullanıcı Copy hedef klasörünü seçer
+    And kullanıcı Copy işlemini onaylar
+    Then kopyalanan belge başlığı görüntülenmelidir
+    And kopyalanan belge kaynak belgeden farklı detay adresine sahip olmalıdır
+
+  @documents @regression @batch13
+  Scenario: Varsayılan başlıkla Copy oluşturulabilmelidir
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    And Batch 13 kaynak belge bilgileri kaydedilmiştir
+    When kullanıcı Copy penceresini açar
+    And kullanıcı Copy işlemini onaylar
+    Then kopyalanan belge başlığı görüntülenmelidir
+    And kopyalanan belge kaynak belgeden farklı detay adresine sahip olmalıdır
+
+  @documents @regression @batch13
+  Scenario: Copy oluşturulduktan sonra kaynak belge erişilebilir kalmalıdır
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    And Batch 13 kaynak belge bilgileri kaydedilmiştir
+    When kullanıcı Copy penceresini açar
+    And kullanıcı Copy başlığına benzersiz bir değer girer
+    And kullanıcı Copy işlemini onaylar
+    And kullanıcı kaynak belge detayına döner
+    Then kaynak belge başlığı korunmalıdır
+
+  @documents @regression @batch13
+  Scenario: Copy oluşturulduktan sonra kopya belge tekrar açılabilmelidir
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    And Batch 13 kaynak belge bilgileri kaydedilmiştir
+    When kullanıcı Copy penceresini açar
+    And kullanıcı Copy başlığına benzersiz bir değer girer
+    And kullanıcı Copy işlemini onaylar
+    And kopyalanan belge kaynak belgeden farklı detay adresine sahip olmalıdır
+    And kullanıcı kaynak belge detayına döner
+    And kullanıcı kopya belge detayına döner
+    Then kopyalanan belge başlığı görüntülenmelidir
+
+  @documents @regression @batch13
+  Scenario: Copy belge refresh sonrasında başlığını korumalıdır
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    And Batch 13 kaynak belge bilgileri kaydedilmiştir
+    When kullanıcı Copy penceresini açar
+    And kullanıcı Copy başlığına benzersiz bir değer girer
+    And kullanıcı Copy işlemini onaylar
+    And kullanıcı belge detay sayfasını yeniler
+    Then kopyalanan belge başlığı görüntülenmelidir
+
+  @documents @regression @batch13
+  Scenario: Copy belge Download işlemini desteklemelidir
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    And Batch 13 kaynak belge bilgileri kaydedilmiştir
+    When kullanıcı Copy penceresini açar
+    And kullanıcı Copy başlığına benzersiz bir değer girer
+    And kullanıcı Copy işlemini onaylar
+    And kullanıcı belgeyi indirir
+    Then belge dosyası başarıyla indirilmelidir
+
+  @documents @regression @batch13
+  Scenario: Copy belge Preview işlemini desteklemelidir
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    And Batch 13 kaynak belge bilgileri kaydedilmiştir
+    When kullanıcı Copy penceresini açar
+    And kullanıcı Copy başlığına benzersiz bir değer girer
+    And kullanıcı Copy işlemini onaylar
+    Then belge önizlemesi görüntülenmelidir
+
+  @documents @regression @batch13
+  Scenario: Copy belgede New version kullanılabilir olmalıdır
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    And Batch 13 kaynak belge bilgileri kaydedilmiştir
+    When kullanıcı Copy penceresini açar
+    And kullanıcı Copy başlığına benzersiz bir değer girer
+    And kullanıcı Copy işlemini onaylar
+    Then New version butonu görüntülenmelidir
+
+  @documents @regression @batch13
+  Scenario: Copy belgede Move kullanılabilir olmalıdır
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    And Batch 13 kaynak belge bilgileri kaydedilmiştir
+    When kullanıcı Copy penceresini açar
+    And kullanıcı Copy başlığına benzersiz bir değer girer
+    And kullanıcı Copy işlemini onaylar
+    Then Move işlemi görüntülenmelidir
+
+  @documents @regression @batch13
+  Scenario: Copy belgede Classify kullanılabilir olmalıdır
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    And Batch 13 kaynak belge bilgileri kaydedilmiştir
+    When kullanıcı Copy penceresini açar
+    And kullanıcı Copy başlığına benzersiz bir değer girer
+    And kullanıcı Copy işlemini onaylar
+    Then Classify butonu görüntülenmelidir
+
+  @documents @regression @batch13
+  Scenario: Copy belgede Tag girişi kullanılabilir olmalıdır
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    And Batch 13 kaynak belge bilgileri kaydedilmiştir
+    When kullanıcı Copy penceresini açar
+    And kullanıcı Copy başlığına benzersiz bir değer girer
+    And kullanıcı Copy işlemini onaylar
+    Then Tag giriş alanı görüntülenmelidir
+
+  @documents @regression @batch13
+  Scenario: Copy belgede Check out kullanılabilir olmalıdır
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    And Batch 13 kaynak belge bilgileri kaydedilmiştir
+    When kullanıcı Copy penceresini açar
+    And kullanıcı Copy başlığına benzersiz bir değer girer
+    And kullanıcı Copy işlemini onaylar
+    Then Check out butonu görüntülenmelidir
+
+  @documents @regression @batch13
+  Scenario: Copy belgede tekrar Copy kullanılabilir olmalıdır
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    And Batch 13 kaynak belge bilgileri kaydedilmiştir
+    When kullanıcı Copy penceresini açar
+    And kullanıcı Copy başlığına benzersiz bir değer girer
+    And kullanıcı Copy işlemini onaylar
+    Then Copy butonu görüntülenmelidir
+
+  @documents @regression @batch13
+  Scenario: Copy belge soft delete yapılabilmelidir
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    And Batch 13 kaynak belge bilgileri kaydedilmiştir
+    When kullanıcı Copy penceresini açar
+    And kullanıcı Copy başlığına benzersiz bir değer girer
+    And kullanıcı Copy işlemini onaylar
+    And kullanıcı belgeyi soft delete yapar
+    Then belge Deleted durumunda görüntülenmelidir
+
+  @documents @regression @batch13
+  Scenario: Copy belge soft delete sonrası restore edilebilmelidir
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    And Batch 13 kaynak belge bilgileri kaydedilmiştir
+    When kullanıcı Copy penceresini açar
+    And kullanıcı Copy başlığına benzersiz bir değer girer
+    And kullanıcı Copy işlemini onaylar
+    And kullanıcı belgeyi soft delete yapar
+    And kullanıcı belgeyi restore eder
+    Then belge artık Deleted durumunda olmamalıdır
+
+  @documents @regression @batch13
+  Scenario: Restore edilen Copy belge aktif kalmalıdır
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    And Batch 13 kaynak belge bilgileri kaydedilmiştir
+    When kullanıcı Copy penceresini açar
+    And kullanıcı Copy başlığına benzersiz bir değer girer
+    And kullanıcı Copy işlemini onaylar
+    And kullanıcı belgeyi soft delete yapar
+    And kullanıcı belgeyi restore eder
+    Then belge detay sayfası aktif olarak görüntülenmelidir
+
+  @documents @regression @batch13
+  Scenario: Copy belge checkout yapılabilmelidir
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    And Batch 13 kaynak belge bilgileri kaydedilmiştir
+    When kullanıcı Copy penceresini açar
+    And kullanıcı Copy başlığına benzersiz bir değer girer
+    And kullanıcı Copy işlemini onaylar
+    And kullanıcı belgeyi checkout yapar
+    Then belge checkout durumunda olmalıdır
+
+  @documents @regression @batch13
+  Scenario: Copy belge checkout ve check in döngüsünü desteklemelidir
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    And Batch 13 kaynak belge bilgileri kaydedilmiştir
+    When kullanıcı Copy penceresini açar
+    And kullanıcı Copy başlığına benzersiz bir değer girer
+    And kullanıcı Copy işlemini onaylar
+    And kullanıcı belgeyi checkout yapar
+    And kullanıcı belgeyi check in yapar
+    Then belge checkout durumunda olmamalıdır
+
+  @documents @regression @batch13
+  Scenario: Checkout sahibi kaynak belgeden Copy oluşturabilmelidir
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    And Batch 13 kaynak belge bilgileri kaydedilmiştir
+    When kullanıcı belgeyi checkout yapar
+    And kullanıcı Copy penceresini açar
+    And kullanıcı Copy başlığına benzersiz bir değer girer
+    And kullanıcı Copy işlemini onaylar
+    Then kopyalanan belge başlığı görüntülenmelidir
+
+  @documents @regression @batch13
+  Scenario: Checkout sahibi kaynak belgeden farklı klasöre Copy oluşturabilmelidir
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    And Batch 13 kaynak belge bilgileri kaydedilmiştir
+    And benzersiz bir Copy hedef klasörü oluşturulmuştur
+    When kullanıcı belgeyi checkout yapar
+    And kullanıcı Copy penceresini açar
+    And kullanıcı Copy başlığına benzersiz bir değer girer
+    And kullanıcı Copy hedef klasörünü seçer
+    And kullanıcı Copy işlemini onaylar
+    Then kopyalanan belge başlığı görüntülenmelidir
+
+  @documents @regression @batch13
+  Scenario: Under review kaynak belgeden Copy oluşturulabilmelidir
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    And Batch 13 kaynak belge bilgileri kaydedilmiştir
+    When kullanıcı belgenin status bilgisini değiştirir
+    And kullanıcı Copy penceresini açar
+    And kullanıcı Copy başlığına benzersiz bir değer girer
+    And kullanıcı Copy işlemini onaylar
+    Then kopyalanan belge başlığı görüntülenmelidir
+
+  @documents @regression @batch13
+  Scenario: Patch versiyonlu kaynak belgeden Copy oluşturulabilmelidir
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    And Batch 13 kaynak belge bilgileri kaydedilmiştir
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Patch" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    And kullanıcı Copy penceresini açar
+    And kullanıcı Copy başlığına benzersiz bir değer girer
+    And kullanıcı Copy işlemini onaylar
+    Then kopyalanan belge başlığı görüntülenmelidir
+
+  @documents @regression @batch13
+  Scenario: Minor versiyonlu kaynak belgeden Copy oluşturulabilmelidir
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    And Batch 13 kaynak belge bilgileri kaydedilmiştir
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Minor" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    And kullanıcı Copy penceresini açar
+    And kullanıcı Copy başlığına benzersiz bir değer girer
+    And kullanıcı Copy işlemini onaylar
+    Then kopyalanan belge başlığı görüntülenmelidir
+
+  @documents @regression @batch13
+  Scenario: Major versiyonlu kaynak belgeden Copy oluşturulabilmelidir
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    And Batch 13 kaynak belge bilgileri kaydedilmiştir
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Major" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    And kullanıcı Copy penceresini açar
+    And kullanıcı Copy başlığına benzersiz bir değer girer
+    And kullanıcı Copy işlemini onaylar
+    Then kopyalanan belge başlığı görüntülenmelidir
+
+  @documents @regression @batch13
+  Scenario: Copy belgeye Patch versiyonu eklenebilmelidir
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    And Batch 13 kaynak belge bilgileri kaydedilmiştir
+    When kullanıcı Copy penceresini açar
+    And kullanıcı Copy başlığına benzersiz bir değer girer
+    And kullanıcı Copy işlemini onaylar
+    And kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Patch" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    Then belge versiyonu "v1.0.1" olmalıdır
+
+  @documents @regression @batch13
+  Scenario: Copy belgeye Minor versiyonu eklenebilmelidir
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    And Batch 13 kaynak belge bilgileri kaydedilmiştir
+    When kullanıcı Copy penceresini açar
+    And kullanıcı Copy başlığına benzersiz bir değer girer
+    And kullanıcı Copy işlemini onaylar
+    And kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Minor" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    Then belge versiyonu "v1.1.0" olmalıdır
+
+  @documents @regression @batch13
+  Scenario: Copy belgeye Major versiyonu eklenebilmelidir
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    And Batch 13 kaynak belge bilgileri kaydedilmiştir
+    When kullanıcı Copy penceresini açar
+    And kullanıcı Copy başlığına benzersiz bir değer girer
+    And kullanıcı Copy işlemini onaylar
+    And kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Major" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    Then belge versiyonu "v2.0.0" olmalıdır
+
+  @documents @regression @batch13
+  Scenario: Copy belge refresh sonrasında Download kullanılabilir kalmalıdır
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    And Batch 13 kaynak belge bilgileri kaydedilmiştir
+    When kullanıcı Copy penceresini açar
+    And kullanıcı Copy başlığına benzersiz bir değer girer
+    And kullanıcı Copy işlemini onaylar
+    And kullanıcı belge detay sayfasını yeniler
+    Then Download butonu görüntülenmelidir
+
+  @documents @regression @batch13
+  Scenario: Copy belge refresh sonrasında Move kullanılabilir kalmalıdır
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    And Batch 13 kaynak belge bilgileri kaydedilmiştir
+    When kullanıcı Copy penceresini açar
+    And kullanıcı Copy başlığına benzersiz bir değer girer
+    And kullanıcı Copy işlemini onaylar
+    And kullanıcı belge detay sayfasını yeniler
+    Then Move işlemi görüntülenmelidir
+
+  @documents @regression @batch13
+  Scenario: Copy belge refresh sonrasında Classify kullanılabilir kalmalıdır
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    And Batch 13 kaynak belge bilgileri kaydedilmiştir
+    When kullanıcı Copy penceresini açar
+    And kullanıcı Copy başlığına benzersiz bir değer girer
+    And kullanıcı Copy işlemini onaylar
+    And kullanıcı belge detay sayfasını yeniler
+    Then Classify butonu görüntülenmelidir

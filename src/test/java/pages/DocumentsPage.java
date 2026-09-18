@@ -1257,6 +1257,19 @@ public class DocumentsPage {
     public void belgeDetaySayfasiniYenile() {
         page.reload();
         page.waitForLoadState();
+
+        long end = System.currentTimeMillis() + 10000;
+        while (System.currentTimeMillis() < end) {
+            if (belgeDetaySayfasindaMi()
+                    && page.getByRole(AriaRole.HEADING).count() > 0) {
+                return;
+            }
+            page.waitForTimeout(250);
+        }
+
+        throw new AssertionError(
+                "Refresh sonrasında belge detay sayfası hazır olmadı! URL: " + page.url()
+        );
     }
 
     public boolean newVersionButonuGorunuyorMu() {
@@ -1857,6 +1870,212 @@ public class DocumentsPage {
                 new Page.GetByTextOptions().setExact(true)
         );
         return exactText.count() > 0 && exactText.first().isVisible();
+    }
+
+
+    // =========================
+    // DOCUMENTS BATCH 13
+    // COPY / DESTINATION / INDEPENDENCE
+    // =========================
+
+    public boolean copyButonuGorunuyorMu() {
+        Locator button = page.getByRole(
+                AriaRole.BUTTON,
+                new Page.GetByRoleOptions().setName("Copy").setExact(true)
+        );
+        return button.count() > 0 && button.first().isVisible();
+    }
+
+    public void copyPenceresiniAc() {
+        Locator buttons = page.getByRole(
+                AriaRole.BUTTON,
+                new Page.GetByRoleOptions().setName("Copy").setExact(true)
+        );
+        if (buttons.count() == 0) {
+            throw new AssertionError("Copy butonu bulunamadı!");
+        }
+        buttons.first().click();
+
+        page.getByRole(
+                AriaRole.HEADING,
+                new Page.GetByRoleOptions().setName("Copy document").setExact(true)
+        ).waitFor(new Locator.WaitForOptions().setTimeout(5000));
+    }
+
+    public boolean copyPenceresiGorunuyorMu() {
+        Locator heading = page.getByRole(
+                AriaRole.HEADING,
+                new Page.GetByRoleOptions().setName("Copy document").setExact(true)
+        );
+        return heading.count() > 0 && heading.first().isVisible();
+    }
+
+    public boolean copyAciklamasiGorunuyorMu() {
+        return page.getByText(
+                "Creates an independent draft copy of the current version and records a copied_from lineage link.",
+                new Page.GetByTextOptions().setExact(true)
+        ).count() > 0;
+    }
+
+    private Locator copyTitleInput() {
+        Locator label = page.getByText(
+                "New title",
+                new Page.GetByTextOptions().setExact(true)
+        );
+        if (label.count() > 0) {
+            Locator input = label.first().locator("xpath=following::input[1]");
+            if (input.count() > 0) return input.first();
+        }
+        return page.locator("input").filter(
+                new Locator.FilterOptions().setHasNot(page.locator("[type='hidden']"))
+        ).last();
+    }
+
+    private Locator copyDestinationSelect() {
+        Locator heading = page.getByRole(
+                AriaRole.HEADING,
+                new Page.GetByRoleOptions().setName("Copy document").setExact(true)
+        );
+        Locator dialog = heading.locator("xpath=ancestor::*[self::div or self::section][.//select][1]");
+        if (dialog.count() > 0 && dialog.locator("select").count() > 0) {
+            return dialog.locator("select").first();
+        }
+        return page.locator("select").last();
+    }
+
+    public String copyBaslangicBasligi() {
+        return copyTitleInput().inputValue();
+    }
+
+    public boolean copyBasligiVarsayilanMi(String sourceTitle) {
+        return copyBaslangicBasligi().equals(sourceTitle + " (copy)");
+    }
+
+    public void copyBasligiGir(String title) {
+        copyTitleInput().fill(title);
+    }
+
+    public boolean copyBasligiMi(String expected) {
+        return copyTitleInput().inputValue().equals(expected);
+    }
+
+    public boolean copyDestinationRootMu() {
+        Locator select = copyDestinationSelect();
+        String text = select.locator("option:checked").innerText().trim();
+        return text.equals("Root") || text.endsWith("/ Root") || text.endsWith("/Root");
+    }
+
+    public void copyHedefKlasorSec(String folderName) {
+        Locator select = copyDestinationSelect();
+        Locator options = select.locator("option");
+
+        for (int i = 0; i < options.count(); i++) {
+            Locator option = options.nth(i);
+            String text = option.innerText().trim();
+            if (text.equals(folderName)
+                    || text.endsWith("/ " + folderName)
+                    || text.endsWith("/" + folderName)) {
+                select.selectOption(option.getAttribute("value"));
+                return;
+            }
+        }
+        throw new AssertionError("Copy hedef klasörü listede bulunamadı: " + folderName);
+    }
+
+    public boolean copyHedefKlasorSeciliMi(String folderName) {
+        String text = copyDestinationSelect().locator("option:checked").innerText().trim();
+        return text.equals(folderName)
+                || text.endsWith("/ " + folderName)
+                || text.endsWith("/" + folderName);
+    }
+
+    public void copyIsleminiIptalEt() {
+        page.getByRole(
+                AriaRole.BUTTON,
+                new Page.GetByRoleOptions().setName("Cancel").setExact(true)
+        ).click();
+    }
+
+    public void copyPenceresiniXileKapat() {
+        Locator heading = page.getByRole(
+                AriaRole.HEADING,
+                new Page.GetByRoleOptions().setName("Copy document").setExact(true)
+        );
+        Locator dialog = heading.locator("xpath=ancestor::*[self::div or self::section][.//button][1]");
+        Locator close = dialog.locator("button").filter(
+                new Locator.FilterOptions().setHas(page.locator("svg"))
+        ).first();
+        if (close.count() == 0) {
+            close = page.locator("button").filter(
+                    new Locator.FilterOptions().setHasNotText("Copy")
+            ).first();
+        }
+        close.click();
+    }
+
+    public boolean copyPenceresiKapandiMi() {
+        return page.getByRole(
+                AriaRole.HEADING,
+                new Page.GetByRoleOptions().setName("Copy document").setExact(true)
+        ).count() == 0;
+    }
+
+    public void copyIsleminiOnayla() {
+        Locator buttons = page.getByRole(
+                AriaRole.BUTTON,
+                new Page.GetByRoleOptions().setName("Copy").setExact(true)
+        );
+        buttons.last().click();
+
+        long end = System.currentTimeMillis() + 15000;
+        while (System.currentTimeMillis() < end) {
+            if (!copyPenceresiGorunuyorMu()) return;
+            page.waitForTimeout(250);
+        }
+        throw new AssertionError("Copy işlemi sonrasında pencere kapanmadı!");
+    }
+
+    public void kopyaBelgeDetayiniBekle(String copyTitle, String sourceUrl) {
+        long end = System.currentTimeMillis() + 15000;
+
+        while (System.currentTimeMillis() < end) {
+            boolean differentUrl = sourceUrl == null || !page.url().equals(sourceUrl);
+
+            if (differentUrl
+                    && belgeDetaySayfasindaMi()
+                    && belgeBasligiGorunuyorMu(copyTitle)) {
+                return;
+            }
+
+            page.waitForTimeout(250);
+        }
+
+        throw new AssertionError(
+                "Copy oluşturuldu ancak yeni kopyanın detay sayfası hazır olmadı. "
+                        + "Beklenen başlık: " + copyTitle
+                        + ", URL: " + page.url()
+        );
+    }
+
+    public boolean copyBasligiBoskenButonDisabledMi() {
+        Locator buttons = page.getByRole(
+                AriaRole.BUTTON,
+                new Page.GetByRoleOptions().setName("Copy").setExact(true)
+        );
+        return buttons.last().isDisabled();
+    }
+
+    public void belgeDetayAdresiniAcBatch13(String url) {
+        page.navigate(url);
+        page.waitForLoadState();
+    }
+
+    public boolean belgeDetayUrlFarkliMi(String oldUrl) {
+        return !page.url().equals(oldUrl);
+    }
+
+    public boolean belgeDetayUrlAyniMiBatch13(String expectedUrl) {
+        return page.url().equals(expectedUrl);
     }
 
 }

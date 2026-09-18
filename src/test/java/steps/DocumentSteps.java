@@ -21,6 +21,11 @@ public class DocumentSteps {
     private String savedDocumentVersion;
     private String batch12TargetFolder;
     private String batch12DetailUrl;
+    private String batch13SourceTitle;
+    private String batch13SourceUrl;
+    private String batch13CopyTitle;
+    private String batch13CopyUrl;
+    private String batch13TargetFolder;
 
     // =========================
     // HELPER METHODS
@@ -273,10 +278,12 @@ public class DocumentSteps {
     @Then("belge Deleted durumunda görüntülenmelidir")
     public void belgeDeletedDurumundaGoruntulenmelidir() {
 
-        if (!documentsPage.belgeDeletedMi(documentTitle)) {
+        String activeTitle = batch13CopyTitle != null ? batch13CopyTitle : documentTitle;
+
+        if (!documentsPage.belgeDeletedMi(activeTitle)) {
             throw new AssertionError(
                     "Belge soft delete sonrasında Deleted durumunda görüntülenmedi: "
-                            + documentTitle
+                            + activeTitle
             );
         }
     }
@@ -288,7 +295,8 @@ public class DocumentSteps {
     @When("kullanıcı belgeyi restore eder")
     public void kullaniciBelgeyiRestoreEder() {
 
-        documentsPage.belgeyiRestoreEt(documentTitle);
+        String activeTitle = batch13CopyTitle != null ? batch13CopyTitle : documentTitle;
+        documentsPage.belgeyiRestoreEt(activeTitle);
     }
 
     @Then("belge artık Deleted durumunda olmamalıdır")
@@ -1304,5 +1312,174 @@ public class DocumentSteps {
         }
     }
 
+
+
+    // =========================
+    // DOCUMENTS BATCH 13
+    // COPY / DESTINATION / INDEPENDENCE
+    // =========================
+
+    @Given("Batch 13 kaynak belge bilgileri kaydedilmiştir")
+    public void batch13KaynakBelgeBilgileriKaydedilmistir() {
+        batch13SourceTitle = documentTitle;
+        batch13SourceUrl = BrowserManager.page.url();
+    }
+
+    @Given("benzersiz bir Copy hedef klasörü oluşturulmuştur")
+    public void benzersizBirCopyHedefKlasoruOlusturulmustur() {
+        if (batch13SourceUrl == null) {
+            batch13SourceUrl = BrowserManager.page.url();
+        }
+        batch13TargetFolder = "QA Copy Folder " + System.currentTimeMillis();
+        documentsPage.hedefKlasorOlustur(batch13TargetFolder);
+        documentsPage.belgeDetayAdresiniAcBatch13(batch13SourceUrl);
+    }
+
+    @When("kullanıcı Copy penceresini açar")
+    public void kullaniciCopyPenceresiniAcar() {
+        documentsPage.copyPenceresiniAc();
+    }
+
+    @Then("Copy penceresi görüntülenmelidir")
+    public void copyPenceresiGoruntulenmelidir() {
+        if (!documentsPage.copyPenceresiGorunuyorMu()) {
+            throw new AssertionError("Copy document penceresi görüntülenmedi!");
+        }
+    }
+
+    @Then("Copy açıklaması görüntülenmelidir")
+    public void copyAciklamasiGoruntulenmelidir() {
+        if (!documentsPage.copyAciklamasiGorunuyorMu()) {
+            throw new AssertionError("Copy açıklaması görüntülenmedi!");
+        }
+    }
+
+    @Then("Copy varsayılan başlığı kaynak belge başlığı ve copy eki olmalıdır")
+    public void copyVarsayilanBasligiOlmalidir() {
+        String source = batch13SourceTitle != null ? batch13SourceTitle : documentTitle;
+        if (!documentsPage.copyBasligiVarsayilanMi(source)) {
+            throw new AssertionError("Copy varsayılan başlığı beklenen değerde değil!");
+        }
+    }
+
+    @Then("Copy varsayılan hedef klasörü Root olmalıdır")
+    public void copyVarsayilanHedefRootOlmalidir() {
+        if (!documentsPage.copyDestinationRootMu()) {
+            throw new AssertionError("Copy varsayılan hedef klasörü Root değil!");
+        }
+    }
+
+    @When("kullanıcı Copy başlığına benzersiz bir değer girer")
+    public void kullaniciCopyBasliginaBenzersizDegerGirer() {
+        batch13CopyTitle = "QA Copy " + System.currentTimeMillis();
+        documentsPage.copyBasligiGir(batch13CopyTitle);
+    }
+
+    @When("kullanıcı Copy başlığını boş bırakır")
+    public void kullaniciCopyBasliginiBosBirakir() {
+        // ECM boş bırakıldığında modal açılışındaki varsayılan "(copy)" başlığını kullanıyor.
+        batch13CopyTitle = documentsPage.copyBaslangicBasligi();
+        documentsPage.copyBasligiGir("");
+    }
+
+    @Then("Copy başlığı girilen değer olmalıdır")
+    public void copyBasligiGirilenDegerOlmalidir() {
+        if (!documentsPage.copyBasligiMi(batch13CopyTitle)) {
+            throw new AssertionError("Copy başlığı girilen değerle eşleşmiyor!");
+        }
+    }
+
+    @Then("kopyalanan belge varsayılan copy başlığıyla görüntülenmelidir")
+    public void kopyalananBelgeVarsayilanCopyBasligiylaGoruntulenmelidir() {
+        if (!documentsPage.belgeBasligiGorunuyorMu(batch13CopyTitle)) {
+            throw new AssertionError(
+                    "Boş başlık sonrası varsayılan Copy başlığı görüntülenmedi: "
+                            + batch13CopyTitle
+            );
+        }
+    }
+
+    @When("kullanıcı Copy hedef klasörünü seçer")
+    public void kullaniciCopyHedefKlasorunuSecer() {
+        documentsPage.copyHedefKlasorSec(batch13TargetFolder);
+    }
+
+    @Then("Copy hedef klasörü seçili olmalıdır")
+    public void copyHedefKlasoruSeciliOlmalidir() {
+        if (!documentsPage.copyHedefKlasorSeciliMi(batch13TargetFolder)) {
+            throw new AssertionError("Copy hedef klasörü seçili değil: " + batch13TargetFolder);
+        }
+    }
+
+    @When("kullanıcı Copy işlemini iptal eder")
+    public void kullaniciCopyIsleminiIptalEder() {
+        documentsPage.copyIsleminiIptalEt();
+    }
+
+    @When("kullanıcı Copy penceresini X ile kapatır")
+    public void kullaniciCopyPenceresiniXileKapatir() {
+        documentsPage.copyPenceresiniXileKapat();
+    }
+
+    @Then("Copy penceresi kapanmalıdır")
+    public void copyPenceresiKapanmalidir() {
+        if (!documentsPage.copyPenceresiKapandiMi()) {
+            throw new AssertionError("Copy penceresi kapanmadı!");
+        }
+    }
+
+    @When("kullanıcı Copy işlemini onaylar")
+    public void kullaniciCopyIsleminiOnaylar() {
+        if (batch13CopyTitle == null) {
+            batch13CopyTitle = documentsPage.copyBaslangicBasligi();
+        }
+
+        documentsPage.copyIsleminiOnayla();
+        documentsPage.kopyaBelgeDetayiniBekle(batch13CopyTitle, batch13SourceUrl);
+
+        batch13CopyUrl = BrowserManager.page.url();
+    }
+
+    @Then("kopyalanan belge başlığı görüntülenmelidir")
+    public void kopyalananBelgeBasligiGoruntulenmelidir() {
+        if (!documentsPage.belgeBasligiGorunuyorMu(batch13CopyTitle)) {
+            throw new AssertionError("Kopyalanan belge başlığı görüntülenmedi: " + batch13CopyTitle);
+        }
+    }
+
+    @Then("kopyalanan belge kaynak belgeden farklı detay adresine sahip olmalıdır")
+    public void kopyalananBelgeFarkliDetayAdresineSahipOlmalidir() {
+        if (!documentsPage.belgeDetayUrlFarkliMi(batch13SourceUrl)) {
+            throw new AssertionError("Copy yeni bir document detail URL oluşturmadı!");
+        }
+        batch13CopyUrl = BrowserManager.page.url();
+    }
+
+    @When("kullanıcı kaynak belge detayına döner")
+    public void kullaniciKaynakBelgeDetayinaDoner() {
+        documentsPage.belgeDetayAdresiniAcBatch13(batch13SourceUrl);
+    }
+
+    @When("kullanıcı kopya belge detayına döner")
+    public void kullaniciKopyaBelgeDetayinaDoner() {
+        if (batch13CopyUrl == null) {
+            throw new AssertionError("Kopya belge URL'i henüz kaydedilmedi!");
+        }
+        documentsPage.belgeDetayAdresiniAcBatch13(batch13CopyUrl);
+    }
+
+    @Then("kaynak belge başlığı korunmalıdır")
+    public void kaynakBelgeBasligiKorunmalidir() {
+        if (!documentsPage.belgeBasligiGorunuyorMu(batch13SourceTitle)) {
+            throw new AssertionError("Kaynak belge başlığı değişti: " + batch13SourceTitle);
+        }
+    }
+
+    @Then("Copy butonu görüntülenmelidir")
+    public void copyButonuGoruntulenmelidir() {
+        if (!documentsPage.copyButonuGorunuyorMu()) {
+            throw new AssertionError("Copy butonu görüntülenmedi!");
+        }
+    }
 
 }
