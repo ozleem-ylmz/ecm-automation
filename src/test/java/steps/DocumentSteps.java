@@ -456,6 +456,20 @@ public class DocumentSteps {
         }
     }
 
+    @Then("belge checkout durumunda olmalıdır")
+    public void belgeCheckoutDurumundaOlmalidirBatch12() {
+        if (!documentsPage.checkoutDurumundaMi()) {
+            throw new AssertionError("Belge checkout durumuna geçmedi!");
+        }
+    }
+
+    @Then("belge checkout durumunda olmamalıdır")
+    public void belgeCheckoutDurumundaOlmamalidirBatch12() {
+        if (!documentsPage.checkoutDurumundaDegilMi()) {
+            throw new AssertionError("Belge hâlâ checkout durumunda!");
+        }
+    }
+
     @Then("Check in butonu görüntülenmelidir")
     public void checkInButonuGoruntulenmelidir() {
 
@@ -590,9 +604,11 @@ public class DocumentSteps {
     @Then("Download butonu görüntülenmelidir")
     public void downloadButonuGoruntulenmelidir() {
 
-        if (!documentsPage.downloadButonuGorunuyorMu(managerPage)) {
+        Page targetPage = managerPage != null ? managerPage : BrowserManager.page;
+
+        if (!documentsPage.downloadButonuGorunuyorMu(targetPage)) {
             throw new AssertionError(
-                    "Manager için Download butonu görüntülenmedi!"
+                    "Download butonu görüntülenmedi!"
             );
         }
     }
@@ -813,44 +829,44 @@ public class DocumentSteps {
 
 
 
-   // =========================
+    // =========================
 // // BATCH 5 - STATUS / REFRESH
 // // =========================
 
-   @When("kullanıcı belge detay sayfasını yeniler")
-   public void kullaniciBelgeDetaySayfasiniYeniler() {
-       documentsPage.belgeDetaySayfasiniYenile();
-   }
+    @When("kullanıcı belge detay sayfasını yeniler")
+    public void kullaniciBelgeDetaySayfasiniYeniler() {
+        documentsPage.belgeDetaySayfasiniYenile();
+    }
 
-   @Then("belgenin statusu Under review olmalıdır")
-   public void belgeninStatusuUnderReviewOlmalidir() {
+    @Then("belgenin statusu Under review olmalıdır")
+    public void belgeninStatusuUnderReviewOlmalidir() {
 
-       if (!documentsPage.statusUnderReviewGorunuyorMu()) {
-           throw new AssertionError(
-                   "Belgenin statusu Under review olarak korunmadı!"
-           );
-       }
-   }
+        if (!documentsPage.statusUnderReviewGorunuyorMu()) {
+            throw new AssertionError(
+                    "Belgenin statusu Under review olarak korunmadı!"
+            );
+        }
+    }
 
-@Then("belgenin statusu Draft olmalıdır")
-   public void belgeninStatusuDraftOlmalidir() {
+    @Then("belgenin statusu Draft olmalıdır")
+    public void belgeninStatusuDraftOlmalidir() {
 
-    if (!documentsPage.statusDraftMi()) {
-           throw new AssertionError(
-                   "Belgenin statusu Draft olarak görüntülenmedi!"
-           );
-       }
-   }
+        if (!documentsPage.statusDraftMi()) {
+            throw new AssertionError(
+                    "Belgenin statusu Draft olarak görüntülenmedi!"
+            );
+        }
+    }
 
-   @Then("soft delete edilen belgenin statusu Under review olmalıdır")
-   public void softDeleteEdilenBelgeninStatusuUnderReviewOlmalidir() {
+    @Then("soft delete edilen belgenin statusu Under review olmalıdır")
+    public void softDeleteEdilenBelgeninStatusuUnderReviewOlmalidir() {
 
-       if (!documentsPage.deletedBelgedeStatusUnderReviewGorunuyorMu()) {
-           throw new AssertionError(
-                   "Soft delete sonrasında belgenin Under review statusu korunmadı!"
-           );
-       }
-   }
+        if (!documentsPage.deletedBelgedeStatusUnderReviewGorunuyorMu()) {
+            throw new AssertionError(
+                    "Soft delete sonrasında belgenin Under review statusu korunmadı!"
+            );
+        }
+    }
 
 
     // =========================

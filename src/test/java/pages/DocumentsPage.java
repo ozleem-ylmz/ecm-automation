@@ -1783,9 +1783,17 @@ public class DocumentsPage {
         for (int i = 0; i < options.count(); i++) {
             Locator option = options.nth(i);
             String text = option.textContent();
-            if (text != null && text.trim().equals(folderName)) {
-                optionValue = option.getAttribute("value");
-                break;
+            if (text != null) {
+                String optionText = text.trim();
+
+                // Destination seçenekleri tam yol gösterebilir:
+                // "Root / Parent / QA Move Folder ..."
+                if (optionText.equals(folderName)
+                        || optionText.endsWith("/ " + folderName)
+                        || optionText.endsWith("/" + folderName)) {
+                    optionValue = option.getAttribute("value");
+                    break;
+                }
             }
         }
 
@@ -1810,10 +1818,15 @@ public class DocumentsPage {
             String value = option.getAttribute("value");
             String text = option.textContent();
 
-            if (selectedValue.equals(value)
-                    && text != null
-                    && text.trim().equals(folderName)) {
-                return true;
+            if (selectedValue.equals(value) && text != null) {
+                String optionText = text.trim();
+
+                // Seçili option metni de tam klasör yolu olabilir.
+                if (optionText.equals(folderName)
+                        || optionText.endsWith("/ " + folderName)
+                        || optionText.endsWith("/" + folderName)) {
+                    return true;
+                }
             }
         }
         return false;
