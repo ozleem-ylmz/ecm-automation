@@ -15,14 +15,31 @@ public class BrowserManager {
     public static BrowserContext managerContext;
     public static Page managerPage;
 
+    private static final String DEFAULT_BASE_URL = "http://localhost:5173";
+
+    public static String getBaseUrl() {
+        String envBaseUrl = System.getenv("ECM_BASE_URL");
+
+        if (envBaseUrl == null || envBaseUrl.isBlank()) {
+            return DEFAULT_BASE_URL;
+        }
+
+        return envBaseUrl.replaceAll("/+$", "");
+    }
+
+    public static boolean isCi() {
+        String ci = System.getenv("CI");
+        return ci != null && ci.equalsIgnoreCase("true");
+    }
+
     public static void startBrowser() {
 
         playwright = Playwright.create();
 
         browser = playwright.chromium().launch(
                 new com.microsoft.playwright.BrowserType.LaunchOptions()
-                        .setHeadless(false)
-                        .setSlowMo(500)
+                        .setHeadless(isCi())
+                        .setSlowMo(isCi() ? 0 : 500)
         );
 
         page = browser.newPage();

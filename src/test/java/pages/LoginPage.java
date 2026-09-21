@@ -1,5 +1,7 @@
 package pages;
 
+import utils.BrowserManager;
+
 import com.microsoft.playwright.Page;
 
 public class LoginPage {
@@ -11,7 +13,7 @@ public class LoginPage {
     }
 
     public void loginSayfasiniAc() {
-        page.navigate("http://localhost:5173/login");
+        page.navigate(BrowserManager.getBaseUrl() + "/login");
     }
 
     public void emailGir(String email) {

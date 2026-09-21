@@ -1,5 +1,7 @@
 package pages;
 
+import utils.BrowserManager;
+
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
@@ -1033,7 +1035,7 @@ public class DocumentsPage {
     public void managerLogin(Page managerPage) {
 
         managerPage.navigate(
-                "http://localhost:5173/login"
+                BrowserManager.getBaseUrl() + "/login"
         );
 
         managerPage.locator("input[type='email']")
@@ -1062,7 +1064,7 @@ public class DocumentsPage {
     ) {
 
         managerPage.navigate(
-                "http://localhost:5173/documents"
+                BrowserManager.getBaseUrl() + "/documents"
         );
 
         // Documents sayfasının yüklenmesini bekle
@@ -1760,7 +1762,7 @@ public class DocumentsPage {
     // =========================
 
     public void hedefKlasorOlustur(String folderName) {
-        page.navigate("http://localhost:5173/folders");
+        page.navigate(BrowserManager.getBaseUrl() + "/folders");
         page.waitForLoadState();
 
         Locator nameInput = page.getByPlaceholder("e.g. Finance");
