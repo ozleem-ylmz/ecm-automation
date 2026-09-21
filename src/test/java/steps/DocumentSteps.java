@@ -29,6 +29,9 @@ public class DocumentSteps {
     private String batch14Label;
     private String batch14SecondLabel;
     private String batch14Version = "v1.0.0";
+    private String batch15OriginalTitle;
+    private String batch15RenamedTitle;
+    private String batch15DocumentUrl;
 
     // =========================
     // HELPER METHODS
@@ -1634,6 +1637,224 @@ public class DocumentSteps {
     public void eklenenLabelVersiyonundaGoruntulenmemelidir(String version) {
         if (!documentsPage.versionLabelGorunmuyorMu(version, batch14Label)) {
             throw new AssertionError("Label yanlış versiyonda görüntüleniyor: " + version + " / " + batch14Label);
+        }
+    }
+    // =====================================================
+// BATCH 15 - DOCUMENT RENAME
+// =====================================================
+
+    @Given("Batch 15 için yeni bir document oluşturulur")
+    public void batch15IcinYeniBirDocumentOlusturulur() {
+
+        // Login + DocumentsPage initialization
+        adminLogin();
+
+        batch15OriginalTitle =
+                "Batch15 Rename " + System.currentTimeMillis();
+
+        // Mevcut helper'ları kullanıyoruz
+        uploadWithoutClassSayfasinaGit();
+
+        documentsPage.belgeYukle(batch15OriginalTitle);
+
+        if (!documentsPage.belgeDetaySayfasindaMi()) {
+            throw new AssertionError(
+                    "Batch 15 document yüklendikten sonra detail sayfası açılmadı!"
+            );
+        }
+
+        batch15DocumentUrl = BrowserManager.page.url();
+
+        if (!documentsPage.belgeBasligiGorunuyorMu(batch15OriginalTitle)) {
+            throw new AssertionError(
+                    "Batch 15 document oluşturulamadı: "
+                            + batch15OriginalTitle
+            );
+        }
+    }
+
+    @Then("document rename edit butonu görüntülenmelidir")
+    public void documentRenameEditButonuGoruntulenmelidir() {
+
+        if (!documentsPage.renameEditButonuGorunuyorMu()) {
+            throw new AssertionError(
+                    "Document rename edit butonu görüntülenmedi!"
+            );
+        }
+    }
+
+    @When("kullanıcı document rename editorunu açar")
+    public void kullaniciDocumentRenameEditorunuAcar() {
+
+        documentsPage.renameEditorunuAc();
+    }
+
+    @Then("document rename editoru görüntülenmelidir")
+    public void documentRenameEditoruGoruntulenmelidir() {
+
+        if (!documentsPage.renameEditoruAcikMi()) {
+            throw new AssertionError(
+                    "Document rename editoru açılmadı!"
+            );
+        }
+    }
+
+    @Then("rename alanında mevcut document başlığı bulunmalıdır")
+    public void renameAlanindaMevcutDocumentBasligiBulunmalidir() {
+
+        String actual =
+                documentsPage.renameInputDegeri();
+
+        if (!actual.equals(batch15OriginalTitle)) {
+            throw new AssertionError(
+                    "Rename input mevcut başlığı içermiyor. "
+                            + "Beklenen: " + batch15OriginalTitle
+                            + " Actual: " + actual
+            );
+        }
+    }
+
+    @Then("rename confirm butonu görüntülenmelidir")
+    public void renameConfirmButonuGoruntulenmelidir() {
+
+        if (!documentsPage.renameEditoruAcikMi()) {
+            throw new AssertionError(
+                    "Confirm rename butonu görüntülenmedi!"
+            );
+        }
+    }
+
+    @Then("rename cancel butonu görüntülenmelidir")
+    public void renameCancelButonuGoruntulenmelidir() {
+
+        if (!documentsPage.renameEditoruAcikMi()) {
+            throw new AssertionError(
+                    "Rename Cancel butonu görüntülenmedi!"
+            );
+        }
+    }
+
+    @When("kullanıcı document başlığını yeni benzersiz bir başlıkla değiştirir")
+    public void kullaniciDocumentBasliginiYeniBenzersizBirBasliklaDegistirir() {
+
+        batch15RenamedTitle =
+                "Batch15 Renamed " + System.currentTimeMillis();
+
+        documentsPage.renameBasligiGir(
+                batch15RenamedTitle
+        );
+    }
+
+    @Then("rename alanında yeni document başlığı bulunmalıdır")
+    public void renameAlanindaYeniDocumentBasligiBulunmalidir() {
+
+        String actual =
+                documentsPage.renameInputDegeri();
+
+        if (!actual.equals(batch15RenamedTitle)) {
+            throw new AssertionError(
+                    "Rename input değeri yanlış. Beklenen: "
+                            + batch15RenamedTitle
+                            + " Actual: "
+                            + actual
+            );
+        }
+    }
+
+    @When("kullanıcı document rename işlemini kaydeder")
+    public void kullaniciDocumentRenameIsleminiKaydeder() {
+
+        documentsPage.renameKaydet();
+        documentsPage.renameSonucunuBekle(
+                batch15RenamedTitle
+        );
+    }
+
+    @Then("document yeni başlığı ile görüntülenmelidir")
+    public void documentYeniBasligiIleGoruntulenmelidir() {
+
+        if (!documentsPage.belgeBasligiDegistiMi(
+                batch15RenamedTitle)) {
+
+            throw new AssertionError(
+                    "Yeni document başlığı görüntülenmedi: "
+                            + batch15RenamedTitle
+            );
+        }
+    }
+
+    @Then("eski document başlığı artık görüntülenmemelidir")
+    public void eskiDocumentBasligiArtikGoruntulenmemelidir() {
+
+        if (!documentsPage.eskiBelgeBasligiGorunmuyorMu(
+                batch15OriginalTitle)) {
+
+            throw new AssertionError(
+                    "Eski document başlığı hâlâ görüntüleniyor: "
+                            + batch15OriginalTitle
+            );
+        }
+    }
+
+    @Then("rename sonrasında document URL değişmemelidir")
+    public void renameSonrasindaDocumentUrlDegismemelidir() {
+
+        if (!documentsPage.renameSonrasiUrlAyniMi(
+                batch15DocumentUrl)) {
+
+            throw new AssertionError(
+                    "Rename document ID/URL değiştirdi! "
+                            + "Önce: " + batch15DocumentUrl
+                            + " Sonra: "
+                            + BrowserManager.page.url()
+            );
+        }
+    }
+
+    @When("kullanıcı document rename işlemini iptal eder")
+    public void kullaniciDocumentRenameIsleminiIptalEder() {
+
+        documentsPage.renameIptalEt();
+    }
+
+    @Then("document rename editoru kapanmalıdır")
+    public void documentRenameEditoruKapanmalidir() {
+
+        if (!documentsPage.renameEditoruKapandiMi()) {
+            throw new AssertionError(
+                    "Rename editoru kapanmadı!"
+            );
+        }
+    }
+
+    @Then("document başlığı değişmeden kalmalıdır")
+    public void documentBasligiDegismedenKalmalidir() {
+
+        if (!documentsPage.belgeBasligiGorunuyorMu(
+                batch15OriginalTitle)) {
+
+            throw new AssertionError(
+                    "Cancel sonrasında document başlığı değişti!"
+            );
+        }
+    }
+
+    @When("kullanıcı document detay sayfasını yeniler")
+    public void kullaniciDocumentDetaySayfasiniYeniler() {
+
+        documentsPage.belgeDetayiniRefreshEt();
+    }
+
+    @Then("rename edilen document başlığı refresh sonrasında korunmalıdır")
+    public void renameEdilenDocumentBasligiRefreshSonrasindaKorunmalidir() {
+
+        if (!documentsPage.belgeBasligiDegistiMi(
+                batch15RenamedTitle)) {
+
+            throw new AssertionError(
+                    "Rename edilen başlık refresh sonrasında korunmadı: "
+                            + batch15RenamedTitle
+            );
         }
     }
 

@@ -2232,5 +2232,231 @@ public class DocumentsPage {
         }
         return count;
     }
+    // =========================
+    // BATCH 15 - DOCUMENT RENAME
+    // PATCH /v1/documents/{id}/title
+    // =========================
+
+    private Locator renameEditButton() {
+
+        // Document title'ın hemen yanındaki kalem/edit butonu.
+        // Edit modunda Confirm rename / Cancel butonları oluşuyor.
+        Locator confirm = page.locator("button[title='Confirm rename']");
+
+        if (confirm.count() > 0 && confirm.first().isVisible()) {
+            throw new AssertionError(
+                    "Rename edit modu zaten açık!"
+            );
+        }
+
+        Locator titleHeading = page.locator("h1").first();
+
+        if (titleHeading.count() == 0) {
+            throw new AssertionError(
+                    "Document title heading bulunamadı!"
+            );
+        }
+
+        Locator container = titleHeading.locator("xpath=..");
+
+        Locator buttons = container.locator("button");
+
+        if (buttons.count() == 0) {
+            throw new AssertionError(
+                    "Document title yanındaki rename/edit butonu bulunamadı!"
+            );
+        }
+
+        return buttons.first();
+    }
+
+    private Locator renameInput() {
+
+        Locator confirm =
+                page.locator("button[title='Confirm rename']");
+
+        confirm.waitFor(
+                new Locator.WaitForOptions()
+                        .setState(WaitForSelectorState.VISIBLE)
+                        .setTimeout(5000)
+        );
+
+        // DocumentDetail.tsx:
+        // <span>
+        //   <input ... />
+        //   <button title="Confirm rename">...</button>
+        //   <button title="Cancel">...</button>
+        // </span>
+        Locator renameContainer =
+                confirm.locator("xpath=..");
+
+        Locator input =
+                renameContainer.locator("input").first();
+
+        input.waitFor(
+                new Locator.WaitForOptions()
+                        .setState(WaitForSelectorState.VISIBLE)
+                        .setTimeout(5000)
+        );
+
+        return input;
+    
+    }
+
+    public boolean renameEditButonuGorunuyorMu() {
+
+        try {
+            return renameEditButton().isVisible();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public void renameEditorunuAc() {
+
+        renameEditButton().click();
+
+        renameInput();
+    }
+
+    public boolean renameEditoruAcikMi() {
+
+        Locator confirm =
+                page.locator("button[title='Confirm rename']");
+
+        Locator cancel =
+                page.locator("button[title='Cancel']");
+
+        return confirm.count() > 0
+                && confirm.first().isVisible()
+                && cancel.count() > 0
+                && cancel.first().isVisible();
+    }
+
+    public String renameInputDegeri() {
+
+        return renameInput().inputValue();
+    }
+
+    public void renameBasligiGir(String newTitle) {
+
+        renameInput().fill(newTitle);
+    }
+
+    public void renameKaydet() {
+
+        Locator confirm =
+                page.locator("button[title='Confirm rename']");
+
+        confirm.waitFor(
+                new Locator.WaitForOptions()
+                        .setState(WaitForSelectorState.VISIBLE)
+                        .setTimeout(5000)
+        );
+
+        confirm.click();
+    }
+
+    public void renameIptalEt() {
+
+        Locator cancel =
+                page.locator("button[title='Cancel']");
+
+        cancel.waitFor(
+                new Locator.WaitForOptions()
+                        .setState(WaitForSelectorState.VISIBLE)
+                        .setTimeout(5000)
+        );
+
+        cancel.click();
+    }
+
+    public boolean renameEditoruKapandiMi() {
+
+        Locator confirm =
+                page.locator("button[title='Confirm rename']");
+
+        return confirm.count() == 0
+                || !confirm.first().isVisible();
+    }
+
+    public boolean belgeBasligiDegistiMi(String expectedTitle) {
+
+        try {
+
+            Locator heading = page.getByRole(
+                    AriaRole.HEADING,
+                    new Page.GetByRoleOptions()
+                            .setName(expectedTitle)
+                            .setExact(true)
+            );
+
+            heading.waitFor(
+                    new Locator.WaitForOptions()
+                            .setState(WaitForSelectorState.VISIBLE)
+                            .setTimeout(10000)
+            );
+
+            return heading.isVisible();
+
+        } catch (Exception e) {
+
+            return false;
+        }
+    }
+
+    public boolean eskiBelgeBasligiGorunmuyorMu(String oldTitle) {
+
+        Locator oldHeading = page.getByRole(
+                AriaRole.HEADING,
+                new Page.GetByRoleOptions()
+                        .setName(oldTitle)
+                        .setExact(true)
+        );
+
+        return oldHeading.count() == 0
+                || !oldHeading.first().isVisible();
+    }
+
+    public void renameSonucunuBekle(String expectedTitle) {
+
+        long end =
+                System.currentTimeMillis() + 10000;
+
+        while (System.currentTimeMillis() < end) {
+
+            if (belgeBasligiDegistiMi(expectedTitle)
+                    && renameEditoruKapandiMi()) {
+
+                return;
+            }
+
+            page.waitForTimeout(250);
+        }
+
+        throw new AssertionError(
+                "Document rename tamamlanmadı. Beklenen title: "
+                        + expectedTitle
+        );
+    }
+
+    public boolean renameSonrasiUrlAyniMi(String oldUrl) {
+
+        return page.url().equals(oldUrl);
+    }
+
+    public void belgeDetayiniRefreshEt() {
+
+        page.reload();
+        page.waitForLoadState();
+
+        if (!belgeDetaySayfasindaMi()) {
+            throw new AssertionError(
+                    "Refresh sonrası document detail açılamadı! URL: "
+                            + page.url()
+            );
+        }
+    }
 
 }
+
