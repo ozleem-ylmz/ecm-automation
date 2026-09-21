@@ -161,7 +161,7 @@ Feature: ECM Documents işlemleri
   Scenario: Manager admin tarafından checkout edilen belgenin önizlemesini açabilmelidir
     Given admin kullanıcı bir belgeyi checkout yapmıştır
     When manager kullanıcı aynı belgeyi açar
-    Then Preview butonu görüntülenmelidir
+    Then admin için Preview butonu görüntülenmelidir
   @critical @lock
   Scenario: Manager admin tarafından checkout edilen belgede Move işlemi yapamamalıdır
     Given admin kullanıcı bir belgeyi checkout yapmıştır
@@ -1966,3 +1966,422 @@ Feature: ECM Documents işlemleri
     And kullanıcı Copy işlemini onaylar
     And kullanıcı belge detay sayfasını yeniler
     Then Classify butonu görüntülenmelidir
+
+
+  # ============================================================
+  # Batch 14 - Version Labels / Version History
+  # ============================================================
+
+  @documents @regression @batch14
+  Scenario: Version history yeni belgede görüntülenmelidir
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    Then Version history görüntülenmelidir
+
+  @documents @regression @batch14
+  Scenario: Yeni belgede v1.0.0 version history satırı görüntülenmelidir
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    Then "v1.0.0" version history satırı görüntülenmelidir
+
+  @documents @regression @batch14
+  Scenario: v1.0.0 için label ekleme alanı açılabilmelidir
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    When kullanıcı "v1.0.0" versiyonu için label ekleme alanını açar
+    Then version label ekleme alanı açık olmalıdır
+
+  @documents @regression @batch14
+  Scenario: Version label input girilen değeri göstermelidir
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    When kullanıcı "v1.0.0" versiyonu için label ekleme alanını açar
+    And kullanıcı benzersiz bir version label girer
+    Then version label input değeri girilen değer olmalıdır
+
+  @documents @regression @batch14
+  Scenario: v1.0.0 versiyonuna label eklenebilmelidir
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    When kullanıcı "v1.0.0" versiyonu için label ekleme alanını açar
+    And kullanıcı benzersiz bir version label girer
+    And kullanıcı version label Add bağlantısına tıklar
+    Then eklenen version label görüntülenmelidir
+
+  @documents @regression @batch14
+  Scenario: Eklenen version label refresh sonrasında korunmalıdır
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    When kullanıcı "v1.0.0" versiyonu için label ekleme alanını açar
+    And kullanıcı benzersiz bir version label girer
+    And kullanıcı version label Add bağlantısına tıklar
+    And kullanıcı belge detay sayfasını yeniler
+    Then eklenen version label görüntülenmelidir
+
+  @documents @regression @batch14
+  Scenario: Version label ekleme işlemi iptal edilebilmelidir
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    When kullanıcı "v1.0.0" versiyonu için label ekleme alanını açar
+    And kullanıcı benzersiz bir version label girer
+    And kullanıcı version label işlemini iptal eder
+    Then iptal edilen version label görüntülenmemelidir
+
+  @documents @regression @batch14
+  Scenario: Eklenen version label silinebilmelidir
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    When kullanıcı "v1.0.0" versiyonu için label ekleme alanını açar
+    And kullanıcı benzersiz bir version label girer
+    And kullanıcı version label Add bağlantısına tıklar
+    When kullanıcı eklenen version labelı siler
+    Then eklenen version label görüntülenmemelidir
+
+  @documents @regression @batch14
+  Scenario: Silinen version label refresh sonrasında geri gelmemelidir
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    When kullanıcı "v1.0.0" versiyonu için label ekleme alanını açar
+    And kullanıcı benzersiz bir version label girer
+    And kullanıcı version label Add bağlantısına tıklar
+    When kullanıcı eklenen version labelı siler
+    And kullanıcı belge detay sayfasını yeniler
+    Then eklenen version label görüntülenmemelidir
+
+  @documents @regression @batch14
+  Scenario: Aynı versiyona iki farklı label eklenebilmelidir
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    When kullanıcı "v1.0.0" versiyonu için label ekleme alanını açar
+    And kullanıcı benzersiz bir version label girer
+    And kullanıcı version label Add bağlantısına tıklar
+    When kullanıcı ikinci version labelı ekler
+    Then eklenen version label görüntülenmelidir
+    And ikinci version label görüntülenmelidir
+
+  @documents @regression @batch14
+  Scenario: İki labeldan biri silindiğinde diğeri korunmalıdır
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    When kullanıcı "v1.0.0" versiyonu için label ekleme alanını açar
+    And kullanıcı benzersiz bir version label girer
+    And kullanıcı version label Add bağlantısına tıklar
+    When kullanıcı ikinci version labelı ekler
+    And kullanıcı eklenen version labelı siler
+    Then eklenen version label görüntülenmemelidir
+    And ikinci version label görüntülenmelidir
+
+  @documents @regression @batch14
+  Scenario: Tire içeren version label eklenebilmelidir
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    When kullanıcı "v1.0.0" versiyonu için label ekleme alanını açar
+    And kullanıcı version label olarak "release-candidate" girer
+    And kullanıcı version label Add bağlantısına tıklar
+    Then eklenen version label görüntülenmelidir
+
+  @documents @regression @batch14
+  Scenario: Alt çizgi içeren version label eklenebilmelidir
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    When kullanıcı "v1.0.0" versiyonu için label ekleme alanını açar
+    And kullanıcı version label olarak "release_candidate" girer
+    And kullanıcı version label Add bağlantısına tıklar
+    Then eklenen version label görüntülenmelidir
+
+  @documents @regression @batch14
+  Scenario: Sayısal version label eklenebilmelidir
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    When kullanıcı "v1.0.0" versiyonu için label ekleme alanını açar
+    And kullanıcı version label olarak "2026" girer
+    And kullanıcı version label Add bağlantısına tıklar
+    Then eklenen version label görüntülenmelidir
+
+  @documents @regression @batch14
+  Scenario: Büyük küçük harf içeren version label eklenebilmelidir
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    When kullanıcı "v1.0.0" versiyonu için label ekleme alanını açar
+    And kullanıcı version label olarak "ReleaseCandidate" girer
+    And kullanıcı version label Add bağlantısına tıklar
+    Then eklenen version label görüntülenmelidir
+
+  @documents @regression @batch14
+  Scenario: Nokta içeren version label eklenebilmelidir
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    When kullanıcı "v1.0.0" versiyonu için label ekleme alanını açar
+    And kullanıcı version label olarak "release.1" girer
+    And kullanıcı version label Add bağlantısına tıklar
+    Then eklenen version label görüntülenmelidir
+
+  @documents @regression @batch14
+  Scenario: Patch sonrası v1.0.1 history satırı oluşmalıdır
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Patch" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    Then "v1.0.1" version history satırı görüntülenmelidir
+
+  @documents @regression @batch14
+  Scenario: Patch versiyonuna label eklenebilmelidir
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Patch" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    When kullanıcı "v1.0.1" versiyonuna benzersiz label ekler
+    Then eklenen label "v1.0.1" versiyonunda görüntülenmelidir
+
+  @documents @regression @batch14
+  Scenario: Patch label refresh sonrasında korunmalıdır
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Patch" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    When kullanıcı "v1.0.1" versiyonuna benzersiz label ekler
+    And kullanıcı belge detay sayfasını yeniler
+    Then eklenen label "v1.0.1" versiyonunda görüntülenmelidir
+
+  @documents @regression @batch14
+  Scenario: Patch label eski v1.0.0 satırında görünmemelidir
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Patch" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    When kullanıcı "v1.0.1" versiyonuna benzersiz label ekler
+    Then eklenen label "v1.0.0" versiyonunda görüntülenmemelidir
+
+  @documents @regression @batch14
+  Scenario: Eski v1.0.0 versiyonuna Patch sonrasında label eklenebilmelidir
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Patch" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    When kullanıcı "v1.0.0" versiyonuna benzersiz label ekler
+    Then eklenen label "v1.0.0" versiyonunda görüntülenmelidir
+
+  @documents @regression @batch14
+  Scenario: Eski version label yeni Patch satırında görünmemelidir
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Patch" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    When kullanıcı "v1.0.0" versiyonuna benzersiz label ekler
+    Then eklenen label "v1.0.1" versiyonunda görüntülenmemelidir
+
+  @documents @regression @batch14
+  Scenario: Minor sonrası v1.1.0 history satırı oluşmalıdır
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Minor" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    Then "v1.1.0" version history satırı görüntülenmelidir
+
+  @documents @regression @batch14
+  Scenario: Minor versiyonuna label eklenebilmelidir
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Minor" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    When kullanıcı "v1.1.0" versiyonuna benzersiz label ekler
+    Then eklenen label "v1.1.0" versiyonunda görüntülenmelidir
+
+  @documents @regression @batch14
+  Scenario: Minor label refresh sonrasında korunmalıdır
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Minor" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    When kullanıcı "v1.1.0" versiyonuna benzersiz label ekler
+    And kullanıcı belge detay sayfasını yeniler
+    Then eklenen label "v1.1.0" versiyonunda görüntülenmelidir
+
+  @documents @regression @batch14
+  Scenario: Minor label eski v1.0.0 satırında görünmemelidir
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Minor" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    When kullanıcı "v1.1.0" versiyonuna benzersiz label ekler
+    Then eklenen label "v1.0.0" versiyonunda görüntülenmemelidir
+
+  @documents @regression @batch14
+  Scenario: Major sonrası v2.0.0 history satırı oluşmalıdır
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Major" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    Then "v2.0.0" version history satırı görüntülenmelidir
+
+  @documents @regression @batch14
+  Scenario: Major versiyonuna label eklenebilmelidir
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Major" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    When kullanıcı "v2.0.0" versiyonuna benzersiz label ekler
+    Then eklenen label "v2.0.0" versiyonunda görüntülenmelidir
+
+  @documents @regression @batch14
+  Scenario: Major label refresh sonrasında korunmalıdır
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Major" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    When kullanıcı "v2.0.0" versiyonuna benzersiz label ekler
+    And kullanıcı belge detay sayfasını yeniler
+    Then eklenen label "v2.0.0" versiyonunda görüntülenmelidir
+
+  @documents @regression @batch14
+  Scenario: Major label eski v1.0.0 satırında görünmemelidir
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Major" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    When kullanıcı "v2.0.0" versiyonuna benzersiz label ekler
+    Then eklenen label "v1.0.0" versiyonunda görüntülenmemelidir
+
+  @documents @regression @batch14
+  Scenario: v1.0.0 label Patch oluşturulduktan sonra korunmalıdır
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    When kullanıcı "v1.0.0" versiyonu için label ekleme alanını açar
+    And kullanıcı benzersiz bir version label girer
+    And kullanıcı version label Add bağlantısına tıklar
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Patch" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    Then eklenen label "v1.0.0" versiyonunda görüntülenmelidir
+
+  @documents @regression @batch14
+  Scenario: v1.0.0 label Minor oluşturulduktan sonra korunmalıdır
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    When kullanıcı "v1.0.0" versiyonu için label ekleme alanını açar
+    And kullanıcı benzersiz bir version label girer
+    And kullanıcı version label Add bağlantısına tıklar
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Minor" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    Then eklenen label "v1.0.0" versiyonunda görüntülenmelidir
+
+  @documents @regression @batch14
+  Scenario: v1.0.0 label Major oluşturulduktan sonra korunmalıdır
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    When kullanıcı "v1.0.0" versiyonu için label ekleme alanını açar
+    And kullanıcı benzersiz bir version label girer
+    And kullanıcı version label Add bağlantısına tıklar
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Major" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    Then eklenen label "v1.0.0" versiyonunda görüntülenmelidir
+
+  @documents @regression @batch14
+  Scenario: Label eklemek mevcut document version değerini değiştirmemelidir
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    When kullanıcı "v1.0.0" versiyonu için label ekleme alanını açar
+    And kullanıcı benzersiz bir version label girer
+    And kullanıcı version label Add bağlantısına tıklar
+    Then belge versiyonu "v1.0.0" olmalıdır
+
+  @documents @regression @batch14
+  Scenario: Label silmek mevcut document version değerini değiştirmemelidir
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    When kullanıcı "v1.0.0" versiyonu için label ekleme alanını açar
+    And kullanıcı benzersiz bir version label girer
+    And kullanıcı version label Add bağlantısına tıklar
+    When kullanıcı eklenen version labelı siler
+    Then belge versiyonu "v1.0.0" olmalıdır
+
+  @documents @regression @batch14
+  Scenario: Label ekleme iptali mevcut version değerini değiştirmemelidir
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    When kullanıcı "v1.0.0" versiyonu için label ekleme alanını açar
+    And kullanıcı benzersiz bir version label girer
+    And kullanıcı version label işlemini iptal eder
+    Then belge versiyonu "v1.0.0" olmalıdır
+
+  @documents @regression @batch14
+  Scenario: Label eklendikten sonra Download kullanılabilir kalmalıdır
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    When kullanıcı "v1.0.0" versiyonu için label ekleme alanını açar
+    And kullanıcı benzersiz bir version label girer
+    And kullanıcı version label Add bağlantısına tıklar
+    Then Download butonu görüntülenmelidir
+
+  @documents @regression @batch14
+  Scenario: Label eklendikten sonra Preview kullanılabilir kalmalıdır
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    When kullanıcı "v1.0.0" versiyonu için label ekleme alanını açar
+    And kullanıcı benzersiz bir version label girer
+    And kullanıcı version label Add bağlantısına tıklar
+    Then admin için Preview butonu görüntülenmelidir
+
+  @documents @regression @batch14
+  Scenario: Label eklendikten sonra Move kullanılabilir kalmalıdır
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    When kullanıcı "v1.0.0" versiyonu için label ekleme alanını açar
+    And kullanıcı benzersiz bir version label girer
+    And kullanıcı version label Add bağlantısına tıklar
+    Then Move işlemi görüntülenmelidir
+
+  @documents @regression @batch14
+  Scenario: Label eklendikten sonra Copy kullanılabilir kalmalıdır
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    When kullanıcı "v1.0.0" versiyonu için label ekleme alanını açar
+    And kullanıcı benzersiz bir version label girer
+    And kullanıcı version label Add bağlantısına tıklar
+    Then Copy butonu görüntülenmelidir
+
+  @documents @regression @batch14
+  Scenario: Label eklendikten sonra New version kullanılabilir kalmalıdır
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    When kullanıcı "v1.0.0" versiyonu için label ekleme alanını açar
+    And kullanıcı benzersiz bir version label girer
+    And kullanıcı version label Add bağlantısına tıklar
+    Then New version butonu görüntülenmelidir
+
+  @documents @regression @batch14
+  Scenario: Label eklendikten sonra Classify kullanılabilir kalmalıdır
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    When kullanıcı "v1.0.0" versiyonu için label ekleme alanını açar
+    And kullanıcı benzersiz bir version label girer
+    And kullanıcı version label Add bağlantısına tıklar
+    Then Classify butonu görüntülenmelidir
+
+  @documents @regression @batch14
+  Scenario: İki label refresh sonrasında birlikte korunmalıdır
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    When kullanıcı "v1.0.0" versiyonu için label ekleme alanını açar
+    And kullanıcı benzersiz bir version label girer
+    And kullanıcı version label Add bağlantısına tıklar
+    When kullanıcı ikinci version labelı ekler
+    And kullanıcı belge detay sayfasını yeniler
+    Then eklenen version label görüntülenmelidir
+    And ikinci version label görüntülenmelidir
+
+  @documents @regression @batch14
+  Scenario: İlk label silinip refresh yapıldığında ikinci label korunmalıdır
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    When kullanıcı "v1.0.0" versiyonu için label ekleme alanını açar
+    And kullanıcı benzersiz bir version label girer
+    And kullanıcı version label Add bağlantısına tıklar
+    When kullanıcı ikinci version labelı ekler
+    And kullanıcı eklenen version labelı siler
+    And kullanıcı belge detay sayfasını yeniler
+    Then eklenen version label görüntülenmemelidir
+    And ikinci version label görüntülenmelidir
+
+  @documents @regression @batch14
+  Scenario: Patch ve eski versiyon farklı label taşıyabilmelidir
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Patch" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    When kullanıcı "v1.0.0" versiyonuna benzersiz label ekler
+    Then eklenen label "v1.0.0" versiyonunda görüntülenmelidir
+    When kullanıcı "v1.0.1" versiyonu için label ekleme alanını açar
+    And kullanıcı ikinci benzersiz version label girer
+    And kullanıcı version label Add bağlantısına tıklar
+    Then ikinci version label görüntülenmelidir

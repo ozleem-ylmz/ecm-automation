@@ -4,6 +4,8 @@ import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
 import com.microsoft.playwright.Download;
+import com.microsoft.playwright.options.WaitForSelectorState;
+import com.microsoft.playwright.PlaywrightException;
 
 
 import java.nio.file.Paths;
@@ -2076,6 +2078,159 @@ public class DocumentsPage {
 
     public boolean belgeDetayUrlAyniMiBatch13(String expectedUrl) {
         return page.url().equals(expectedUrl);
+    }
+
+
+    // =========================
+    // Batch 14 - Version Labels
+    // =========================
+
+    private Locator versionHistoryRow(String version) {
+        Locator row = page.locator("tr").filter(
+                new Locator.FilterOptions().setHasText(version)
+        ).first();
+
+        row.waitFor(new Locator.WaitForOptions()
+                .setState(WaitForSelectorState.VISIBLE)
+                .setTimeout(10000));
+        return row;
+    }
+
+    public boolean versionHistoryGorunuyorMu() {
+        return page.getByText(
+                "Version history",
+                new Page.GetByTextOptions().setExact(true)
+        ).count() > 0;
+    }
+
+    public boolean versionHistorySatiriGorunuyorMu(String version) {
+        try {
+            return versionHistoryRow(version).isVisible();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public void versionLabelEditorunuAc(String version) {
+        Locator row = versionHistoryRow(version);
+
+        Locator addLabelButton =
+                row.locator("button[aria-label='Add label']");
+
+        addLabelButton.waitFor(new Locator.WaitForOptions()
+                .setState(WaitForSelectorState.VISIBLE)
+                .setTimeout(5000));
+
+        addLabelButton.click();
+
+        // React yeniden render ettiği için row'u tekrar alıyoruz.
+        row = versionHistoryRow(version);
+
+        Locator input =
+                row.locator("input[type='text']").first();
+
+        input.waitFor(new Locator.WaitForOptions()
+                .setState(WaitForSelectorState.VISIBLE)
+                .setTimeout(5000));
+    }
+
+    public boolean versionLabelEditoruAcikMi(String version) {
+        Locator row = versionHistoryRow(version);
+
+        return row.locator("input[type='text']").first().isVisible();
+    }
+
+    public void versionLabelGir(String version, String label) {
+        Locator row = versionHistoryRow(version);
+
+        Locator input =
+                row.locator("input[type='text']").first();
+
+        input.fill(label);
+    }
+
+    public String versionLabelInputDegeri(String version) {
+        Locator row = versionHistoryRow(version);
+
+        return row.locator("input[type='text']")
+                .first()
+                .inputValue();
+    }
+    public void versionLabelEkle(String version) {
+        Locator row = versionHistoryRow(version);
+
+        Locator addButton = row.getByRole(
+                AriaRole.BUTTON,
+                new Locator.GetByRoleOptions()
+                        .setName("Add")
+                        .setExact(true)
+        );
+
+        addButton.click();
+    }
+
+    public void versionLabelIptalEt(String version) {
+        Locator row = versionHistoryRow(version);
+        row.getByText("Cancel", new Locator.GetByTextOptions().setExact(true)).click();
+        page.waitForTimeout(250);
+    }
+
+    public boolean versionLabelGorunuyorMu(String version, String label) {
+        Locator row = versionHistoryRow(version);
+
+        Locator removeButton = row.locator(
+                "button[aria-label='Remove label " + label + "']"
+        );
+
+        try {
+            removeButton.waitFor(new Locator.WaitForOptions()
+                    .setState(WaitForSelectorState.VISIBLE)
+                    .setTimeout(5000));
+
+            return removeButton.isVisible();
+        } catch (PlaywrightException e) {
+            return false;
+        }
+    }
+    public boolean versionLabelGorunmuyorMu(String version, String label) {
+        return !versionLabelGorunuyorMu(version, label);
+    }
+
+    public void versionLabelSil(String version, String label) {
+        Locator row = versionHistoryRow(version);
+
+        Locator removeButton = row.locator(
+                "button[aria-label='Remove label " + label + "']"
+        );
+
+        if (removeButton.count() == 0) {
+            throw new AssertionError(
+                    "Silinecek version label bulunamadı: " + label
+            );
+        }
+
+        removeButton.click();
+
+    }
+
+    public int versionLabelSayisi(String version) {
+        Locator row = versionHistoryRow(version);
+        // Label chip'leri, görünür label metinleri üzerinden testlerde doğrulanıyor.
+        // Bu yardımcı sadece editor kapalıyken LABELS hücresindeki remove button sayısını döndürür.
+        Locator buttons = row.locator("button");
+        int count = 0;
+        for (int i = 0; i < buttons.count(); i++) {
+            Locator b = buttons.nth(i);
+            String text = b.innerText().trim();
+            String aria = b.getAttribute("aria-label");
+            String title = b.getAttribute("title");
+            if ((text.equals("×") || text.equals("x"))
+                    || (aria != null && aria.toLowerCase().contains("remove"))
+                    || (title != null && title.toLowerCase().contains("remove"))) {
+                count++;
+            }
+        }
+        return count;
     }
 
 }

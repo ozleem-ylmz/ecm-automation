@@ -26,6 +26,9 @@ public class DocumentSteps {
     private String batch13CopyTitle;
     private String batch13CopyUrl;
     private String batch13TargetFolder;
+    private String batch14Label;
+    private String batch14SecondLabel;
+    private String batch14Version = "v1.0.0";
 
     // =========================
     // HELPER METHODS
@@ -629,7 +632,18 @@ public class DocumentSteps {
                     "Manager için Preview butonu görüntülenmedi!"
             );
         }
+
     }
+    @Then("admin için Preview butonu görüntülenmelidir")
+    public void adminIcinPreviewButonuGoruntulenmelidir() {
+
+        if (!documentsPage.previewButonuGorunuyorMu(BrowserManager.page)) {
+            throw new AssertionError(
+                    "Admin için Preview butonu görüntülenmedi!"
+            );
+        }
+    }
+
     // =========================
 // CRITICAL LOCK STEPS
 // =========================
@@ -1479,6 +1493,147 @@ public class DocumentSteps {
     public void copyButonuGoruntulenmelidir() {
         if (!documentsPage.copyButonuGorunuyorMu()) {
             throw new AssertionError("Copy butonu görüntülenmedi!");
+        }
+    }
+
+
+    // =========================
+    // Batch 14 - Version Labels
+    // =========================
+
+    @Then("Version history görüntülenmelidir")
+    public void versionHistoryGoruntulenmelidir() {
+        if (!documentsPage.versionHistoryGorunuyorMu()) {
+            throw new AssertionError("Version history görüntülenmedi!");
+        }
+    }
+
+    @Then("{string} version history satırı görüntülenmelidir")
+    public void versionHistorySatiriGoruntulenmelidir(String version) {
+        if (!documentsPage.versionHistorySatiriGorunuyorMu(version)) {
+            throw new AssertionError("Version history satırı görüntülenmedi: " + version);
+        }
+    }
+
+    @When("kullanıcı {string} versiyonu için label ekleme alanını açar")
+    public void kullaniciVersiyonIcinLabelEklemeAlaniniAcar(String version) {
+        batch14Version = version;
+        documentsPage.versionLabelEditorunuAc(version);
+    }
+
+    @Then("version label ekleme alanı açık olmalıdır")
+    public void versionLabelEklemeAlaniAcikOlmalidir() {
+        if (!documentsPage.versionLabelEditoruAcikMi(batch14Version)) {
+            throw new AssertionError("Version label ekleme alanı açık değil: " + batch14Version);
+        }
+    }
+
+    @When("kullanıcı benzersiz bir version label girer")
+    public void kullaniciBenzersizBirVersionLabelGirer() {
+        batch14Label = "release-" + System.currentTimeMillis();
+        documentsPage.versionLabelGir(batch14Version, batch14Label);
+    }
+
+    @When("kullanıcı version label olarak {string} girer")
+    public void kullaniciVersionLabelOlarakGirer(String label) {
+        batch14Label = label;
+        documentsPage.versionLabelGir(batch14Version, label);
+    }
+
+    @When("kullanıcı ikinci benzersiz version label girer")
+    public void kullaniciIkinciBenzersizVersionLabelGirer() {
+        batch14SecondLabel = "stable-" + System.currentTimeMillis();
+        documentsPage.versionLabelGir(batch14Version, batch14SecondLabel);
+    }
+
+    @Then("version label input değeri girilen değer olmalıdır")
+    public void versionLabelInputDegeriGirilenDegerOlmalidir() {
+        String actual = documentsPage.versionLabelInputDegeri(batch14Version);
+        if (!actual.equals(batch14Label)) {
+            throw new AssertionError(
+                    "Version label input değeri farklı. Beklenen: "
+                            + batch14Label + ", actual: " + actual
+            );
+        }
+    }
+
+    @When("kullanıcı version label Add bağlantısına tıklar")
+    public void kullaniciVersionLabelAddBaglantisinaTiklar() {
+        documentsPage.versionLabelEkle(batch14Version);
+    }
+
+    @When("kullanıcı version label işlemini iptal eder")
+    public void kullaniciVersionLabelIsleminiIptalEder() {
+        documentsPage.versionLabelIptalEt(batch14Version);
+    }
+
+    @Then("eklenen version label görüntülenmelidir")
+    public void eklenenVersionLabelGoruntulenmelidir() {
+        if (!documentsPage.versionLabelGorunuyorMu(batch14Version, batch14Label)) {
+            throw new AssertionError(
+                    "Eklenen version label görüntülenmedi: "
+                            + batch14Version + " / " + batch14Label
+            );
+        }
+    }
+
+    @Then("ikinci version label görüntülenmelidir")
+    public void ikinciVersionLabelGoruntulenmelidir() {
+        if (!documentsPage.versionLabelGorunuyorMu(batch14Version, batch14SecondLabel)) {
+            throw new AssertionError(
+                    "İkinci version label görüntülenmedi: "
+                            + batch14Version + " / " + batch14SecondLabel
+            );
+        }
+    }
+
+    @Then("iptal edilen version label görüntülenmemelidir")
+    public void iptalEdilenVersionLabelGoruntulenmemelidir() {
+        if (!documentsPage.versionLabelGorunmuyorMu(batch14Version, batch14Label)) {
+            throw new AssertionError("İptal edilen version label görüntüleniyor: " + batch14Label);
+        }
+    }
+
+    @When("kullanıcı eklenen version labelı siler")
+    public void kullaniciEklenenVersionLabeliSiler() {
+        documentsPage.versionLabelSil(batch14Version, batch14Label);
+    }
+
+    @Then("eklenen version label görüntülenmemelidir")
+    public void eklenenVersionLabelGoruntulenmemelidir() {
+        if (!documentsPage.versionLabelGorunmuyorMu(batch14Version, batch14Label)) {
+            throw new AssertionError("Silinen version label hâlâ görüntüleniyor: " + batch14Label);
+        }
+    }
+
+    @When("kullanıcı ikinci version labelı ekler")
+    public void kullaniciIkinciVersionLabeliEkler() {
+        documentsPage.versionLabelEditorunuAc(batch14Version);
+        batch14SecondLabel = "stable-" + System.currentTimeMillis();
+        documentsPage.versionLabelGir(batch14Version, batch14SecondLabel);
+        documentsPage.versionLabelEkle(batch14Version);
+    }
+
+    @When("kullanıcı {string} versiyonuna benzersiz label ekler")
+    public void kullaniciVersiyonunaBenzersizLabelEkler(String version) {
+        batch14Version = version;
+        batch14Label = "label-" + version.replace(".", "-") + "-" + System.currentTimeMillis();
+        documentsPage.versionLabelEditorunuAc(version);
+        documentsPage.versionLabelGir(version, batch14Label);
+        documentsPage.versionLabelEkle(version);
+    }
+
+    @Then("eklenen label {string} versiyonunda görüntülenmelidir")
+    public void eklenenLabelVersiyonundaGoruntulenmelidir(String version) {
+        if (!documentsPage.versionLabelGorunuyorMu(version, batch14Label)) {
+            throw new AssertionError("Label beklenen versiyonda yok: " + version + " / " + batch14Label);
+        }
+    }
+
+    @Then("eklenen label {string} versiyonunda görüntülenmemelidir")
+    public void eklenenLabelVersiyonundaGoruntulenmemelidir(String version) {
+        if (!documentsPage.versionLabelGorunmuyorMu(version, batch14Label)) {
+            throw new AssertionError("Label yanlış versiyonda görüntüleniyor: " + version + " / " + batch14Label);
         }
     }
 
