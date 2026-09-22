@@ -624,7 +624,11 @@ try {
         throw "ECM yolu bir Git repository değil: $EcmRepo"
     }
 
-    $branch = (git branch --show-current).Trim()
+    $branchOutput = git branch --show-current
+    $branch = if ($null -eq $branchOutput) { "" } else { "$branchOutput".Trim() }
+    if ([string]::IsNullOrWhiteSpace($branch)) {
+        $branch = "DETACHED_HEAD"
+    }
     $remote = (git remote get-url origin).Trim()
 
     $comparisonMode = "WORKING_TREE"
