@@ -39,6 +39,8 @@ public class BrowserManager {
     }
 
     public static void startScenario(String scenarioName) {
+        RuntimeEndpointCoverage.initializeRun();
+
         currentScenarioName = scenarioName;
         scenarioEndpoints.clear();
 
