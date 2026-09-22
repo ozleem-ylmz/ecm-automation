@@ -9,7 +9,11 @@ public class Hooks {
 
     @Before
     public void beforeScenario(Scenario scenario) {
-        BrowserManager.startScenario(scenario.getName());
+        BrowserManager.startScenario(
+                scenario.getName(),
+                scenario.getUri().toString(),
+                scenario.getId()
+        );
     }
 
     @After

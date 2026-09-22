@@ -21,7 +21,14 @@ public class BrowserManager {
     private static final String DEFAULT_BASE_URL = "http://localhost:5173";
 
     private static String currentScenarioName;
-    private static final Set<String> scenarioEndpoints = new LinkedHashSet<>();
+    private static String currentScenarioUri;
+    private static String currentScenarioId;
+
+    private static final Set<String> scenarioEndpoints =
+            new LinkedHashSet<>();
+
+    private BrowserManager() {
+    }
 
     public static String getBaseUrl() {
         String envBaseUrl = System.getenv("ECM_BASE_URL");
@@ -38,13 +45,30 @@ public class BrowserManager {
         return ci != null && ci.equalsIgnoreCase("true");
     }
 
-    public static void startScenario(String scenarioName) {
+    public static void startScenario(
+            String scenarioName,
+            String scenarioUri,
+            String scenarioId
+    ) {
         RuntimeEndpointCoverage.initializeRun();
 
         currentScenarioName = scenarioName;
+        currentScenarioUri = scenarioUri;
+        currentScenarioId = scenarioId;
+
         scenarioEndpoints.clear();
 
-        System.out.println("[SCENARIO] " + scenarioName);
+        System.out.println(
+                "[SCENARIO] " + currentScenarioName
+        );
+
+        System.out.println(
+                "[SCENARIO URI] " + currentScenarioUri
+        );
+
+        System.out.println(
+                "[SCENARIO ID] " + currentScenarioId
+        );
     }
 
     public static void finishScenario() {
@@ -52,18 +76,27 @@ public class BrowserManager {
             return;
         }
 
-        System.out.println("[COVERAGE] Scenario: " + currentScenarioName);
+        System.out.println(
+                "[COVERAGE] Scenario: " + currentScenarioName
+        );
 
         for (String endpoint : scenarioEndpoints) {
-            System.out.println("[COVERAGE] " + endpoint);
+            System.out.println(
+                    "[COVERAGE] " + endpoint
+            );
 
             RuntimeEndpointCoverage.record(
+                    currentScenarioId,
+                    currentScenarioUri,
                     currentScenarioName,
                     endpoint
             );
         }
 
         currentScenarioName = null;
+        currentScenarioUri = null;
+        currentScenarioId = null;
+
         scenarioEndpoints.clear();
     }
 
@@ -78,12 +111,14 @@ public class BrowserManager {
         );
 
         page = browser.newPage();
+
         attachEndpointListener(page);
     }
 
     public static Page createManagerPage() {
 
         managerContext = browser.newContext();
+
         managerPage = managerContext.newPage();
 
         attachEndpointListener(managerPage);
@@ -96,6 +131,7 @@ public class BrowserManager {
         targetPage.onRequest(request -> {
             try {
                 URI uri = URI.create(request.url());
+
                 String path = uri.getPath();
 
                 if (path == null || !path.startsWith("/v1/")) {
@@ -115,9 +151,12 @@ public class BrowserManager {
 
                 scenarioEndpoints.add(endpoint);
 
-                System.out.println("[ENDPOINT] " + endpoint);
+                System.out.println(
+                        "[ENDPOINT] " + endpoint
+                );
 
             } catch (Exception ignored) {
+                // Coverage collection must never fail the test.
             }
         });
     }

@@ -17,13 +17,10 @@ public class RuntimeEndpointCoverage {
     }
 
     /**
-     * Initializes the runtime coverage file once per JVM/test run.
+     * Initializes the coverage file once per JVM/test run.
      *
-     * The previous run's coverage is removed so stale scenario/endpoint
-     * mappings cannot affect the current run.
-     *
-     * This method is safe to call before every scenario because the actual
-     * initialization happens only once per JVM.
+     * The existing file is truncated only on the first initialization.
+     * Subsequent scenarios in the same run append to the same file.
      */
     public static synchronized void initializeRun() {
         if (initialized) {
@@ -35,7 +32,8 @@ public class RuntimeEndpointCoverage {
 
             Files.writeString(
                     OUTPUT,
-                    "scenario,method,endpoint" + System.lineSeparator(),
+                    "scenario_id,scenario_uri,scenario,method,endpoint"
+                            + System.lineSeparator(),
                     StandardCharsets.UTF_8,
                     StandardOpenOption.CREATE,
                     StandardOpenOption.TRUNCATE_EXISTING
@@ -56,11 +54,36 @@ public class RuntimeEndpointCoverage {
         }
     }
 
+    /**
+     * Records an endpoint for the current Cucumber scenario.
+     */
     public static synchronized void record(
-            String scenario,
+            String scenarioName,
             String endpoint
     ) {
-        if (scenario == null || endpoint == null) {
+        record(
+                "",
+                "",
+                scenarioName,
+                endpoint
+        );
+    }
+
+    /**
+     * Records an endpoint together with the stable Cucumber scenario
+     * identity.
+     */
+    public static synchronized void record(
+            String scenarioId,
+            String scenarioUri,
+            String scenarioName,
+            String endpoint
+    ) {
+        if (scenarioName == null || scenarioName.isBlank()) {
+            return;
+        }
+
+        if (endpoint == null || endpoint.isBlank()) {
             return;
         }
 
@@ -68,16 +91,25 @@ public class RuntimeEndpointCoverage {
 
         int separator = endpoint.indexOf(' ');
 
-        if (separator <= 0) {
+        if (separator <= 0 || separator >= endpoint.length() - 1) {
             return;
         }
 
-        String method = endpoint.substring(0, separator);
-        String path = endpoint.substring(separator + 1);
+        String method =
+                endpoint.substring(0, separator).trim();
+
+        String path =
+                endpoint.substring(separator + 1).trim();
+
+        if (method.isBlank() || path.isBlank()) {
+            return;
+        }
 
         try {
             String row =
-                    csv(scenario) + "," +
+                    csv(scenarioId) + "," +
+                    csv(scenarioUri) + "," +
+                    csv(scenarioName) + "," +
                     csv(method) + "," +
                     csv(path) +
                     System.lineSeparator();
@@ -99,6 +131,15 @@ public class RuntimeEndpointCoverage {
     }
 
     private static String csv(String value) {
-        return "\"" + value.replace("\"", "\"\"") + "\"";
+        if (value == null) {
+            return "\"\"";
+        }
+
+        return "\"" +
+                value
+                        .replace("\r", " ")
+                        .replace("\n", " ")
+                        .replace("\"", "\"\"") +
+                "\"";
     }
 }
