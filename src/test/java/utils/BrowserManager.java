@@ -5,17 +5,23 @@ import com.microsoft.playwright.BrowserContext;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Playwright;
 
+import java.net.URI;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 public class BrowserManager {
 
     public static Playwright playwright;
     public static Browser browser;
     public static Page page;
 
-    // Manager için admin'den bağımsız ikinci oturum
     public static BrowserContext managerContext;
     public static Page managerPage;
 
     private static final String DEFAULT_BASE_URL = "http://localhost:5173";
+
+    private static String currentScenarioName;
+    private static final Set<String> scenarioEndpoints = new LinkedHashSet<>();
 
     public static String getBaseUrl() {
         String envBaseUrl = System.getenv("ECM_BASE_URL");
@@ -32,6 +38,33 @@ public class BrowserManager {
         return ci != null && ci.equalsIgnoreCase("true");
     }
 
+    public static void startScenario(String scenarioName) {
+        currentScenarioName = scenarioName;
+        scenarioEndpoints.clear();
+
+        System.out.println("[SCENARIO] " + scenarioName);
+    }
+
+    public static void finishScenario() {
+        if (currentScenarioName == null) {
+            return;
+        }
+
+        System.out.println("[COVERAGE] Scenario: " + currentScenarioName);
+
+        for (String endpoint : scenarioEndpoints) {
+    System.out.println("[COVERAGE] " + endpoint);
+
+    RuntimeEndpointCoverage.record(
+            currentScenarioName,
+            endpoint
+    );
+}
+
+        currentScenarioName = null;
+        scenarioEndpoints.clear();
+    }
+
     public static void startBrowser() {
 
         playwright = Playwright.create();
@@ -43,6 +76,7 @@ public class BrowserManager {
         );
 
         page = browser.newPage();
+        attachEndpointListener(page);
     }
 
     public static Page createManagerPage() {
@@ -50,12 +84,53 @@ public class BrowserManager {
         managerContext = browser.newContext();
         managerPage = managerContext.newPage();
 
+        attachEndpointListener(managerPage);
+
         return managerPage;
+    }
+
+    private static void attachEndpointListener(Page targetPage) {
+
+        targetPage.onRequest(request -> {
+            try {
+                URI uri = URI.create(request.url());
+                String path = uri.getPath();
+
+                if (path == null || !path.startsWith("/v1/")) {
+                    return;
+                }
+
+                String normalizedPath = normalizePath(path);
+
+                String endpoint =
+                        request.method().toUpperCase() +
+                        " " +
+                        normalizedPath;
+
+                scenarioEndpoints.add(endpoint);
+
+                System.out.println("[ENDPOINT] " + endpoint);
+
+            } catch (Exception ignored) {
+            }
+        });
+    }
+
+    private static String normalizePath(String path) {
+
+        // UUID path parametrelerini OpenAPI formatına çevir:
+        // /v1/documents/abc.../title
+        // ->
+        // /v1/documents/{id}/title
+
+        return path.replaceAll(
+                "(?i)[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
+                "{id}"
+        );
     }
 
     public static void closeBrowser() {
 
-        // Önce manager oturumunu kapat
         try {
             if (managerContext != null) {
                 managerContext.close();
@@ -66,7 +141,6 @@ public class BrowserManager {
             managerPage = null;
         }
 
-        // Sonra browser'ı kapat
         try {
             if (browser != null && browser.isConnected()) {
                 browser.close();
@@ -77,7 +151,6 @@ public class BrowserManager {
             page = null;
         }
 
-        // En son Playwright'ı kapat
         try {
             if (playwright != null) {
                 playwright.close();

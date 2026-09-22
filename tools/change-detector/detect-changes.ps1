@@ -120,6 +120,35 @@ function Get-EndpointTag {
 
     return "@endpoint_$($Method.ToUpperInvariant())_$normalized"
 }
+function Get-RuntimeEndpointCoverage {
+    param(
+        [string]$Method,
+        [string]$EndpointPath
+    )
+
+    $runtimeCoverageFile = Join-Path $AutomationRepo "target\runtime-endpoint-coverage.csv"
+
+    if (-not (Test-Path $runtimeCoverageFile -PathType Leaf)) {
+        return @()
+    }
+
+    try {
+        $rows = @(Import-Csv $runtimeCoverageFile -Encoding UTF8)
+
+        return @(
+            $rows |
+                Where-Object {
+                    $_.method -eq $Method -and
+                    $_.endpoint -eq $EndpointPath
+                } |
+                Select-Object -ExpandProperty scenario -Unique
+        )
+    }
+    catch {
+        Write-Warning "Runtime endpoint coverage could not be read: $($_.Exception.Message)"
+        return @()
+    }
+}
 
 function Get-EndpointCoverage {
     param(
@@ -129,64 +158,81 @@ function Get-EndpointCoverage {
 
     $tag = Get-EndpointTag -Method $Method -EndpointPath $EndpointPath
     $features = @()
-    $scenarios = @()
+    $tagScenarios = @()
 
-    if (-not (Test-Path $featureRoot)) {
-        return [PSCustomObject]@{
-            Tag       = $tag
-            Covered   = $false
-            Features  = @()
-            Scenarios = @()
+    if (Test-Path $featureRoot -PathType Container) {
+        $featureFiles = @(Get-ChildItem $featureRoot -Filter "*.feature" -Recurse -File)
+
+        foreach ($file in $featureFiles) {
+            $fileLines = @(Get-Content $file.FullName -Encoding UTF8)
+            $relative = $file.FullName.Replace($AutomationRepo + "\", "")
+
+            for ($i = 0; $i -lt $fileLines.Count; $i++) {
+                if ($fileLines[$i] -notmatch [regex]::Escape($tag)) {
+                    continue
+                }
+
+                if ($features -notcontains $relative) {
+                    $features += $relative
+                }
+
+                $scenarioName = $null
+                $max = [Math]::Min($fileLines.Count - 1, $i + 8)
+
+                for ($j = $i + 1; $j -le $max; $j++) {
+                    if ($fileLines[$j] -match '^\s*Scenario(?: Outline)?:\s*(.+?)\s*$') {
+                        $scenarioName = $Matches[1]
+                        break
+                    }
+
+                    if (
+                        $fileLines[$j] -match '^\s*Feature:' -or
+                        ($fileLines[$j] -match '^\s*@' -and $j -gt ($i + 1))
+                    ) {
+                        break
+                    }
+                }
+
+                if ($scenarioName) {
+                    $scenarioRef = "$relative :: $scenarioName"
+                    if ($tagScenarios -notcontains $scenarioRef) {
+                        $tagScenarios += $scenarioRef
+                    }
+                }
+            }
         }
     }
 
-    $featureFiles = @(Get-ChildItem $featureRoot -Filter "*.feature" -Recurse -File)
+    $runtimeScenarios = @(
+        Get-RuntimeEndpointCoverage `
+            -Method $Method `
+            -EndpointPath $EndpointPath
+    )
 
-    foreach ($file in $featureFiles) {
-        $fileLines = @(Get-Content $file.FullName -Encoding UTF8)
-        $relative = $file.FullName.Replace($AutomationRepo + "\", "")
+    $runtimeCovered = ($runtimeScenarios.Count -gt 0)
+    $tagCovered = ($tagScenarios.Count -gt 0)
 
-        for ($i = 0; $i -lt $fileLines.Count; $i++) {
-            if ($fileLines[$i] -notmatch [regex]::Escape($tag)) {
-                continue
-            }
-
-            if ($features -notcontains $relative) {
-                $features += $relative
-            }
-
-            # Tags normally sit immediately above Scenario/Scenario Outline.
-            $scenarioName = $null
-            $max = [Math]::Min($fileLines.Count - 1, $i + 8)
-
-            for ($j = $i + 1; $j -le $max; $j++) {
-                if ($fileLines[$j] -match '^\s*Scenario(?: Outline)?:\s*(.+?)\s*$') {
-                    $scenarioName = $Matches[1]
-                    break
-                }
-
-                if (
-                    $fileLines[$j] -match '^\s*Feature:' -or
-                    ($fileLines[$j] -match '^\s*@' -and $j -gt ($i + 1))
-                ) {
-                    break
-                }
-            }
-
-            if ($scenarioName) {
-                $scenarioRef = "$relative :: $scenarioName"
-                if ($scenarios -notcontains $scenarioRef) {
-                    $scenarios += $scenarioRef
-                }
-            }
-        }
+    if ($runtimeCovered) {
+        $effectiveScenarios = @($runtimeScenarios)
+        $coverageSource = "runtime"
+    }
+    elseif ($tagCovered) {
+        $effectiveScenarios = @($tagScenarios)
+        $coverageSource = "tag"
+    }
+    else {
+        $effectiveScenarios = @()
+        $coverageSource = "none"
     }
 
     return [PSCustomObject]@{
-        Tag       = $tag
-        Covered   = ($features.Count -gt 0)
-        Features  = @($features)
-        Scenarios = @($scenarios)
+        Tag              = $tag
+        Covered          = ($runtimeCovered -or $tagCovered)
+        CoverageSource   = $coverageSource
+        Features         = @($features)
+        Scenarios        = @($effectiveScenarios)
+        TagScenarios     = @($tagScenarios)
+        RuntimeScenarios = @($runtimeScenarios)
     }
 }
 
@@ -817,6 +863,9 @@ else {
             if ($endpoint.Change -eq "CHANGED") {
                 $action = "EXISTING TEST FOUND - REVIEW ASSERTIONS"
             }
+            elseif ($coverage.CoverageSource -eq "runtime") {
+                $action = "RUNTIME COVERAGE FOUND"
+            }
             else {
                 $action = "EXISTING EXPLICIT COVERAGE FOUND"
             }
@@ -840,9 +889,10 @@ else {
         $lines.Add("Source   : $($endpoint.File)")
         $lines.Add("Tag      : $($coverage.Tag)")
         $lines.Add("Coverage : $coverageState")
+        $lines.Add("Source   : $($coverage.CoverageSource.ToUpperInvariant())")
         $lines.Add("Action   : $action")
 
-        if ($coverage.Features.Count -gt 0) {
+        if ($coverage.CoverageSource -eq "tag" -and $coverage.Features.Count -gt 0) {
             $lines.Add("Features :")
             foreach ($feature in $coverage.Features) {
                 $lines.Add("  - $feature")
@@ -856,17 +906,30 @@ else {
             }
         }
 
+        if (
+            $coverage.CoverageSource -eq "runtime" -and
+            $coverage.TagScenarios.Count -gt 0
+        ) {
+            $lines.Add("Tag scenarios (informational only):")
+            foreach ($scenario in $coverage.TagScenarios) {
+                $lines.Add("  - $scenario")
+            }
+        }
+
         $endpointJson += [PSCustomObject]@{
             Change        = $endpoint.Change
             Method        = $endpoint.Method
             Path          = $endpoint.Path
             Module        = $endpoint.Module
             Source        = $endpoint.File
-            Tag           = $coverage.Tag
-            Coverage      = $coverageState
-            Action        = $action
-            Features      = @($coverage.Features)
-            Scenarios     = @($coverage.Scenarios)
+            Tag              = $coverage.Tag
+            Coverage         = $coverageState
+            CoverageSource   = $coverage.CoverageSource
+            Action           = $action
+            Features         = @($coverage.Features)
+            Scenarios        = @($coverage.Scenarios)
+            TagScenarios     = @($coverage.TagScenarios)
+            RuntimeScenarios = @($coverage.RuntimeScenarios)
         }
     }
 }
@@ -927,7 +990,7 @@ $lines.Add("Module changes         : $($moduleResults.Count)")
 $lines.Add("New endpoints          : $newCount")
 $lines.Add("Changed endpoints      : $changedCount")
 $lines.Add("Removed endpoints      : $removedCount")
-$lines.Add("Explicitly covered     : $coveredCount")
+$lines.Add("Covered endpoints      : $coveredCount")
 $lines.Add("Missing coverage       : $missingCoverage")
 $lines.Add("Affected removed tests : $affectedRemovedCount")
 $lines.Add("CI result              : $ciResult")
@@ -974,7 +1037,7 @@ $jsonReport = [PSCustomObject]@{
         NewEndpoints = $newCount
         ChangedEndpoints = $changedCount
         RemovedEndpoints = $removedCount
-        ExplicitlyCovered = $coveredCount
+        CoveredEndpoints = $coveredCount
         MissingCoverage = $missingCoverage
         AffectedRemovedTests = $affectedRemovedCount
         CiResult = $ciResult
