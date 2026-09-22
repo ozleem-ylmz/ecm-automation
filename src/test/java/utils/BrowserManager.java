@@ -53,13 +53,13 @@ public class BrowserManager {
         System.out.println("[COVERAGE] Scenario: " + currentScenarioName);
 
         for (String endpoint : scenarioEndpoints) {
-    System.out.println("[COVERAGE] " + endpoint);
+            System.out.println("[COVERAGE] " + endpoint);
 
-    RuntimeEndpointCoverage.record(
-            currentScenarioName,
-            endpoint
-    );
-}
+            RuntimeEndpointCoverage.record(
+                    currentScenarioName,
+                    endpoint
+            );
+        }
 
         currentScenarioName = null;
         scenarioEndpoints.clear();
@@ -100,12 +100,16 @@ public class BrowserManager {
                     return;
                 }
 
-                String normalizedPath = normalizePath(path);
+                String normalizedPath =
+                        EndpointTemplateMatcher.match(
+                                request.method(),
+                                path
+                        );
 
                 String endpoint =
-                        request.method().toUpperCase() +
-                        " " +
-                        normalizedPath;
+                        request.method().toUpperCase()
+                                + " "
+                                + normalizedPath;
 
                 scenarioEndpoints.add(endpoint);
 
@@ -114,19 +118,6 @@ public class BrowserManager {
             } catch (Exception ignored) {
             }
         });
-    }
-
-    private static String normalizePath(String path) {
-
-        // UUID path parametrelerini OpenAPI formatına çevir:
-        // /v1/documents/abc.../title
-        // ->
-        // /v1/documents/{id}/title
-
-        return path.replaceAll(
-                "(?i)[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
-                "{id}"
-        );
     }
 
     public static void closeBrowser() {
