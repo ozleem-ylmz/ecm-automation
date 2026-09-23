@@ -1,4 +1,4 @@
-﻿param(
+param(
     [string]$AutomationRepo = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path,
     [string]$ReportFile = "",
     [switch]$DryRun
@@ -117,7 +117,7 @@ try {
     Write-Host "RUNNING AFFECTED TESTS"
     Write-Host ("-" * 86)
 
-    & mvn test "-Dcucumber.filter.name=$cucumberFilter"
+    & mvn test "-Druntime.coverage.mode=PARTIAL" "-Dcucumber.filter.name=$cucumberFilter"
 
     $mavenExitCode = $LASTEXITCODE
 }

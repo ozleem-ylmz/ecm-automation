@@ -5,11 +5,15 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.time.Instant;
 
 public class RuntimeEndpointCoverage {
 
     private static final Path OUTPUT =
             Path.of("target", "runtime-endpoint-coverage.csv");
+
+    private static final Path METADATA_OUTPUT =
+            Path.of("target", "runtime-endpoint-coverage-meta.json");
 
     private static boolean initialized = false;
 
@@ -17,10 +21,12 @@ public class RuntimeEndpointCoverage {
     }
 
     /**
-     * Initializes the coverage file once per JVM/test run.
+     * Initializes runtime endpoint coverage once per JVM/test run.
      *
-     * The existing file is truncated only on the first initialization.
-     * Subsequent scenarios in the same run append to the same file.
+     * By default a normal Maven test execution is considered FULL.
+     * Selective runners must explicitly start Maven with:
+     *
+     * -Druntime.coverage.mode=PARTIAL
      */
     public static synchronized void initializeRun() {
         if (initialized) {
@@ -39,11 +45,41 @@ public class RuntimeEndpointCoverage {
                     StandardOpenOption.TRUNCATE_EXISTING
             );
 
+            String coverageMode = getCoverageMode();
+
+            String metadata =
+                    "{"
+                            + System.lineSeparator()
+                            + "  \"mode\": \"" + json(coverageMode) + "\","
+                            + System.lineSeparator()
+                            + "  \"generatedAt\": \"" + json(Instant.now().toString()) + "\""
+                            + System.lineSeparator()
+                            + "}"
+                            + System.lineSeparator();
+
+            Files.writeString(
+                    METADATA_OUTPUT,
+                    metadata,
+                    StandardCharsets.UTF_8,
+                    StandardOpenOption.CREATE,
+                    StandardOpenOption.TRUNCATE_EXISTING
+            );
+
             initialized = true;
 
             System.out.println(
                     "[COVERAGE] Runtime coverage initialized: "
                             + OUTPUT
+            );
+
+            System.out.println(
+                    "[COVERAGE] Runtime coverage mode: "
+                            + coverageMode
+            );
+
+            System.out.println(
+                    "[COVERAGE] Runtime coverage metadata: "
+                            + METADATA_OUTPUT
             );
 
         } catch (IOException e) {
@@ -70,8 +106,7 @@ public class RuntimeEndpointCoverage {
     }
 
     /**
-     * Records an endpoint together with the stable Cucumber scenario
-     * identity.
+     * Records an endpoint together with the Cucumber scenario identity.
      */
     public static synchronized void record(
             String scenarioId,
@@ -130,6 +165,29 @@ public class RuntimeEndpointCoverage {
         }
     }
 
+    private static String getCoverageMode() {
+        String mode = System.getProperty(
+                "runtime.coverage.mode",
+                "FULL"
+        );
+
+        if (mode == null || mode.isBlank()) {
+            return "FULL";
+        }
+
+        mode = mode.trim().toUpperCase();
+
+        if (!mode.equals("FULL") && !mode.equals("PARTIAL")) {
+            throw new IllegalArgumentException(
+                    "Invalid runtime.coverage.mode: "
+                            + mode
+                            + ". Expected FULL or PARTIAL."
+            );
+        }
+
+        return mode;
+    }
+
     private static String csv(String value) {
         if (value == null) {
             return "\"\"";
@@ -141,5 +199,17 @@ public class RuntimeEndpointCoverage {
                         .replace("\n", " ")
                         .replace("\"", "\"\"") +
                 "\"";
+    }
+
+    private static String json(String value) {
+        if (value == null) {
+            return "";
+        }
+
+        return value
+                .replace("\\", "\\\\")
+                .replace("\"", "\\\"")
+                .replace("\r", "\\r")
+                .replace("\n", "\\n");
     }
 }

@@ -16,7 +16,63 @@ $reportFile = Join-Path $outputDir "change-report-v3.1.txt"
 $jsonFile   = Join-Path $outputDir "change-report-v3.1.json"
 
 New-Item -ItemType Directory -Force $outputDir | Out-Null
+function Get-RuntimeCoverageMetadata {
+    $metadataFile = Join-Path `
+        $AutomationRepo `
+        "target\runtime-endpoint-coverage-meta.json"
 
+    $result = [PSCustomObject]@{
+        Mode        = "UNKNOWN"
+        GeneratedAt = $null
+        File        = $metadataFile
+        Warning     = "Runtime coverage metadata is unavailable."
+    }
+
+    if (-not (Test-Path $metadataFile -PathType Leaf)) {
+        return $result
+    }
+
+    try {
+        $metadata = Get-Content `
+            $metadataFile `
+            -Raw `
+            -Encoding UTF8 |
+            ConvertFrom-Json
+
+        $mode = "$($metadata.mode)".Trim().ToUpperInvariant()
+
+        if ($mode -notin @("FULL", "PARTIAL")) {
+            return [PSCustomObject]@{
+                Mode        = "UNKNOWN"
+                GeneratedAt = $metadata.generatedAt
+                File        = $metadataFile
+                Warning     = "Runtime coverage metadata contains an invalid mode."
+            }
+        }
+
+        $warning = $null
+
+        if ($mode -eq "PARTIAL") {
+            $warning =
+                "Runtime coverage is PARTIAL; affected tests may be incomplete."
+        }
+
+        return [PSCustomObject]@{
+            Mode        = $mode
+            GeneratedAt = $metadata.generatedAt
+            File        = $metadataFile
+            Warning     = $warning
+        }
+    }
+    catch {
+        return [PSCustomObject]@{
+            Mode        = "UNKNOWN"
+            GeneratedAt = $null
+            File        = $metadataFile
+            Warning     = "Runtime coverage metadata could not be read: $($_.Exception.Message)"
+        }
+    }
+}
 function Normalize-RepoPath {
     param([string]$Path)
     if ($null -eq $Path) { return "" }
@@ -982,6 +1038,9 @@ $affectedRemovedCount = 0
 $affectedTests = [System.Collections.Generic.HashSet[string]]::new(
     [System.StringComparer]::OrdinalIgnoreCase
 )
+$runtimeCoverageMetadata = Get-RuntimeCoverageMetadata
+$runtimeCoverageMode = $runtimeCoverageMetadata.Mode
+$runtimeCoverageWarning = $runtimeCoverageMetadata.Warning
 if ($endpointResults.Count -eq 0) {
     $lines.Add("No NEW, CHANGED or REMOVED utoipa endpoints detected.")
 }
@@ -1172,6 +1231,11 @@ $lines.Add("Removed endpoints      : $removedCount")
 $lines.Add("Covered endpoints      : $coveredCount")
 $lines.Add("Missing coverage       : $missingCoverage")
 $lines.Add("Affected tests         : $($affectedTestList.Count)")
+$lines.Add("Coverage mode          : $runtimeCoverageMode")
+
+if (-not [string]::IsNullOrWhiteSpace($runtimeCoverageWarning)) {
+    $lines.Add("Coverage warning       : $runtimeCoverageWarning")
+}
 $lines.Add("Affected removed tests : $affectedRemovedCount")
 $lines.Add("CI result              : $ciResult")
 $lines.Add("Exit code              : $exitCode")
@@ -1212,6 +1276,8 @@ $jsonReport = [PSCustomObject]@{
     Files = @($changes)
     Endpoints = @($endpointJson)
     AffectedTests = @($affectedTestList)
+CoverageMode = $runtimeCoverageMode
+CoverageGeneratedAt = $runtimeCoverageMetadata.GeneratedAt
     Summary = [PSCustomObject]@{
         ChangedFiles = $changes.Count
         ModuleChanges = $moduleResults.Count
@@ -1221,6 +1287,7 @@ $jsonReport = [PSCustomObject]@{
         CoveredEndpoints = $coveredCount
         MissingCoverage = $missingCoverage
         AffectedTests = $affectedTestList.Count
+CoverageMode = $runtimeCoverageMode
         AffectedRemovedTests = $affectedRemovedCount
         CiResult = $ciResult
         ExitCode = $exitCode
