@@ -608,7 +608,13 @@ function Convert-PorcelainToChanges {
 }
 
 function Get-ModuleChanges {
-    param([object[]]$FileChanges)
+    param(
+        [object[]]$FileChanges,
+        [string]$Repo,
+        [string]$OldRef,
+        [string]$NewRef,
+        [switch]$WorkingTree
+    )
 
     $interesting = @(
         $FileChanges |
@@ -619,28 +625,140 @@ function Get-ModuleChanges {
         }
     )
 
+    if ($interesting.Count -eq 0) {
+        return @()
+    }
+
+    function Get-ModulesAtRef {
+        param(
+            [string]$GitRef,
+            [switch]$UseWorkingTree
+        )
+
+        $modules = New-Object System.Collections.Generic.HashSet[string]
+
+        if ($UseWorkingTree) {
+            $files = @(
+                git -C $Repo ls-files --cached --others --exclude-standard
+            )
+
+            foreach ($file in $files) {
+                $pathValue = Normalize-RepoPath $file
+
+                if (
+                    $pathValue -notmatch '^src/api/rest/openapi/paths/[^/]+\.rs$' -and
+                    $pathValue -notmatch '^src/api/rest/[^/]+\.rs$' -and
+                    $pathValue -notmatch '^frontend/src/pages/[^/]+\.tsx$'
+                ) {
+                    continue
+                }
+
+                $fullPath = Join-Path $Repo ($pathValue.Replace("/", "\"))
+
+                if (-not (Test-Path $fullPath -PathType Leaf)) {
+                    continue
+                }
+
+                $module = Get-ModuleFromPath $pathValue
+
+                if (
+                    -not [string]::IsNullOrWhiteSpace($module) -and
+                    $module -ne "Other"
+                ) {
+                    [void]$modules.Add($module)
+                }
+            }
+        }
+        else {
+            $files = @(
+                git -C $Repo ls-tree -r --name-only $GitRef
+            )
+
+            foreach ($file in $files) {
+                $pathValue = Normalize-RepoPath $file
+
+                if (
+                    $pathValue -notmatch '^src/api/rest/openapi/paths/[^/]+\.rs$' -and
+                    $pathValue -notmatch '^src/api/rest/[^/]+\.rs$' -and
+                    $pathValue -notmatch '^frontend/src/pages/[^/]+\.tsx$'
+                ) {
+                    continue
+                }
+
+                $module = Get-ModuleFromPath $pathValue
+
+                if (
+                    -not [string]::IsNullOrWhiteSpace($module) -and
+                    $module -ne "Other"
+                ) {
+                    [void]$modules.Add($module)
+                }
+            }
+        }
+
+        return @($modules)
+    }
+
+    $oldModules = @(
+        Get-ModulesAtRef -GitRef $OldRef
+    )
+
+    if ($WorkingTree) {
+        $newModules = @(
+            Get-ModulesAtRef -UseWorkingTree
+        )
+    }
+    else {
+        $newModules = @(
+            Get-ModulesAtRef -GitRef $NewRef
+        )
+    }
+
     $results = @()
 
     foreach ($group in ($interesting | Group-Object Module)) {
-        $statuses = @($group.Group.Status | Select-Object -Unique)
+        $moduleName = $group.Name
 
-        if ($statuses -contains "NEW") {
+        if (
+            [string]::IsNullOrWhiteSpace($moduleName) -or
+            $moduleName -eq "Other"
+        ) {
+            continue
+        }
+
+        $existedBefore = $oldModules -contains $moduleName
+        $existsAfter   = $newModules -contains $moduleName
+
+        if (-not $existedBefore -and $existsAfter) {
             $moduleStatus = "NEW"
         }
-        elseif ($statuses -contains "REMOVED") {
+        elseif ($existedBefore -and -not $existsAfter) {
             $moduleStatus = "REMOVED"
-        }
-        elseif ($statuses -contains "RENAMED") {
-            $moduleStatus = "RENAMED"
         }
         else {
             $moduleStatus = "CHANGED"
         }
 
+        $files = @(
+            $group.Group |
+            ForEach-Object {
+                if (
+                    $_.Status -eq "REMOVED" -and
+                    -not [string]::IsNullOrWhiteSpace($_.OldPath)
+                ) {
+                    $_.OldPath
+                }
+                else {
+                    $_.Path
+                }
+            } |
+            Sort-Object -Unique
+        )
+
         $results += [PSCustomObject]@{
             Status = $moduleStatus
-            Module = $group.Name
-            Files  = @($group.Group.Path | Sort-Object -Unique)
+            Module = $moduleName
+            Files  = $files
         }
     }
 
@@ -771,7 +889,25 @@ finally {
 }
 
 
-$moduleResults = @(Get-ModuleChanges -FileChanges $changes)
+if ($comparisonMode -eq "REF_RANGE") {
+    $moduleResults = @(
+        Get-ModuleChanges `
+            -FileChanges $changes `
+            -Repo $EcmRepo `
+            -OldRef $BaseRef `
+            -NewRef $HeadRef
+    )
+}
+else {
+    $moduleResults = @(
+        Get-ModuleChanges `
+            -FileChanges $changes `
+            -Repo $EcmRepo `
+            -OldRef "HEAD" `
+            -NewRef "HEAD" `
+            -WorkingTree
+    )
+}
 
 $lines = New-Object System.Collections.Generic.List[string]
 $endpointJson = @()
