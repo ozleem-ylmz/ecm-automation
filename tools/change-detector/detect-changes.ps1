@@ -814,11 +814,11 @@ try {
         $comparisonMode = "REF_RANGE"
         $comparisonLabel = "$BaseRef...$HeadRef"
 
-        $nameStatusLines = @(git diff --name-status --find-renames "$BaseRef...$HeadRef")
+        $nameStatusLines = @(git -c core.autocrlf=false diff --name-status --find-renames "$BaseRef...$HeadRef")
         $changes = @(Convert-NameStatusToChanges -NameStatusLines $nameStatusLines)
 
         $diffLines = @(
-            git diff --find-renames --unified=100000 "$BaseRef...$HeadRef" -- `
+            git -c core.autocrlf=false diff --find-renames --unified=100000 "$BaseRef...$HeadRef" -- `
                 "src/api/rest/openapi" `
                 "src/api/rest/*.rs"
         )
@@ -829,7 +829,7 @@ try {
 
         # Tracked staged + unstaged changes.
         $trackedDiff = @(
-            git diff HEAD --unified=100000 -- `
+            git -c core.autocrlf=false diff HEAD --unified=100000 -- `
                 "src/api/rest/openapi" `
                 "src/api/rest/*.rs"
         )
