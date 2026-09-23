@@ -2243,7 +2243,8 @@ public class DocumentsPage {
 
         // Document title'ın hemen yanındaki kalem/edit butonu.
         // Edit modunda Confirm rename / Cancel butonları oluşuyor.
-        Locator confirm = page.locator("button[title='Confirm rename']");
+        Locator confirm =
+                page.locator("button[title='Confirm rename']");
 
         if (confirm.count() > 0 && confirm.first().isVisible()) {
             throw new AssertionError(
@@ -2251,7 +2252,8 @@ public class DocumentsPage {
             );
         }
 
-        Locator titleHeading = page.locator("h1").first();
+        Locator titleHeading =
+                page.locator("h1").first();
 
         if (titleHeading.count() == 0) {
             throw new AssertionError(
@@ -2259,9 +2261,11 @@ public class DocumentsPage {
             );
         }
 
-        Locator container = titleHeading.locator("xpath=..");
+        Locator container =
+                titleHeading.locator("xpath=..");
 
-        Locator buttons = container.locator("button");
+        Locator buttons =
+                container.locator("button");
 
         if (buttons.count() == 0) {
             throw new AssertionError(
@@ -2302,7 +2306,6 @@ public class DocumentsPage {
         );
 
         return input;
-    
     }
 
     public boolean renameEditButonuGorunuyorMu() {
@@ -2343,6 +2346,24 @@ public class DocumentsPage {
     public void renameBasligiGir(String newTitle) {
 
         renameInput().fill(newTitle);
+    }
+
+    // =========================
+    // BATCH 16 - RENAME VALIDATION
+    // =========================
+
+    public boolean renameKaydetDisabledMi() {
+
+        Locator confirm =
+                page.locator("button[title='Confirm rename']");
+
+        confirm.waitFor(
+                new Locator.WaitForOptions()
+                        .setState(WaitForSelectorState.VISIBLE)
+                        .setTimeout(5000)
+        );
+
+        return confirm.isDisabled();
     }
 
     public void renameKaydet() {
@@ -2459,6 +2480,103 @@ public class DocumentsPage {
             );
         }
     }
+    public boolean renameBasligiKaydedilmediMi(String originalTitle) {
+
+        try {
+
+            Locator heading = page.getByRole(
+                    AriaRole.HEADING,
+                    new Page.GetByRoleOptions()
+                            .setName(originalTitle)
+                            .setExact(true)
+            );
+
+            heading.waitFor(
+                    new Locator.WaitForOptions()
+                            .setState(WaitForSelectorState.VISIBLE)
+                            .setTimeout(5000)
+            );
+
+            return heading.isVisible();
+
+        } catch (Exception e) {
+
+            return false;
+        }
+    }
+    // =========================
+// BATCH 17 - VERSION COMMENT
+// =========================
+
+    public boolean versionCommentAlaniGorunuyorMu() {
+
+        try {
+
+            Locator textarea = page.locator(
+                    "textarea[placeholder^='Describe what changed in this version']"
+            );
+
+            textarea.waitFor(
+                    new Locator.WaitForOptions()
+                            .setState(WaitForSelectorState.VISIBLE)
+                            .setTimeout(5000)
+            );
+
+            return textarea.isVisible();
+
+        } catch (Exception e) {
+
+            return false;
+        }
+    }
+
+    public void versionCommentGir(String comment) {
+
+        Locator textarea = page.locator(
+                "textarea[placeholder^='Describe what changed in this version']"
+        );
+
+        textarea.waitFor(
+                new Locator.WaitForOptions()
+                        .setState(WaitForSelectorState.VISIBLE)
+                        .setTimeout(5000)
+        );
+
+        textarea.fill(comment);
+    }
+
+    public void versionCommentBosBirak() {
+
+        Locator textarea = page.locator(
+                "textarea[placeholder^='Describe what changed in this version']"
+        );
+
+        textarea.waitFor(
+                new Locator.WaitForOptions()
+                        .setState(WaitForSelectorState.VISIBLE)
+                        .setTimeout(5000)
+        );
+
+        textarea.fill("");
+    }
+
+    public boolean versionCommentGorunuyorMu(String comment) {
+        try {
+            Locator comments = page.getByText(
+                    comment,
+                    new Page.GetByTextOptions().setExact(true)
+            );
+
+            comments.first().waitFor(
+                    new Locator.WaitForOptions()
+                            .setState(WaitForSelectorState.VISIBLE)
+                            .setTimeout(5000)
+            );
+
+            return comments.first().isVisible();
+        } catch (Exception e) {
+            return false;
+        }
+    }
 
 }
-

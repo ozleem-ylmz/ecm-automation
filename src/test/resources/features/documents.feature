@@ -2460,3 +2460,87 @@ Scenario: B15-10 Rename edilen başlık refresh sonrasında kalıcıdır
   And kullanıcı document rename işlemini kaydeder
   And kullanıcı document detay sayfasını yeniler
   Then rename edilen document başlığı refresh sonrasında korunmalıdır
+ # =====================================================
+# BATCH 16 - DOCUMENT RENAME VALIDATION / EDGE CASES
+# PATCH /v1/documents/{id}/title
+# =====================================================
+
+  @batch16 @documents @rename @validation
+  Scenario: B16-01 Document başlığı boş bırakılamaz
+    Given Batch 16 için yeni bir document oluşturulur
+    When kullanıcı document rename editorunu açar
+    And kullanıcı document rename alanını boş bırakır
+    Then document rename işlemi boş başlıkla kaydedilememelidir
+
+  @batch16 @documents @rename @validation
+  Scenario: B16-02 Sadece boşluk içeren document başlığı kaydedilemez
+    Given Batch 16 için yeni bir document oluşturulur
+    When kullanıcı document rename editorunu açar
+    And kullanıcı document rename alanına sadece boşluk girer
+    Then document rename işlemi boşluk başlıkla kaydedilememelidir
+
+  @batch16 @documents @rename @validation
+  Scenario: B16-03 Rename iptal edildiğinde original başlık refresh sonrasında korunur
+    Given Batch 16 için yeni bir document oluşturulur
+    When kullanıcı document rename editorunu açar
+    And kullanıcı document başlığını Batch 16 için yeni benzersiz bir başlıkla değiştirir
+    And kullanıcı document rename işlemini iptal eder
+    And kullanıcı document detay sayfasını yeniler
+    Then Batch 16 original document başlığı görüntülenmelidir
+
+  @batch16 @documents @rename @validation
+  Scenario: B16-04 Document art arda iki kez yeniden adlandırılabilir
+    Given Batch 16 için yeni bir document oluşturulur
+    When kullanıcı document başlığını Batch 16 için birinci kez değiştirip kaydeder
+    And kullanıcı document başlığını Batch 16 için ikinci kez değiştirip kaydeder
+    Then document ikinci Batch 16 başlığı ile görüntülenmelidir
+
+  @batch16 @documents @rename @validation
+  Scenario: B16-05 İkinci rename sonrasında birinci rename başlığı artık görüntülenmez
+    Given Batch 16 için yeni bir document oluşturulur
+    When kullanıcı document başlığını Batch 16 için birinci kez değiştirip kaydeder
+    And kullanıcı document başlığını Batch 16 için ikinci kez değiştirip kaydeder
+    Then birinci Batch 16 rename başlığı artık görüntülenmemelidir
+    # =====================================================
+# BATCH 17 - VERSION CHANGE COMMENT
+# =====================================================
+
+  @batch17 @documents @version @comment
+  Scenario: B17-01 Yeni version oluştururken version comment girilebilir
+    Given Batch 17 için yeni bir document oluşturulur
+    When kullanıcı Batch 17 document için yeni version oluşturmayı açar
+    Then Version comment alanı görüntülenmelidir
+
+  @batch17 @documents @version @comment
+  Scenario: B17-02 Version comment ile yeni version oluşturulabilir
+    Given Batch 17 için yeni bir document oluşturulur
+    When kullanıcı Batch 17 document için yeni version oluşturmayı açar
+    And kullanıcı benzersiz bir Batch 17 version comment girer
+    And kullanıcı Batch 17 yeni version işlemini kaydeder
+    Then Batch 17 version comment document detayında görüntülenmelidir
+
+  @batch17 @documents @version @comment
+  Scenario: B17-03 Version comment refresh sonrasında korunur
+    Given Batch 17 için yeni bir document oluşturulur
+    When kullanıcı Batch 17 document için yeni version oluşturmayı açar
+    And kullanıcı benzersiz bir Batch 17 version comment girer
+    And kullanıcı Batch 17 yeni version işlemini kaydeder
+    And kullanıcı document detay sayfasını yeniler
+    Then Batch 17 version comment document detayında görüntülenmelidir
+
+  @batch17 @documents @version @comment
+  Scenario: B17-04 Version comment yeni version history kaydında görüntülenir
+    Given Batch 17 için yeni bir document oluşturulur
+    When kullanıcı Batch 17 document için yeni version oluşturmayı açar
+    And kullanıcı benzersiz bir Batch 17 version comment girer
+    And kullanıcı Batch 17 yeni version işlemini kaydeder
+    Then Batch 17 yeni version history kaydı görüntülenmelidir
+    And Batch 17 version comment yeni version kaydında görüntülenmelidir
+
+  @batch17 @documents @version @comment
+  Scenario: B17-05 Version comment olmadan da yeni version oluşturulabilir
+    Given Batch 17 için yeni bir document oluşturulur
+    When kullanıcı Batch 17 document için yeni version oluşturmayı açar
+    And kullanıcı Version comment alanını boş bırakır
+    And kullanıcı Batch 17 yeni version işlemini kaydeder
+    Then Batch 17 yeni version başarıyla oluşturulmalıdır

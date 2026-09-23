@@ -32,6 +32,13 @@ public class DocumentSteps {
     private String batch15OriginalTitle;
     private String batch15RenamedTitle;
     private String batch15DocumentUrl;
+    private String batch16OriginalTitle;
+    private String batch16RenamedTitle;
+    private String batch16FirstRenamedTitle;
+    private String batch16SecondRenamedTitle;
+    private String batch17OriginalTitle;
+    private String batch17VersionComment;
+    private String batch17ExpectedVersion = "v1.0.1";
 
     // =========================
     // HELPER METHODS
@@ -1854,6 +1861,290 @@ public class DocumentSteps {
             throw new AssertionError(
                     "Rename edilen başlık refresh sonrasında korunmadı: "
                             + batch15RenamedTitle
+            );
+        }
+    }
+    // =====================================================
+    // BATCH 16 - DOCUMENT RENAME VALIDATION / EDGE CASES
+    // =====================================================
+
+    @Given("Batch 16 için yeni bir document oluşturulur")
+    public void batch16IcinYeniBirDocumentOlusturulur() {
+
+        adminLogin();
+
+        batch16OriginalTitle =
+                "Batch16 Rename " + System.currentTimeMillis();
+
+        uploadWithoutClassSayfasinaGit();
+
+        documentsPage.belgeYukle(batch16OriginalTitle);
+
+        if (!documentsPage.belgeDetaySayfasindaMi()) {
+            throw new AssertionError(
+                    "Batch 16 document yüklendikten sonra detail sayfası açılmadı!"
+            );
+        }
+
+        if (!documentsPage.belgeBasligiGorunuyorMu(batch16OriginalTitle)) {
+            throw new AssertionError(
+                    "Batch 16 document oluşturulamadı: "
+                            + batch16OriginalTitle
+            );
+        }
+    }
+
+    @When("kullanıcı document rename alanını boş bırakır")
+    public void kullaniciDocumentRenameAlaniniBosBirakir() {
+
+        documentsPage.renameBasligiGir("");
+    }
+
+    @Then("document rename işlemi boş başlıkla kaydedilememelidir")
+    public void documentRenameIslemiBosBasliklaKaydedilememelidir() {
+
+        documentsPage.renameKaydet();
+
+        if (!documentsPage.renameBasligiKaydedilmediMi(
+                batch16OriginalTitle)) {
+
+            throw new AssertionError(
+                    "Boş document başlığı sistem tarafından kaydedildi! "
+                            + "Original başlık korunmadı: "
+                            + batch16OriginalTitle
+            );
+        }
+    }
+
+    @When("kullanıcı document rename alanına sadece boşluk girer")
+    public void kullaniciDocumentRenameAlaninaSadeceBoslukGirer() {
+
+        documentsPage.renameBasligiGir("   ");
+    }
+
+    @Then("document rename işlemi boşluk başlıkla kaydedilememelidir")
+    public void documentRenameIslemiBoslukBasliklaKaydedilememelidir() {
+
+        documentsPage.renameKaydet();
+
+        if (!documentsPage.renameBasligiKaydedilmediMi(
+                batch16OriginalTitle)) {
+
+            throw new AssertionError(
+                    "Sadece boşluk içeren document başlığı sistem tarafından kaydedildi! "
+                            + "Original başlık korunmadı: "
+                            + batch16OriginalTitle
+            );
+        }
+    }
+
+    @When("kullanıcı document başlığını Batch 16 için yeni benzersiz bir başlıkla değiştirir")
+    public void kullaniciDocumentBasliginiBatch16IcinYeniBenzersizBirBasliklaDegistirir() {
+
+        batch16RenamedTitle =
+                "Batch16 Renamed " + System.currentTimeMillis();
+
+        documentsPage.renameBasligiGir(
+                batch16RenamedTitle
+        );
+    }
+
+    @Then("Batch 16 original document başlığı görüntülenmelidir")
+    public void batch16OriginalDocumentBasligiGoruntulenmelidir() {
+
+        if (!documentsPage.belgeBasligiGorunuyorMu(
+                batch16OriginalTitle)) {
+
+            throw new AssertionError(
+                    "Cancel + refresh sonrasında original document başlığı korunmadı: "
+                            + batch16OriginalTitle
+            );
+        }
+    }
+
+    @When("kullanıcı document başlığını Batch 16 için birinci kez değiştirip kaydeder")
+    public void kullaniciDocumentBasliginiBatch16IcinBirinciKezDegistiripKaydeder() {
+
+        batch16FirstRenamedTitle =
+                "Batch16 First Rename " + System.currentTimeMillis();
+
+        documentsPage.renameEditorunuAc();
+
+        documentsPage.renameBasligiGir(
+                batch16FirstRenamedTitle
+        );
+
+        documentsPage.renameKaydet();
+
+        documentsPage.renameSonucunuBekle(
+                batch16FirstRenamedTitle
+        );
+    }
+
+    @When("kullanıcı document başlığını Batch 16 için ikinci kez değiştirip kaydeder")
+    public void kullaniciDocumentBasliginiBatch16IcinIkinciKezDegistiripKaydeder() {
+
+        batch16SecondRenamedTitle =
+                "Batch16 Second Rename " + System.currentTimeMillis();
+
+        documentsPage.renameEditorunuAc();
+
+        documentsPage.renameBasligiGir(
+                batch16SecondRenamedTitle
+        );
+
+        documentsPage.renameKaydet();
+
+        documentsPage.renameSonucunuBekle(
+                batch16SecondRenamedTitle
+        );
+    }
+
+    @Then("document ikinci Batch 16 başlığı ile görüntülenmelidir")
+    public void documentIkinciBatch16BasligiIleGoruntulenmelidir() {
+
+        if (!documentsPage.belgeBasligiDegistiMi(
+                batch16SecondRenamedTitle)) {
+
+            throw new AssertionError(
+                    "Document ikinci rename başlığı ile görüntülenmedi: "
+                            + batch16SecondRenamedTitle
+            );
+        }
+    }
+
+    @Then("birinci Batch 16 rename başlığı artık görüntülenmemelidir")
+    public void birinciBatch16RenameBasligiArtikGoruntulenmemelidir() {
+
+        if (!documentsPage.eskiBelgeBasligiGorunmuyorMu(
+                batch16FirstRenamedTitle)) {
+
+            throw new AssertionError(
+                    "Birinci rename başlığı ikinci rename sonrasında hâlâ görüntüleniyor: "
+                            + batch16FirstRenamedTitle
+            );
+        }
+    }
+    // =====================================================
+// BATCH 17 - VERSION CHANGE COMMENT
+// =====================================================
+
+    @Given("Batch 17 için yeni bir document oluşturulur")
+    public void batch17IcinYeniBirDocumentOlusturulur() {
+
+        adminLogin();
+
+        batch17OriginalTitle =
+                "Batch17 Version Comment " + System.currentTimeMillis();
+
+        uploadWithoutClassSayfasinaGit();
+
+        documentsPage.belgeYukle(batch17OriginalTitle);
+
+        if (!documentsPage.belgeDetaySayfasindaMi()) {
+            throw new AssertionError(
+                    "Batch 17 document oluşturulduktan sonra detail sayfası açılmadı!"
+            );
+        }
+
+        if (!documentsPage.belgeBasligiGorunuyorMu(batch17OriginalTitle)) {
+            throw new AssertionError(
+                    "Batch 17 document başlığı görüntülenmedi: "
+                            + batch17OriginalTitle
+            );
+        }
+    }
+
+    @When("kullanıcı Batch 17 document için yeni version oluşturmayı açar")
+    public void kullaniciBatch17DocumentIcinYeniVersionOlusturmayiAcar() {
+
+        documentsPage.yeniVersiyonSayfasiniAc();
+    }
+
+    @Then("Version comment alanı görüntülenmelidir")
+    public void versionCommentAlaniGoruntulenmelidir() {
+
+        if (!documentsPage.versionCommentAlaniGorunuyorMu()) {
+            throw new AssertionError(
+                    "Version comment alanı görüntülenmedi!"
+            );
+        }
+    }
+
+    @When("kullanıcı benzersiz bir Batch 17 version comment girer")
+    public void kullaniciBenzersizBirBatch17VersionCommentGirer() {
+
+        batch17VersionComment =
+                "Batch17 change comment " + System.currentTimeMillis();
+
+        documentsPage.versionCommentGir(batch17VersionComment);
+    }
+
+    @When("kullanıcı Version comment alanını boş bırakır")
+    public void kullaniciVersionCommentAlaniniBosBirakir() {
+
+        documentsPage.versionCommentBosBirak();
+    }
+
+    @When("kullanıcı Batch 17 yeni version işlemini kaydeder")
+    public void kullaniciBatch17YeniVersionIsleminiKaydeder() {
+
+        documentsPage.versionTipiniSec("Patch");
+
+        documentsPage.yeniVersiyonDosyasiniSec();
+
+        documentsPage.yeniVersiyonuKaydet();
+    }
+
+    @Then("Batch 17 version comment document detayında görüntülenmelidir")
+    public void batch17VersionCommentDocumentDetayindaGoruntulenmelidir() {
+
+        if (
+                batch17VersionComment == null
+                        || batch17VersionComment.isBlank()
+        ) {
+            throw new AssertionError(
+                    "Batch 17 version comment oluşturulmamış!"
+            );
+        }
+
+        if (!documentsPage.versionCommentGorunuyorMu(batch17VersionComment)) {
+            throw new AssertionError(
+                    "Batch 17 version comment document detail üzerinde görüntülenmedi: "
+                            + batch17VersionComment
+            );
+        }
+    }
+
+    @Then("Batch 17 yeni version history kaydı görüntülenmelidir")
+    public void batch17YeniVersionHistoryKaydiGoruntulenmelidir() {
+
+        if (!documentsPage.versionHistorySatiriGorunuyorMu(batch17ExpectedVersion)) {
+            throw new AssertionError(
+                    "Batch 17 yeni version history kaydı görüntülenmedi: "
+                            + batch17ExpectedVersion
+            );
+        }
+    }
+
+    @Then("Batch 17 version comment yeni version kaydında görüntülenmelidir")
+    public void batch17VersionCommentYeniVersionKaydindaGoruntulenmelidir() {
+
+        if (!documentsPage.versionCommentGorunuyorMu(batch17VersionComment)) {
+            throw new AssertionError(
+                    "Batch 17 version comment yeni version kaydında görüntülenmedi: "
+                            + batch17VersionComment
+            );
+        }
+    }
+
+    @Then("Batch 17 yeni version başarıyla oluşturulmalıdır")
+    public void batch17YeniVersionBasariylaOlusturulmalidir() {
+
+        if (!documentsPage.versionHistorySatiriGorunuyorMu(batch17ExpectedVersion)) {
+            throw new AssertionError(
+                    "Version comment boşken yeni version oluşturulamadı. Beklenen: "
+                            + batch17ExpectedVersion
             );
         }
     }
