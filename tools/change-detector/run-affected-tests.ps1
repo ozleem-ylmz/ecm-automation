@@ -1,111 +1,137 @@
 ﻿param(
     [string]$AutomationRepo = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path,
-    [string]$ReportPath = "",
+    [string]$ReportFile = "",
     [switch]$DryRun
 )
 
 $ErrorActionPreference = "Stop"
 
-if ([string]::IsNullOrWhiteSpace($ReportPath)) {
-    $ReportPath = Join-Path `
+if ([string]::IsNullOrWhiteSpace($ReportFile)) {
+    $ReportFile = Join-Path `
         $AutomationRepo `
         "target\change-detection\change-report-v3.1.json"
+}
+
+if (-not (Test-Path $AutomationRepo -PathType Container)) {
+    throw "Automation repository bulunamadı: $AutomationRepo"
+}
+
+if (-not (Test-Path $ReportFile -PathType Leaf)) {
+    throw "Change detection JSON report bulunamadı: $ReportFile"
 }
 
 Write-Host ""
 Write-Host "ECM AFFECTED TEST RUNNER"
 Write-Host ("=" * 86)
-Write-Host "Automation repo : $AutomationRepo"
-Write-Host "Detector report : $ReportPath"
+Write-Host "Repository : $AutomationRepo"
+Write-Host "Report     : $ReportFile"
 
-if (-not (Test-Path $ReportPath)) {
-    Write-Error "Change detector JSON report was not found: $ReportPath"
-    exit 10
+try {
+    $report = Get-Content $ReportFile -Raw -Encoding UTF8 |
+        ConvertFrom-Json
+}
+catch {
+    throw "Change detection JSON report okunamadı: $($_.Exception.Message)"
 }
 
-$report = Get-Content $ReportPath -Raw | ConvertFrom-Json
-
-$affectedEndpoints = @(
-    $report.Endpoints |
+$affectedTests = @(
+    $report.AffectedTests |
         Where-Object {
-            $_.Change -in @("NEW", "CHANGED") -and
-            $_.Coverage -eq "COVERED" -and
-            -not [string]::IsNullOrWhiteSpace($_.Tag)
-        }
-)
-
-if ($affectedEndpoints.Count -eq 0) {
-    Write-Host ""
-    Write-Host "No covered NEW/CHANGED endpoints require test execution."
-    Write-Host "Result : NO AFFECTED TESTS"
-    exit 0
-}
-
-$tags = @(
-    $affectedEndpoints |
-        ForEach-Object { $_.Tag } |
+            -not [string]::IsNullOrWhiteSpace("$_")
+        } |
         Sort-Object -Unique
 )
 
+Write-Host "Affected   : $($affectedTests.Count)"
 Write-Host ""
-Write-Host "AFFECTED ENDPOINTS"
-Write-Host ("-" * 86)
 
-foreach ($endpoint in $affectedEndpoints) {
-    Write-Host ""
-    Write-Host "$($endpoint.Change) $($endpoint.Method) $($endpoint.Path)"
-    Write-Host "Module   : $($endpoint.Module)"
-    Write-Host "Tag      : $($endpoint.Tag)"
-    Write-Host "Coverage : $($endpoint.Coverage)"
+if ($affectedTests.Count -eq 0) {
+    Write-Host "No affected tests found."
+    Write-Host "Maven will not be started."
+    exit 0
+}
 
-    if ($endpoint.Scenarios.Count -gt 0) {
-        Write-Host "Scenarios:"
-        foreach ($scenario in $endpoint.Scenarios) {
-            Write-Host "  - $scenario"
-        }
+$scenarioNames = @()
+
+foreach ($affectedTest in $affectedTests) {
+    $value = "$affectedTest"
+
+    if ($value -match '^\s*(.+?)\s+::\s+(.+?)\s*$') {
+        $scenarioName = $Matches[2].Trim()
+    }
+    else {
+        $scenarioName = $value.Trim()
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace($scenarioName)) {
+        $scenarioNames += $scenarioName
     }
 }
 
-# Cucumber OR expression:
-# @tag1 or @tag2 or @tag3
-$tagExpression = $tags -join " or "
+$scenarioNames = @(
+    $scenarioNames |
+        Sort-Object -Unique
+)
+
+if ($scenarioNames.Count -eq 0) {
+    throw "AffectedTests bulundu ancak scenario adı çıkarılamadı."
+}
+
+Write-Host "SCENARIOS"
+Write-Host ("-" * 86)
+
+foreach ($scenarioName in $scenarioNames) {
+    Write-Host "  - $scenarioName"
+}
+
+$escapedScenarioNames = @(
+    $scenarioNames |
+        ForEach-Object {
+            [regex]::Escape($_)
+        }
+)
+
+$filterParts = @(
+    $escapedScenarioNames |
+        ForEach-Object {
+            "^$_`$"
+        }
+)
+
+$cucumberFilter = $filterParts -join "|"
 
 Write-Host ""
 Write-Host "CUCUMBER FILTER"
 Write-Host ("-" * 86)
-Write-Host $tagExpression
+Write-Host $cucumberFilter
+Write-Host ""
 
 if ($DryRun) {
-    Write-Host ""
-    Write-Host "DRY RUN - Maven was not executed."
-    Write-Host "Result : AFFECTED TESTS FOUND"
+    Write-Host "DRY RUN - Maven was not started."
     exit 0
 }
 
 Push-Location $AutomationRepo
 
 try {
-    Write-Host ""
-    Write-Host "RUNNING AFFECTED CUCUMBER TESTS"
+    Write-Host "RUNNING AFFECTED TESTS"
     Write-Host ("-" * 86)
 
-    & mvn test "-Dcucumber.filter.tags=$tagExpression"
+    & mvn test "-Dcucumber.filter.name=$cucumberFilter"
 
     $mavenExitCode = $LASTEXITCODE
-
-    Write-Host ""
-    Write-Host ("-" * 86)
-
-    if ($mavenExitCode -ne 0) {
-        Write-Host "Result    : FAILED"
-        Write-Host "Exit code : $mavenExitCode"
-        exit $mavenExitCode
-    }
-
-    Write-Host "Result    : PASSED"
-    Write-Host "Exit code : 0"
-    exit 0
 }
 finally {
     Pop-Location
 }
+
+Write-Host ""
+
+if ($mavenExitCode -eq 0) {
+    Write-Host "AFFECTED TEST RUN SUCCESS"
+}
+else {
+    Write-Host "AFFECTED TEST RUN FAILED - Maven exit code: $mavenExitCode"
+}
+
+exit $mavenExitCode

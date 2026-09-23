@@ -135,19 +135,35 @@ function Get-RuntimeEndpointCoverage {
     try {
         $rows = @(Import-Csv $runtimeCoverageFile -Encoding UTF8)
 
-        return @(
+        $matchingRows = @(
             $rows |
                 Where-Object {
                     $_.method -eq $Method -and
                     $_.endpoint -eq $EndpointPath
+                }
+        )
+
+        return @(
+            $matchingRows |
+                ForEach-Object {
+                    $scenarioName = $_.scenario
+                    $scenarioUri = $_.scenario_uri
+
+                    if (-not [string]::IsNullOrWhiteSpace($scenarioUri)) {
+                        "$scenarioUri :: $scenarioName"
+                    }
+                    else {
+                        $scenarioName
+                    }
                 } |
-                Select-Object -ExpandProperty scenario -Unique
+                Sort-Object -Unique
         )
     }
     catch {
         Write-Warning "Runtime endpoint coverage could not be read: $($_.Exception.Message)"
         return @()
     }
+
 }
 
 function Get-EndpointCoverage {
@@ -963,6 +979,9 @@ $coveredCount = 0
 $missingCoverage = 0
 $affectedRemovedCount = 0
 
+$affectedTests = [System.Collections.Generic.HashSet[string]]::new(
+    [System.StringComparer]::OrdinalIgnoreCase
+)
 if ($endpointResults.Count -eq 0) {
     $lines.Add("No NEW, CHANGED or REMOVED utoipa endpoints detected.")
 }
@@ -977,6 +996,12 @@ else {
         $coverage = Get-EndpointCoverage `
             -Method $endpoint.Method `
             -EndpointPath $endpoint.Path
+
+        foreach ($scenario in @($coverage.Scenarios)) {
+            if (-not [string]::IsNullOrWhiteSpace($scenario)) {
+                [void]$affectedTests.Add($scenario)
+            }
+        }
 
         $coverageState = "MISSING"
         $action = ""
@@ -1070,6 +1095,24 @@ else {
     }
 }
 
+$affectedTestList = @(
+    $affectedTests |
+        Sort-Object
+)
+
+$lines.Add("")
+$lines.Add("AFFECTED TESTS")
+$lines.Add(("-" * 86))
+
+if ($affectedTestList.Count -eq 0) {
+    $lines.Add("No affected existing tests detected.")
+}
+else {
+    foreach ($scenario in $affectedTestList) {
+        $lines.Add("  - $scenario")
+    }
+}
+
 $lines.Add("")
 $lines.Add("NON-ENDPOINT CHANGES")
 $lines.Add(("-" * 86))
@@ -1128,6 +1171,7 @@ $lines.Add("Changed endpoints      : $changedCount")
 $lines.Add("Removed endpoints      : $removedCount")
 $lines.Add("Covered endpoints      : $coveredCount")
 $lines.Add("Missing coverage       : $missingCoverage")
+$lines.Add("Affected tests         : $($affectedTestList.Count)")
 $lines.Add("Affected removed tests : $affectedRemovedCount")
 $lines.Add("CI result              : $ciResult")
 $lines.Add("Exit code              : $exitCode")
@@ -1167,6 +1211,7 @@ $jsonReport = [PSCustomObject]@{
     Modules = @($moduleResults)
     Files = @($changes)
     Endpoints = @($endpointJson)
+    AffectedTests = @($affectedTestList)
     Summary = [PSCustomObject]@{
         ChangedFiles = $changes.Count
         ModuleChanges = $moduleResults.Count
@@ -1175,6 +1220,7 @@ $jsonReport = [PSCustomObject]@{
         RemovedEndpoints = $removedCount
         CoveredEndpoints = $coveredCount
         MissingCoverage = $missingCoverage
+        AffectedTests = $affectedTestList.Count
         AffectedRemovedTests = $affectedRemovedCount
         CiResult = $ciResult
         ExitCode = $exitCode
