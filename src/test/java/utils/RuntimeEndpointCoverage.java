@@ -23,10 +23,11 @@ public class RuntimeEndpointCoverage {
     /**
      * Initializes runtime endpoint coverage once per JVM/test run.
      *
-     * By default a normal Maven test execution is considered FULL.
-     * Selective runners must explicitly start Maven with:
+     * Coverage mode resolution:
      *
-     * -Druntime.coverage.mode=PARTIAL
+     * 1. Explicit runtime.coverage.mode wins.
+     * 2. Cucumber name/tag filters imply PARTIAL coverage.
+     * 3. An unfiltered run defaults to FULL coverage.
      */
     public static synchronized void initializeRun() {
         if (initialized) {
@@ -166,26 +167,39 @@ public class RuntimeEndpointCoverage {
     }
 
     private static String getCoverageMode() {
-        String mode = System.getProperty(
-                "runtime.coverage.mode",
-                "FULL"
-        );
+        String explicitMode =
+                System.getProperty("runtime.coverage.mode");
 
-        if (mode == null || mode.isBlank()) {
-            return "FULL";
+        if (explicitMode != null && !explicitMode.isBlank()) {
+            String mode =
+                    explicitMode.trim().toUpperCase();
+
+            if (!mode.equals("FULL") && !mode.equals("PARTIAL")) {
+                throw new IllegalArgumentException(
+                        "Invalid runtime.coverage.mode: "
+                                + mode
+                                + ". Expected FULL or PARTIAL."
+                );
+            }
+
+            return mode;
         }
 
-        mode = mode.trim().toUpperCase();
+        String nameFilter =
+                System.getProperty("cucumber.filter.name");
 
-        if (!mode.equals("FULL") && !mode.equals("PARTIAL")) {
-            throw new IllegalArgumentException(
-                    "Invalid runtime.coverage.mode: "
-                            + mode
-                            + ". Expected FULL or PARTIAL."
-            );
+        String tagFilter =
+                System.getProperty("cucumber.filter.tags");
+
+        if (
+                (nameFilter != null && !nameFilter.isBlank())
+                        ||
+                (tagFilter != null && !tagFilter.isBlank())
+        ) {
+            return "PARTIAL";
         }
 
-        return mode;
+        return "FULL";
     }
 
     private static String csv(String value) {
