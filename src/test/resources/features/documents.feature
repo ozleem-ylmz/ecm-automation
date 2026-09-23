@@ -2544,3 +2544,37 @@ Scenario: B15-10 Rename edilen başlık refresh sonrasında kalıcıdır
     And kullanıcı Version comment alanını boş bırakır
     And kullanıcı Batch 17 yeni version işlemini kaydeder
     Then Batch 17 yeni version başarıyla oluşturulmalıdır
+    # =====================================================
+# BATCH 18 - DOCUMENT RELATIONSHIPS
+# =====================================================
+
+  @batch18 @documents @relationships
+  Scenario: B18-01 Document detail sayfasında Relationships alanı görüntülenir
+    Given Batch 18 için yeni bir document oluşturulur
+    Then Relationships alanı görüntülenmelidir
+
+  @batch18 @documents @relationships
+  Scenario: B18-02 Admin Link document penceresini açabilir
+    Given Batch 18 için yeni bir document oluşturulur
+    When kullanıcı Link document işlemini açar
+    Then Link document penceresi görüntülenmelidir
+
+  @batch18 @documents @relationships
+  Scenario: B18-03 Link document penceresinde hedef document alanı görüntülenir
+    Given Batch 18 için yeni bir document oluşturulur
+    When kullanıcı Link document işlemini açar
+    Then Target document ID alanı görüntülenmelidir
+
+  @batch18 @documents @relationships
+  Scenario: B18-04 Link document varsayılan olarak latest version binding kullanır
+    Given Batch 18 için yeni bir document oluşturulur
+    When kullanıcı Link document işlemini açar
+    Then Float to latest seçili olmalıdır
+
+  @batch18 @documents @relationships
+  Scenario: B18-05 Specific version seçildiğinde Target version alanı görüntülenir
+    Given Batch 18 için kaynak ve hedef document oluşturulur
+    When kullanıcı kaynak document üzerinde Link document işlemini açar
+    And kullanıcı hedef document ID bilgisini girer
+    And kullanıcı Pin to specific version seçeneğini seçer
+    Then Target version alanı görüntülenmelidir

@@ -2578,5 +2578,225 @@ public class DocumentsPage {
             return false;
         }
     }
+    // =====================================================
+    // BATCH 18 - DOCUMENT RELATIONSHIPS
+    // =====================================================
+
+    public boolean relationshipsAlaniGorunuyorMu() {
+
+        try {
+            Locator heading = page.getByRole(
+                    AriaRole.HEADING,
+                    new Page.GetByRoleOptions()
+                            .setName("Relationships")
+                            .setExact(true)
+            );
+
+            heading.waitFor(
+                    new Locator.WaitForOptions()
+                            .setState(WaitForSelectorState.VISIBLE)
+                            .setTimeout(5000)
+            );
+
+            return heading.isVisible();
+
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public void linkDocumentPenceresiniAc() {
+
+        Locator button = page.getByRole(
+                AriaRole.BUTTON,
+                new Page.GetByRoleOptions()
+                        .setName("Link document")
+                        .setExact(true)
+        );
+
+        button.waitFor(
+                new Locator.WaitForOptions()
+                        .setState(WaitForSelectorState.VISIBLE)
+                        .setTimeout(5000)
+        );
+
+        button.click();
+    }
+
+    public boolean linkDocumentPenceresiGorunuyorMu() {
+
+        try {
+            Locator heading = page.getByRole(
+                    AriaRole.HEADING,
+                    new Page.GetByRoleOptions()
+                            .setName("Link document")
+                            .setExact(true)
+            );
+
+            heading.waitFor(
+                    new Locator.WaitForOptions()
+                            .setState(WaitForSelectorState.VISIBLE)
+                            .setTimeout(5000)
+            );
+
+            return heading.isVisible();
+
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public boolean targetDocumentIdAlaniGorunuyorMu() {
+
+        try {
+            Locator input = page.locator(
+                    "input[placeholder='Paste the target document UUID']"
+            );
+
+            input.waitFor(
+                    new Locator.WaitForOptions()
+                            .setState(WaitForSelectorState.VISIBLE)
+                            .setTimeout(5000)
+            );
+
+            return input.isVisible();
+
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public boolean floatToLatestSeciliMi() {
+
+        try {
+            Locator radio = page.locator(
+                    "input[name='binding'][value='LATEST']"
+            );
+
+            radio.waitFor(
+                    new Locator.WaitForOptions()
+                            .setState(WaitForSelectorState.VISIBLE)
+                            .setTimeout(5000)
+            );
+
+            return radio.isChecked();
+
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public String mevcutDocumentId() {
+
+        String url = page.url();
+
+        String marker = "/documents/";
+        int start = url.indexOf(marker);
+
+        if (start < 0) {
+            throw new AssertionError(
+                    "Document ID URL'den alınamadı. URL: " + url
+            );
+        }
+
+        String id = url.substring(start + marker.length());
+
+        int queryIndex = id.indexOf('?');
+        if (queryIndex >= 0) {
+            id = id.substring(0, queryIndex);
+        }
+
+        int hashIndex = id.indexOf('#');
+        if (hashIndex >= 0) {
+            id = id.substring(0, hashIndex);
+        }
+
+        int slashIndex = id.indexOf('/');
+        if (slashIndex >= 0) {
+            id = id.substring(0, slashIndex);
+        }
+
+        if (id.isBlank()) {
+            throw new AssertionError(
+                    "Document ID URL'de boş. URL: " + url
+            );
+        }
+
+        return id;
+    }
+
+    public void documentDetayinaGit(String documentId) {
+
+        if (documentId == null || documentId.isBlank()) {
+            throw new AssertionError(
+                    "Document detail açılamadı: document ID boş!"
+            );
+        }
+
+        page.navigate(
+                "http://localhost:5174/documents/" + documentId
+        );
+
+        page.waitForLoadState();
+
+        if (!belgeDetaySayfasindaMi()) {
+            throw new AssertionError(
+                    "Document detail açılamadı. ID: " + documentId
+                            + " URL: " + page.url()
+            );
+        }
+    }
+
+    public void targetDocumentIdGir(String documentId) {
+
+        Locator input = page.locator(
+                "input[placeholder='Paste the target document UUID']"
+        );
+
+        input.waitFor(
+                new Locator.WaitForOptions()
+                        .setState(WaitForSelectorState.VISIBLE)
+                        .setTimeout(5000)
+        );
+
+        input.fill(documentId);
+    }
+
+    public void pinToSpecificVersionSec() {
+
+        Locator radio = page.locator(
+                "input[name='binding'][value='SPECIFIC']"
+        );
+
+        radio.waitFor(
+                new Locator.WaitForOptions()
+                        .setState(WaitForSelectorState.VISIBLE)
+                        .setTimeout(5000)
+        );
+
+        radio.check();
+    }
+
+    public boolean targetVersionAlaniGorunuyorMu() {
+
+        try {
+            Locator label = page.getByText(
+                    "Target version",
+                    new Page.GetByTextOptions()
+                            .setExact(true)
+            );
+
+            label.waitFor(
+                    new Locator.WaitForOptions()
+                            .setState(WaitForSelectorState.VISIBLE)
+                            .setTimeout(10000)
+            );
+
+            return label.isVisible();
+
+        } catch (Exception e) {
+            return false;
+        }
+    }
 
 }

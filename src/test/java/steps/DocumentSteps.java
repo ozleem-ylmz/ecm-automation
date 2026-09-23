@@ -39,6 +39,11 @@ public class DocumentSteps {
     private String batch17OriginalTitle;
     private String batch17VersionComment;
     private String batch17ExpectedVersion = "v1.0.1";
+    // Batch 18 - Document Relationships
+    private String batch18SourceTitle;
+    private String batch18SourceDocumentUrl;
+    private String batch18TargetTitle;
+    private String batch18TargetDocumentId;
 
     // =========================
     // HELPER METHODS
@@ -2147,6 +2152,186 @@ public class DocumentSteps {
                             + batch17ExpectedVersion
             );
         }
+
+    }
+    // =====================================================
+// BATCH 18 - DOCUMENT RELATIONSHIPS
+// =====================================================
+
+    @Given("Batch 18 için yeni bir document oluşturulur")
+    public void batch18IcinYeniBirDocumentOlusturulur() {
+
+        adminLogin();
+
+        batch18SourceTitle =
+                "Batch18 Source " + System.currentTimeMillis();
+
+        uploadWithoutClassSayfasinaGit();
+
+        documentsPage.belgeYukle(batch18SourceTitle);
+
+        if (!documentsPage.belgeDetaySayfasindaMi()) {
+            throw new AssertionError(
+                    "Batch 18 source document oluşturulduktan sonra detail sayfası açılmadı!"
+            );
+        }
+
+        if (!documentsPage.belgeBasligiGorunuyorMu(batch18SourceTitle)) {
+            throw new AssertionError(
+                    "Batch 18 source document başlığı görüntülenmedi: "
+                            + batch18SourceTitle
+            );
+        }
     }
 
+    @Then("Relationships alanı görüntülenmelidir")
+    public void relationshipsAlaniGoruntulenmelidir() {
+
+        if (!documentsPage.relationshipsAlaniGorunuyorMu()) {
+            throw new AssertionError(
+                    "Relationships alanı görüntülenmedi!"
+            );
+        }
+    }
+
+    @When("kullanıcı Link document işlemini açar")
+    public void kullaniciLinkDocumentIsleminiAcar() {
+
+        documentsPage.linkDocumentPenceresiniAc();
+    }
+
+    @Then("Link document penceresi görüntülenmelidir")
+    public void linkDocumentPenceresiGoruntulenmelidir() {
+
+        if (!documentsPage.linkDocumentPenceresiGorunuyorMu()) {
+            throw new AssertionError(
+                    "Link document penceresi görüntülenmedi!"
+            );
+        }
+    }
+
+    @Then("Target document ID alanı görüntülenmelidir")
+    public void targetDocumentIdAlaniGoruntulenmelidir() {
+
+        if (!documentsPage.targetDocumentIdAlaniGorunuyorMu()) {
+            throw new AssertionError(
+                    "Target document ID alanı görüntülenmedi!"
+            );
+        }
+    }
+
+    @Then("Float to latest seçili olmalıdır")
+    public void floatToLatestSeciliOlmalidir() {
+
+        if (!documentsPage.floatToLatestSeciliMi()) {
+            throw new AssertionError(
+                    "Float to latest varsayılan olarak seçili değil!"
+            );
+        }
+    }
+
+    @Given("Batch 18 için kaynak ve hedef document oluşturulur")
+    public void batch18IcinKaynakVeHedefDocumentOlusturulur() {
+
+        adminLogin();
+
+        long timestamp = System.currentTimeMillis();
+
+        batch18SourceTitle = "Batch18 Source " + timestamp;
+        batch18TargetTitle = "Batch18 Target " + timestamp;
+
+        // SOURCE DOCUMENT
+        uploadWithoutClassSayfasinaGit();
+
+        documentsPage.belgeYukle(batch18SourceTitle);
+
+        if (!documentsPage.belgeDetaySayfasindaMi()) {
+            throw new AssertionError(
+                    "Batch 18 source document detail sayfası açılmadı!"
+            );
+        }
+
+        if (!documentsPage.belgeBasligiGorunuyorMu(batch18SourceTitle)) {
+            throw new AssertionError(
+                    "Batch 18 source document oluşturulamadı: "
+                            + batch18SourceTitle
+            );
+        }
+
+        // Çalışan gerçek detail URL'yi sakla
+        batch18SourceDocumentUrl = BrowserManager.page.url();
+
+        // TARGET DOCUMENT
+        uploadWithoutClassSayfasinaGit();
+
+        documentsPage.belgeYukle(batch18TargetTitle);
+
+        if (!documentsPage.belgeDetaySayfasindaMi()) {
+            throw new AssertionError(
+                    "Batch 18 target document detail sayfası açılmadı!"
+            );
+        }
+
+        if (!documentsPage.belgeBasligiGorunuyorMu(batch18TargetTitle)) {
+            throw new AssertionError(
+                    "Batch 18 target document oluşturulamadı: "
+                            + batch18TargetTitle
+            );
+        }
+
+        // Target UUID relationship modalında kullanılacak
+        batch18TargetDocumentId =
+                documentsPage.mevcutDocumentId();
+
+        // SOURCE DOCUMENT'A GERİ DÖN
+        BrowserManager.page.navigate(batch18SourceDocumentUrl);
+        BrowserManager.page.waitForLoadState();
+
+        if (!documentsPage.belgeBasligiGorunuyorMu(batch18SourceTitle)) {
+            throw new AssertionError(
+                    "Batch 18 source document'a geri dönülemedi: "
+                            + batch18SourceTitle
+                            + " URL: "
+                            + BrowserManager.page.url()
+            );
+        }
+    }
+
+    @When("kullanıcı kaynak document üzerinde Link document işlemini açar")
+    public void kullaniciKaynakDocumentUzerindeLinkDocumentIsleminiAcar() {
+
+        documentsPage.linkDocumentPenceresiniAc();
+    }
+
+    @When("kullanıcı hedef document ID bilgisini girer")
+    public void kullaniciHedefDocumentIdBilgisiniGirer() {
+
+        if (batch18TargetDocumentId == null
+                || batch18TargetDocumentId.isBlank()) {
+
+            throw new AssertionError(
+                    "Batch 18 target document ID oluşturulmamış!"
+            );
+        }
+
+        documentsPage.targetDocumentIdGir(
+                batch18TargetDocumentId
+        );
+    }
+
+    @When("kullanıcı Pin to specific version seçeneğini seçer")
+    public void kullaniciPinToSpecificVersionSeceneginiSecer() {
+
+        documentsPage.pinToSpecificVersionSec();
+    }
+
+    @Then("Target version alanı görüntülenmelidir")
+    public void targetVersionAlaniGoruntulenmelidir() {
+
+        if (!documentsPage.targetVersionAlaniGorunuyorMu()) {
+            throw new AssertionError(
+                    "Pin to specific version seçildikten sonra Target version alanı görüntülenmedi!"
+            );
+        }
+    }
 }
