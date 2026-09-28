@@ -6,6 +6,7 @@ import io.cucumber.java.en.When;
 import pages.DocumentsPage;
 import pages.LoginPage;
 import utils.BrowserManager;
+import utils.TestData;
 import com.microsoft.playwright.Download;
 import com.microsoft.playwright.Page;
 
@@ -17,6 +18,7 @@ public class DocumentSteps {
     private Download downloadedFile;
     private Page managerPage;
     private String documentDetailUrl;
+    private String softDeletedDocumentUrl;
     private String savedDocumentTitle;
     private String savedDocumentVersion;
     private String batch12TargetFolder;
@@ -32,31 +34,48 @@ public class DocumentSteps {
     private String batch15OriginalTitle;
     private String batch15RenamedTitle;
     private String batch15DocumentUrl;
+    private String batch16OriginalTitle;
+    private String batch16RenamedTitle;
+    private String batch16FirstRenamedTitle;
+    private String batch16SecondRenamedTitle;
+    private String batch17OriginalTitle;
+    private String batch17VersionComment;
+    private String batch17ExpectedVersion = "v1.0.1";
+    // Batch 18 - Document Relationships
+    private String batch18SourceTitle;
+    private String batch18SourceDocumentUrl;
+    private String batch18TargetTitle;
+    private String batch18TargetDocumentId;
 
     // =========================
     // HELPER METHODS
     // =========================
 
+    /*
+     * Ön koşul login'i (login UI'ı login.feature'da test ediliyor):
+     * yeni ve izole context'te API ile giriş yapılır, sayfa açılmaz.
+     * Çağıran adım gideceği sayfaya doğrudan gider; böylece login ekranı ve
+     * login sonrası açılan ağır /folders sayfası her senaryoda yüklenmez.
+     */
     private void adminLogin() {
 
         BrowserManager.startBrowser();
 
-        LoginPage loginPage =
-                new LoginPage(BrowserManager.page);
-
-        loginPage.loginSayfasiniAc();
-        loginPage.emailGir("admin@local");
-        loginPage.sifreGir("123");
-        loginPage.girisYapButonunaTikla();
-
-        if (!loginPage.klasorlerSayfasindaMi()) {
-            throw new AssertionError(
-                    "Admin kullanıcı ECM sistemine giriş yapamadı!"
-            );
-        }
+        BrowserManager.apiLoginMainContext("admin@local", "123");
 
         documentsPage =
                 new DocumentsPage(BrowserManager.page);
+    }
+
+    private void documentsSayfasinaDogrudanGit() {
+
+        documentsPage.documentsSayfasinaDogrudanGit();
+
+        if (!documentsPage.documentsSayfasindaMi()) {
+            throw new AssertionError(
+                    "Documents sayfası açılamadı!"
+            );
+        }
     }
 
     private void documentsSayfasinaGit() {
@@ -72,7 +91,9 @@ public class DocumentSteps {
 
     private void uploadWithoutClassSayfasinaGit() {
 
-        documentsSayfasinaGit();
+        // Test edilen UI yolu: Documents sayfasındaki "Upload without class"
+        // butonu. Documents sayfasına API login sonrası doğrudan gidiyoruz.
+        documentsSayfasinaDogrudanGit();
 
         documentsPage.uploadWithoutClassSayfasiniAc();
 
@@ -83,10 +104,48 @@ public class DocumentSteps {
         }
     }
 
+    /*
+     * Belge yükleme bir ön koşul (setup) olduğunda Documents listesini
+     * açmıyoruz: o sayfa her senaryoda ~2.3 sn veri yüklüyor ve buton ancak
+     * yükleme bitince görünüyor. Upload sayfasına doğrudan gidiyoruz.
+     * Documents -> Upload without class UI akışını test eden senaryo
+     * ("admin kullanıcı Upload without class sayfasındadır") UI yolunu
+     * kullanmaya devam ediyor.
+     */
+    private void setupIcinUploadWithoutClassSayfasinaGit() {
+
+        documentsPage.uploadWithoutClassSayfasinaDogrudanGit();
+
+        if (!documentsPage.uploadWithoutClassSayfasindaMi()) {
+            throw new AssertionError(
+                    "Upload without class sayfası açılamadı!"
+            );
+        }
+    }
+
+    /*
+     * Upload UI'ını test etmeyen senaryoların ön koşul belgesi: UI'ın
+     * gönderdiği payload'la API üzerinden oluşturur, doğrudan belgenin detay
+     * sayfasına gider ve başlığın render edilmesini bekler. Dönüş: belge id.
+     */
+    private String apiBelgeOlusturVeDetayaGit(String title) {
+
+        String documentId = BrowserManager.apiCreateUnclassifiedDocument(
+                BrowserManager.context,
+                BrowserManager.getAccessToken(),
+                title,
+                java.nio.file.Paths.get("src/test/resources/test-files/test-document.txt")
+        );
+
+        documentsPage.belgeDetayinaGitVeBasligiBekle(documentId, title);
+
+        return documentId;
+    }
+
     private void benzersizBelgeYukle() {
 
         documentTitle =
-                "QA Document " + System.currentTimeMillis();
+                TestData.unique("QA Document");
 
         documentsPage.belgeYukle(documentTitle);
 
@@ -95,6 +154,10 @@ public class DocumentSteps {
                     "Belge yüklendikten sonra detay sayfası açılmadı!"
             );
         }
+
+        // Soft delete gibi listeye yönlendiren adımlardan sonra aynı belgeye
+        // dönebilmek için yüklenen belgenin detay adresini saklıyoruz.
+        documentDetailUrl = BrowserManager.page.url();
     }
 
     // =========================
@@ -105,7 +168,7 @@ public class DocumentSteps {
     public void adminKullaniciDocumentsSayfasindadir() {
 
         adminLogin();
-        documentsSayfasinaGit();
+        documentsSayfasinaDogrudanGit();
     }
 
     @Given("admin kullanıcı Upload without class sayfasındadır")
@@ -119,8 +182,27 @@ public class DocumentSteps {
     public void adminKullaniciBenzersizBirTxtBelgeYuklemistir() {
 
         adminLogin();
-        uploadWithoutClassSayfasinaGit();
+        setupIcinUploadWithoutClassSayfasinaGit();
         benzersizBelgeYukle();
+    }
+
+    /*
+     * Upload'ın kendisini test etmeyen senaryoların ön koşulu: belge,
+     * UI'ın gönderdiği payload'la API üzerinden oluşturulur ve kullanıcı
+     * doğrudan o belgenin detay sayfasını açar. Detay sayfasının belgeyi
+     * doğru başlıkla göstermesi yine UI'da doğrulanır.
+     * (Upload UI'ı "benzersiz bir TXT belge yüklemiştir" ile test edilir.)
+     */
+    @Given("admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır")
+    public void adminKullaniciApiIleOlusturulanBelgeninDetaySayfasindadir() {
+
+        adminLogin();
+
+        documentTitle = TestData.unique("QA Document");
+
+        apiBelgeOlusturVeDetayaGit(documentTitle);
+
+        documentDetailUrl = BrowserManager.page.url();
     }
 
     // =========================
@@ -180,7 +262,7 @@ public class DocumentSteps {
     public void kullaniciBenzersizBasliklaTxtBelgeYukler() {
 
         documentTitle =
-                "QA Document " + System.currentTimeMillis();
+                TestData.unique("QA Document");
 
         documentsPage.belgeYukle(documentTitle);
     }
@@ -231,7 +313,7 @@ public class DocumentSteps {
     public void kullaniciBelgeBasligiGirerAncakDosyaSecmez() {
 
         documentTitle =
-                "QA Document " + System.currentTimeMillis();
+                TestData.unique("QA Document");
 
         documentsPage.belgeBasligiGir(documentTitle);
     }
@@ -240,7 +322,7 @@ public class DocumentSteps {
     public void kullaniciBenzersizBelgeBasligiGirer() {
 
         documentTitle =
-                "QA Document " + System.currentTimeMillis();
+                TestData.unique("QA Document");
 
         documentsPage.belgeBasligiGir(documentTitle);
     }
@@ -278,17 +360,43 @@ public class DocumentSteps {
     @When("kullanıcı belgeyi soft delete yapar")
     public void kullaniciBelgeyiSoftDeleteYapar() {
 
+        softDeletedDocumentUrl = BrowserManager.page.url();
+
         documentsPage.belgeyiSoftDeleteYap();
     }
 
+    /*
+     * STR-06 (Batch 34): eskiden global /documents ilk sayfasında başlık
+     * aranıyordu (veri hacmine ve eşzamanlı koşulara duyarlı). Şimdi silinen
+     * belgenin kendi detay adresinde Deleted rozeti ve API'de is_deleted=true
+     * doğrulanır.
+     */
     @Then("belge Deleted durumunda görüntülenmelidir")
     public void belgeDeletedDurumundaGoruntulenmelidir() {
 
         String activeTitle = batch13CopyTitle != null ? batch13CopyTitle : documentTitle;
+        String documentId = softDeletedDocumentUrl == null ? null
+                : softDeletedDocumentUrl.replaceAll(".*/documents/([0-9a-fA-F-]{36}).*", "$1");
 
-        if (!documentsPage.belgeDeletedMi(activeTitle)) {
+        if (documentId == null || documentId.length() != 36) {
+            throw new AssertionError("Soft delete edilen belgenin detay adresi bilinmiyor: " + softDeletedDocumentUrl);
+        }
+
+        com.google.gson.JsonObject document = utils.EcmApiClient.get(
+                utils.TestDataFactory.admin(), "/v1/documents/" + documentId
+        ).expect(200, "Silinen belgeyi okuma (yönetici)").json().getAsJsonObject("document");
+
+        if (!document.get("is_deleted").getAsBoolean() || !activeTitle.equals(document.get("title").getAsString())) {
             throw new AssertionError(
-                    "Belge soft delete sonrasında Deleted durumunda görüntülenmedi: "
+                    "API'de belge silinmiş ('" + activeTitle + "') olarak görünmedi: " + document
+            );
+        }
+
+        documentsPage.belgeDetayAdresineGit(softDeletedDocumentUrl);
+
+        if (!documentsPage.softDeleteEdilmisBelgeAktifDetayOlarakGoruntulenmiyorMu()) {
+            throw new AssertionError(
+                    "Belge soft delete sonrasında kendi detay sayfasında Deleted durumunda görüntülenmedi: "
                             + activeTitle
             );
         }
@@ -302,7 +410,8 @@ public class DocumentSteps {
     public void kullaniciBelgeyiRestoreEder() {
 
         String activeTitle = batch13CopyTitle != null ? batch13CopyTitle : documentTitle;
-        documentsPage.belgeyiRestoreEt(activeTitle);
+        String activeUrl = batch13CopyUrl != null ? batch13CopyUrl : documentDetailUrl;
+        documentsPage.belgeyiRestoreEt(activeTitle, activeUrl);
     }
 
     @Then("belge artık Deleted durumunda olmamalıdır")
@@ -361,7 +470,9 @@ public class DocumentSteps {
 
         if (!documentsPage.statusUnderReviewMu()) {
             throw new AssertionError(
-                    "Belgenin yeni status bilgisi Under review olarak görüntülenmedi!"
+                    "Belgenin yeni status bilgisi Under review olarak görüntülenmedi! Görünen: "
+                            + documentsPage.mevcutStatusBadgeText()
+                            + " | API: " + BrowserManager.getDocumentStatusEvidence()
             );
         }
     }
@@ -548,7 +659,7 @@ public class DocumentSteps {
     public void adminKullaniciBirBelgeyiCheckoutYapmistir() {
 
         adminLogin();
-        uploadWithoutClassSayfasinaGit();
+        setupIcinUploadWithoutClassSayfasinaGit();
         benzersizBelgeYukle();
 
         // Admin'in oluşturduğu belgenin gerçek UUID'li URL'sini sakla
@@ -659,6 +770,7 @@ public class DocumentSteps {
         if (!documentsPage.moveButonuGorunmuyorMu(targetPage)) {
             throw new AssertionError(
                     "Move butonu görüntülenmemesi gerekirken görüntüleniyor!"
+                            + documentsPage.detayDurumKaniti(targetPage)
             );
         }
     }
@@ -868,7 +980,28 @@ public class DocumentSteps {
 
         if (!documentsPage.statusUnderReviewGorunuyorMu()) {
             throw new AssertionError(
-                    "Belgenin statusu Under review olarak korunmadı!"
+                    "Belgenin statusu Under review olarak korunmadı! Görünen: "
+                            + documentsPage.mevcutStatusBadgeText()
+                            + " | API: " + BrowserManager.getDocumentStatusEvidence()
+            );
+        }
+    }
+
+    @Then("belge geçmişinde {string} versiyonunun Under review statusundayken yerini Draft olarak oluşturulan {string} versiyonuna bıraktığı görülmelidir")
+    public void belgeGecmisindeUnderReviewdenDraftVersiyonGecisiGorulmelidir(
+            String oncekiVersiyon,
+            String yeniVersiyon
+    ) {
+        String hata = documentsPage.yeniVersiyonGecisiGecmisteHata(
+                oncekiVersiyon,
+                "under_review",
+                yeniVersiyon,
+                "draft"
+        );
+
+        if (hata != null) {
+            throw new AssertionError(
+                    "Belge geçmişinde beklenen versiyon/status geçişi bulunamadı! " + hata
             );
         }
     }
@@ -878,7 +1011,9 @@ public class DocumentSteps {
 
         if (!documentsPage.statusDraftMi()) {
             throw new AssertionError(
-                    "Belgenin statusu Draft olarak görüntülenmedi!"
+                    "Belgenin statusu Draft olarak görüntülenmedi! Görünen: "
+                            + documentsPage.mevcutStatusBadgeText()
+                            + " | API: " + BrowserManager.getDocumentStatusEvidence()
             );
         }
     }
@@ -886,9 +1021,15 @@ public class DocumentSteps {
     @Then("soft delete edilen belgenin statusu Under review olmalıdır")
     public void softDeleteEdilenBelgeninStatusuUnderReviewOlmalidir() {
 
+        // Soft delete sonrası uygulama /documents listesine gidiyor. Kontrolü
+        // listede değil, silinen belgenin kendi detay sayfasında yapıyoruz.
+        documentsPage.belgeDetayAdresineGit(documentDetailUrl);
+
         if (!documentsPage.deletedBelgedeStatusUnderReviewGorunuyorMu()) {
             throw new AssertionError(
-                    "Soft delete sonrasında belgenin Under review statusu korunmadı!"
+                    "Soft delete sonrasında belgenin Under review statusu korunmadı! Görünen: "
+                            + documentsPage.mevcutStatusBadgeText()
+                            + " | API: " + BrowserManager.getDocumentStatusEvidence()
             );
         }
     }
@@ -957,7 +1098,7 @@ public class DocumentSteps {
             );
         }
 
-        BrowserManager.page.navigate(documentDetailUrl);
+        documentsPage.belgeDetayAdresineGit(documentDetailUrl);
         BrowserManager.page.waitForLoadState();
     }
 
@@ -965,15 +1106,9 @@ public class DocumentSteps {
     // BATCH 8 - STATE BUG HUNT
     // =========================
 
-    @Then("silinen belgede New version butonu görüntülenmemelidir")
-    public void silinenBelgedeNewVersionButonuGoruntulenmemelidir() {
-
-        if (documentsPage.newVersionButonuGorunuyorMu()) {
-            throw new AssertionError(
-                    "STATE BUG ADAYI: Soft delete edilmiş belgede New version butonu görüntüleniyor!"
-            );
-        }
-    }
+    // STR-11 (Batch 34): hiçbir senaryoda kullanılmayan "silinen belgede New
+    // version butonu görüntülenmemelidir" adımı kaldırıldı; kapsam DOC-18
+    // (admin-ui.feature, BUG-14) tarafından veri yüklenmiş detay + Deleted rozeti ile sağlanıyor.
 
     @Then("Hard delete butonu görüntülenmemelidir")
     public void hardDeleteButonuGoruntulenmemelidir() {
@@ -1112,6 +1247,41 @@ public class DocumentSteps {
     // RESTORE DATA INTEGRITY STEPS
     // =====================================================
 
+    @When("kullanıcı yüklenen belgeyi listeden siler")
+    public void kullaniciYuklenenBelgeyiListedenSiler() {
+        documentsPage.belgeyiSoftDeleteYap();
+    }
+
+    @When("kullanıcı silinen belgeyi restore eder")
+    public void kullaniciSilinenBelgeyiRestoreEder() {
+        documentsPage.belgeyiRestoreEt(savedDocumentTitle);
+    }
+
+    @Then("belge eski detay adresinde Deleted olarak görüntülenmelidir")
+    public void belgeEskiDetayAdresindeDeletedOlarakGoruntulenmelidir() {
+        documentsPage.belgeDetayAdresineGit(documentDetailUrl);
+        BrowserManager.page.waitForLoadState();
+
+        if (!documentsPage.softDeleteEdilmisBelgeAktifDetayOlarakGoruntulenmiyorMu()) {
+            throw new AssertionError(
+                    "Soft delete edilen belge eski detay adresinde Deleted olarak görüntülenmedi!"
+            );
+        }
+    }
+
+    @When("kullanıcı restore edilen belgenin önizlemesini açar")
+    public void kullaniciRestoreEdilenBelgeninOnizlemesiniAcar() {
+        documentsPage.restoreEdilenBelgeninPreviewiniAc();
+    }
+
+    @Then("restore edilen belge orijinal TXT içeriğini göstermelidir")
+    public void restoreEdilenBelgeOrijinalTxtIceriginiGostermelidir() {
+        if (!documentsPage.restoreEdilenTxtIcerigiDogruMu()) {
+            throw new AssertionError(
+                    "Restore edilen belge orijinal TXT içeriğini göstermedi!"
+            );
+        }
+    }
     @Given("yüklenen belgenin başlığı kaydedilmiştir")
     public void yuklenenBelgeninBasligiKaydedilmistir() {
         savedDocumentTitle = documentsPage.mevcutBelgeBasliginiAl();
@@ -1128,17 +1298,44 @@ public class DocumentSteps {
         }
     }
 
+    @Then("yüklenen belgenin başlığı değişmemelidir")
+    public void yuklenenBelgeninBasligiDegismemelidir() {
+        belgeBasligiDegismediKontrolEt();
+    }
+
     @Then("belge başlığı değişmemelidir")
     public void belgeBasligiDegismemelidir() {
+        belgeBasligiDegismediKontrolEt();
+    }
+
+    @Then("restore edilen belgenin başlığı değişmemelidir")
+    public void restoreEdilenBelgeninBasligiDegismemelidir() {
+        belgeBasligiDegismediKontrolEt();
+    }
+
+    private void belgeBasligiDegismediKontrolEt() {
         if (!documentsPage.belgeBasligiEsitMi(savedDocumentTitle)) {
-            throw new AssertionError("Belge başlığı değişti! Beklenen: " + savedDocumentTitle);
+            throw new AssertionError(
+                    "Belge başlığı değişti! Beklenen: " + savedDocumentTitle
+            );
         }
     }
 
     @Then("belge versiyonu değişmemelidir")
     public void belgeVersiyonuDegismemelidir() {
+        belgeVersiyonuDegismediKontrolEt();
+    }
+
+    @Then("restore edilen belgenin versiyonu değişmemelidir")
+    public void restoreEdilenBelgeninVersiyonuDegismemelidir() {
+        belgeVersiyonuDegismediKontrolEt();
+    }
+
+    private void belgeVersiyonuDegismediKontrolEt() {
         if (!documentsPage.belgeVersiyonuKorunduMu(savedDocumentVersion)) {
-            throw new AssertionError("Belge versiyonu değişti! Beklenen: " + savedDocumentVersion);
+            throw new AssertionError(
+                    "Belge versiyonu değişti! Beklenen: " + savedDocumentVersion
+            );
         }
     }
 
@@ -1153,7 +1350,7 @@ public class DocumentSteps {
 
     @When("kullanıcı eski belge detay adresini açar")
     public void kullaniciEskiBelgeDetayAdresiniAcar() {
-        BrowserManager.page.navigate(documentDetailUrl);
+        documentsPage.detayAdresiniAcVeYanitiBekle(documentDetailUrl);
         BrowserManager.page.waitForLoadState();
     }
 
@@ -1228,7 +1425,8 @@ public class DocumentSteps {
     public void tagGirisAlaniGoruntulenmemelidir() {
         Page targetPage = managerPage != null ? managerPage : BrowserManager.page;
         if (!documentsPage.tagGirisAlaniGorunmuyorMu(targetPage)) {
-            throw new AssertionError("Tag giriş alanı görüntülenmemesi gerekirken görüntüleniyor!");
+            throw new AssertionError("Tag giriş alanı görüntülenmemesi gerekirken görüntüleniyor!"
+                    + documentsPage.detayDurumKaniti(targetPage));
         }
     }
 
@@ -1261,10 +1459,12 @@ public class DocumentSteps {
     @Given("benzersiz bir Move hedef klasörü oluşturulmuştur")
     public void benzersizBirMoveHedefKlasoruOlusturulmustur() {
         batch12DetailUrl = BrowserManager.page.url();
-        batch12TargetFolder = "QA Move Folder " + System.currentTimeMillis();
+        batch12TargetFolder = TestData.unique("QA Move Folder");
 
+        // Klasör API ile oluşturuluyor; sayfa belge detayında kalıyor.
+        // Move dialog'u açıldığında FolderPicker listeyi yeniden çektiği
+        // (useSwr revalidate) için sayfayı yenilemeye gerek yok.
         documentsPage.hedefKlasorOlustur(batch12TargetFolder);
-        documentsPage.belgeDetayAdresiniAc(batch12DetailUrl);
 
         if (!documentsPage.belgeDetaySayfasindaMi()) {
             throw new AssertionError("Hedef klasör oluşturulduktan sonra belge detayına dönülemedi!");
@@ -1347,9 +1547,11 @@ public class DocumentSteps {
         if (batch13SourceUrl == null) {
             batch13SourceUrl = BrowserManager.page.url();
         }
-        batch13TargetFolder = "QA Copy Folder " + System.currentTimeMillis();
+        batch13TargetFolder = TestData.unique("QA Copy Folder");
         documentsPage.hedefKlasorOlustur(batch13TargetFolder);
-        documentsPage.belgeDetayAdresiniAcBatch13(batch13SourceUrl);
+        if (!BrowserManager.page.url().equals(batch13SourceUrl)) {
+            documentsPage.belgeDetayAdresiniAcBatch13(batch13SourceUrl);
+        }
     }
 
     @When("kullanıcı Copy penceresini açar")
@@ -1388,7 +1590,7 @@ public class DocumentSteps {
 
     @When("kullanıcı Copy başlığına benzersiz bir değer girer")
     public void kullaniciCopyBasliginaBenzersizDegerGirer() {
-        batch13CopyTitle = "QA Copy " + System.currentTimeMillis();
+        batch13CopyTitle = TestData.unique("QA Copy");
         documentsPage.copyBasligiGir(batch13CopyTitle);
     }
 
@@ -1451,8 +1653,8 @@ public class DocumentSteps {
             batch13CopyTitle = documentsPage.copyBaslangicBasligi();
         }
 
-        documentsPage.copyIsleminiOnayla();
-        documentsPage.kopyaBelgeDetayiniBekle(batch13CopyTitle, batch13SourceUrl);
+        String copyDocumentId = documentsPage.copyIsleminiOnayla();
+        documentsPage.kopyaBelgeDetayiniBekle(batch13CopyTitle, copyDocumentId);
 
         batch13CopyUrl = BrowserManager.page.url();
     }
@@ -1650,12 +1852,11 @@ public class DocumentSteps {
         adminLogin();
 
         batch15OriginalTitle =
-                "Batch15 Rename " + System.currentTimeMillis();
+                TestData.unique("Batch15 Rename");
 
         // Mevcut helper'ları kullanıyoruz
-        uploadWithoutClassSayfasinaGit();
-
-        documentsPage.belgeYukle(batch15OriginalTitle);
+        // Ön koşul belgesi API ile (upload UI'ı bu batch'in test ettiği şey değil).
+        apiBelgeOlusturVeDetayaGit(batch15OriginalTitle);
 
         if (!documentsPage.belgeDetaySayfasindaMi()) {
             throw new AssertionError(
@@ -1738,7 +1939,7 @@ public class DocumentSteps {
     public void kullaniciDocumentBasliginiYeniBenzersizBirBasliklaDegistirir() {
 
         batch15RenamedTitle =
-                "Batch15 Renamed " + System.currentTimeMillis();
+                TestData.unique("Batch15 Renamed");
 
         documentsPage.renameBasligiGir(
                 batch15RenamedTitle
@@ -1857,5 +2058,434 @@ public class DocumentSteps {
             );
         }
     }
+    // =====================================================
+    // BATCH 16 - DOCUMENT RENAME VALIDATION / EDGE CASES
+    // =====================================================
 
+    @Given("Batch 16 için yeni bir document oluşturulur")
+    public void batch16IcinYeniBirDocumentOlusturulur() {
+
+        adminLogin();
+
+        batch16OriginalTitle =
+                TestData.unique("Batch16 Rename");
+
+        // Ön koşul belgesi API ile (upload UI'ı bu batch'in test ettiği şey değil).
+        apiBelgeOlusturVeDetayaGit(batch16OriginalTitle);
+
+        if (!documentsPage.belgeDetaySayfasindaMi()) {
+            throw new AssertionError(
+                    "Batch 16 document yüklendikten sonra detail sayfası açılmadı!"
+            );
+        }
+
+        if (!documentsPage.belgeBasligiGorunuyorMu(batch16OriginalTitle)) {
+            throw new AssertionError(
+                    "Batch 16 document oluşturulamadı: "
+                            + batch16OriginalTitle
+            );
+        }
+    }
+
+    @When("kullanıcı document rename alanını boş bırakır")
+    public void kullaniciDocumentRenameAlaniniBosBirakir() {
+
+        documentsPage.renameBasligiGir("");
+    }
+
+    @Then("document rename işlemi boş başlıkla kaydedilememelidir")
+    public void documentRenameIslemiBosBasliklaKaydedilememelidir() {
+
+        documentsPage.renameKaydet();
+
+        if (!documentsPage.renameBasligiKaydedilmediMi(
+                batch16OriginalTitle)) {
+
+            throw new AssertionError(
+                    "Boş document başlığı sistem tarafından kaydedildi! "
+                            + "Original başlık korunmadı: "
+                            + batch16OriginalTitle
+            );
+        }
+    }
+
+    @When("kullanıcı document rename alanına sadece boşluk girer")
+    public void kullaniciDocumentRenameAlaninaSadeceBoslukGirer() {
+
+        documentsPage.renameBasligiGir("   ");
+    }
+
+    @Then("document rename işlemi boşluk başlıkla kaydedilememelidir")
+    public void documentRenameIslemiBoslukBasliklaKaydedilememelidir() {
+
+        documentsPage.renameKaydet();
+
+        if (!documentsPage.renameBasligiKaydedilmediMi(
+                batch16OriginalTitle)) {
+
+            throw new AssertionError(
+                    "Sadece boşluk içeren document başlığı sistem tarafından kaydedildi! "
+                            + "Original başlık korunmadı: "
+                            + batch16OriginalTitle
+            );
+        }
+    }
+
+    @When("kullanıcı document başlığını Batch 16 için yeni benzersiz bir başlıkla değiştirir")
+    public void kullaniciDocumentBasliginiBatch16IcinYeniBenzersizBirBasliklaDegistirir() {
+
+        batch16RenamedTitle =
+                TestData.unique("Batch16 Renamed");
+
+        documentsPage.renameBasligiGir(
+                batch16RenamedTitle
+        );
+    }
+
+    @Then("Batch 16 original document başlığı görüntülenmelidir")
+    public void batch16OriginalDocumentBasligiGoruntulenmelidir() {
+
+        if (!documentsPage.belgeBasligiGorunuyorMu(
+                batch16OriginalTitle)) {
+
+            throw new AssertionError(
+                    "Cancel + refresh sonrasında original document başlığı korunmadı: "
+                            + batch16OriginalTitle
+            );
+        }
+    }
+
+    @When("kullanıcı document başlığını Batch 16 için birinci kez değiştirip kaydeder")
+    public void kullaniciDocumentBasliginiBatch16IcinBirinciKezDegistiripKaydeder() {
+
+        batch16FirstRenamedTitle =
+                TestData.unique("Batch16 First Rename");
+
+        documentsPage.renameEditorunuAc();
+
+        documentsPage.renameBasligiGir(
+                batch16FirstRenamedTitle
+        );
+
+        documentsPage.renameKaydet();
+
+        documentsPage.renameSonucunuBekle(
+                batch16FirstRenamedTitle
+        );
+    }
+
+    @When("kullanıcı document başlığını Batch 16 için ikinci kez değiştirip kaydeder")
+    public void kullaniciDocumentBasliginiBatch16IcinIkinciKezDegistiripKaydeder() {
+
+        batch16SecondRenamedTitle =
+                TestData.unique("Batch16 Second Rename");
+
+        documentsPage.renameEditorunuAc();
+
+        documentsPage.renameBasligiGir(
+                batch16SecondRenamedTitle
+        );
+
+        documentsPage.renameKaydet();
+
+        documentsPage.renameSonucunuBekle(
+                batch16SecondRenamedTitle
+        );
+    }
+
+    @Then("document ikinci Batch 16 başlığı ile görüntülenmelidir")
+    public void documentIkinciBatch16BasligiIleGoruntulenmelidir() {
+
+        if (!documentsPage.belgeBasligiDegistiMi(
+                batch16SecondRenamedTitle)) {
+
+            throw new AssertionError(
+                    "Document ikinci rename başlığı ile görüntülenmedi: "
+                            + batch16SecondRenamedTitle
+            );
+        }
+    }
+
+    @Then("birinci Batch 16 rename başlığı artık görüntülenmemelidir")
+    public void birinciBatch16RenameBasligiArtikGoruntulenmemelidir() {
+
+        if (!documentsPage.eskiBelgeBasligiGorunmuyorMu(
+                batch16FirstRenamedTitle)) {
+
+            throw new AssertionError(
+                    "Birinci rename başlığı ikinci rename sonrasında hâlâ görüntüleniyor: "
+                            + batch16FirstRenamedTitle
+            );
+        }
+    }
+    // =====================================================
+// BATCH 17 - VERSION CHANGE COMMENT
+// =====================================================
+
+    @Given("Batch 17 için yeni bir document oluşturulur")
+    public void batch17IcinYeniBirDocumentOlusturulur() {
+
+        adminLogin();
+
+        batch17OriginalTitle =
+                TestData.unique("Batch17 Version Comment");
+
+        // Ön koşul belgesi API ile (upload UI'ı bu batch'in test ettiği şey değil).
+        apiBelgeOlusturVeDetayaGit(batch17OriginalTitle);
+
+        if (!documentsPage.belgeDetaySayfasindaMi()) {
+            throw new AssertionError(
+                    "Batch 17 document oluşturulduktan sonra detail sayfası açılmadı!"
+            );
+        }
+
+        if (!documentsPage.belgeBasligiGorunuyorMu(batch17OriginalTitle)) {
+            throw new AssertionError(
+                    "Batch 17 document başlığı görüntülenmedi: "
+                            + batch17OriginalTitle
+            );
+        }
+    }
+
+    @When("kullanıcı Batch 17 document için yeni version oluşturmayı açar")
+    public void kullaniciBatch17DocumentIcinYeniVersionOlusturmayiAcar() {
+
+        documentsPage.yeniVersiyonSayfasiniAc();
+    }
+
+    @Then("Version comment alanı görüntülenmelidir")
+    public void versionCommentAlaniGoruntulenmelidir() {
+
+        if (!documentsPage.versionCommentAlaniGorunuyorMu()) {
+            throw new AssertionError(
+                    "Version comment alanı görüntülenmedi!"
+            );
+        }
+    }
+
+    @When("kullanıcı benzersiz bir Batch 17 version comment girer")
+    public void kullaniciBenzersizBirBatch17VersionCommentGirer() {
+
+        batch17VersionComment =
+                TestData.unique("Batch17 change comment");
+
+        documentsPage.versionCommentGir(batch17VersionComment);
+    }
+
+    @When("kullanıcı Version comment alanını boş bırakır")
+    public void kullaniciVersionCommentAlaniniBosBirakir() {
+
+        documentsPage.versionCommentBosBirak();
+    }
+
+    @When("kullanıcı Batch 17 yeni version işlemini kaydeder")
+    public void kullaniciBatch17YeniVersionIsleminiKaydeder() {
+
+        documentsPage.versionTipiniSec("Patch");
+
+        documentsPage.yeniVersiyonDosyasiniSec();
+
+        documentsPage.yeniVersiyonuKaydet();
+    }
+
+    @Then("Batch 17 version comment document detayında görüntülenmelidir")
+    public void batch17VersionCommentDocumentDetayindaGoruntulenmelidir() {
+
+        if (
+                batch17VersionComment == null
+                        || batch17VersionComment.isBlank()
+        ) {
+            throw new AssertionError(
+                    "Batch 17 version comment oluşturulmamış!"
+            );
+        }
+
+        if (!documentsPage.versionCommentGorunuyorMu(batch17VersionComment)) {
+            throw new AssertionError(
+                    "Batch 17 version comment document detail üzerinde görüntülenmedi: "
+                            + batch17VersionComment
+            );
+        }
+    }
+
+    @Then("Batch 17 yeni version history kaydı görüntülenmelidir")
+    public void batch17YeniVersionHistoryKaydiGoruntulenmelidir() {
+
+        if (!documentsPage.versionHistorySatiriGorunuyorMu(batch17ExpectedVersion)) {
+            throw new AssertionError(
+                    "Batch 17 yeni version history kaydı görüntülenmedi: "
+                            + batch17ExpectedVersion
+            );
+        }
+    }
+
+    @Then("Batch 17 version comment yeni version kaydında görüntülenmelidir")
+    public void batch17VersionCommentYeniVersionKaydindaGoruntulenmelidir() {
+
+        if (!documentsPage.versionCommentGorunuyorMu(batch17VersionComment)) {
+            throw new AssertionError(
+                    "Batch 17 version comment yeni version kaydında görüntülenmedi: "
+                            + batch17VersionComment
+            );
+        }
+    }
+
+    @Then("Batch 17 yeni version başarıyla oluşturulmalıdır")
+    public void batch17YeniVersionBasariylaOlusturulmalidir() {
+
+        if (!documentsPage.versionHistorySatiriGorunuyorMu(batch17ExpectedVersion)) {
+            throw new AssertionError(
+                    "Version comment boşken yeni version oluşturulamadı. Beklenen: "
+                            + batch17ExpectedVersion
+            );
+        }
+
+    }
+    // =====================================================
+// BATCH 18 - DOCUMENT RELATIONSHIPS
+// =====================================================
+
+    @Given("Batch 18 için yeni bir document oluşturulur")
+    public void batch18IcinYeniBirDocumentOlusturulur() {
+
+        adminLogin();
+
+        batch18SourceTitle =
+                TestData.unique("Batch18 Source");
+
+        // Ön koşul belgesi API ile (upload UI'ı bu batch'in test ettiği şey değil).
+        apiBelgeOlusturVeDetayaGit(batch18SourceTitle);
+
+        if (!documentsPage.belgeDetaySayfasindaMi()) {
+            throw new AssertionError(
+                    "Batch 18 source document oluşturulduktan sonra detail sayfası açılmadı!"
+            );
+        }
+
+        if (!documentsPage.belgeBasligiGorunuyorMu(batch18SourceTitle)) {
+            throw new AssertionError(
+                    "Batch 18 source document başlığı görüntülenmedi: "
+                            + batch18SourceTitle
+            );
+        }
+    }
+
+    @Then("Relationships alanı görüntülenmelidir")
+    public void relationshipsAlaniGoruntulenmelidir() {
+
+        if (!documentsPage.relationshipsAlaniGorunuyorMu()) {
+            throw new AssertionError(
+                    "Relationships alanı görüntülenmedi!"
+            );
+        }
+    }
+
+    @When("kullanıcı Link document işlemini açar")
+    public void kullaniciLinkDocumentIsleminiAcar() {
+
+        documentsPage.linkDocumentPenceresiniAc();
+    }
+
+    @Then("Link document penceresi görüntülenmelidir")
+    public void linkDocumentPenceresiGoruntulenmelidir() {
+
+        if (!documentsPage.linkDocumentPenceresiGorunuyorMu()) {
+            throw new AssertionError(
+                    "Link document penceresi görüntülenmedi!"
+            );
+        }
+    }
+
+    @Then("Target document ID alanı görüntülenmelidir")
+    public void targetDocumentIdAlaniGoruntulenmelidir() {
+
+        if (!documentsPage.targetDocumentIdAlaniGorunuyorMu()) {
+            throw new AssertionError(
+                    "Target document ID alanı görüntülenmedi!"
+            );
+        }
+    }
+
+    @Then("Float to latest seçili olmalıdır")
+    public void floatToLatestSeciliOlmalidir() {
+
+        if (!documentsPage.floatToLatestSeciliMi()) {
+            throw new AssertionError(
+                    "Float to latest varsayılan olarak seçili değil!"
+            );
+        }
+    }
+
+    @Given("Batch 18 için kaynak ve hedef document oluşturulur")
+    public void batch18IcinKaynakVeHedefDocumentOlusturulur() {
+
+        adminLogin();
+
+        batch18SourceTitle = TestData.unique("Batch18 Source");
+        batch18TargetTitle = TestData.unique("Batch18 Target");
+
+        /*
+         * Ön koşul: iki belge API ile. Hedef belgenin yalnızca ID'si gerekiyor
+         * (relationship modalına yazılıyor); onun detay sayfasını açmak ve
+         * kaynağa geri dönmek gereksiz iki tam sayfa yüklemesiydi.
+         */
+        batch18TargetDocumentId = BrowserManager.apiCreateUnclassifiedDocument(
+                BrowserManager.context,
+                BrowserManager.getAccessToken(),
+                batch18TargetTitle,
+                java.nio.file.Paths.get("src/test/resources/test-files/test-document.txt")
+        );
+
+        // Kaynak belgenin detay sayfası: senaryo burada devam ediyor.
+        apiBelgeOlusturVeDetayaGit(batch18SourceTitle);
+
+        batch18SourceDocumentUrl = BrowserManager.page.url();
+
+        if (!documentsPage.belgeBasligiGorunuyorMu(batch18SourceTitle)) {
+            throw new AssertionError(
+                    "Batch 18 source document'a geri dönülemedi: "
+                            + batch18SourceTitle
+                            + " URL: "
+                            + BrowserManager.page.url()
+            );
+        }
+    }
+
+    @When("kullanıcı kaynak document üzerinde Link document işlemini açar")
+    public void kullaniciKaynakDocumentUzerindeLinkDocumentIsleminiAcar() {
+
+        documentsPage.linkDocumentPenceresiniAc();
+    }
+
+    @When("kullanıcı hedef document ID bilgisini girer")
+    public void kullaniciHedefDocumentIdBilgisiniGirer() {
+
+        if (batch18TargetDocumentId == null
+                || batch18TargetDocumentId.isBlank()) {
+
+            throw new AssertionError(
+                    "Batch 18 target document ID oluşturulmamış!"
+            );
+        }
+
+        documentsPage.targetDocumentIdGir(
+                batch18TargetDocumentId
+        );
+    }
+
+    @When("kullanıcı Pin to specific version seçeneğini seçer")
+    public void kullaniciPinToSpecificVersionSeceneginiSecer() {
+
+        documentsPage.pinToSpecificVersionSec();
+    }
+
+    @Then("Target version alanı görüntülenmelidir")
+    public void targetVersionAlaniGoruntulenmelidir() {
+
+        if (!documentsPage.targetVersionAlaniGorunuyorMu()) {
+            throw new AssertionError(
+                    "Pin to specific version seçildikten sonra Target version alanı görüntülenmedi!"
+            );
+        }
+    }
 }

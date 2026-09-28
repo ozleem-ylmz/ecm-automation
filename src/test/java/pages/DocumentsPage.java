@@ -15,6 +15,11 @@ import java.nio.file.Paths;
 import java.util.regex.Pattern;
 public class DocumentsPage {
 
+    // Pozitif (görünmesi beklenen) bekleme üst sınırı. Koşul sağlanınca hemen
+    // döner; geçen testte maliyeti yoktur. 5 sn, paralel koşuda CPU doygunken
+    // (SPA boot + render) yetmeyip sahte hata üretiyordu.
+    private static final double UI_WAIT_MS = 15000;
+
     private final Page page;
 
     public DocumentsPage(Page page) {
@@ -35,6 +40,10 @@ public class DocumentsPage {
         ).first().click();
 
         page.waitForURL("**/documents");
+    }
+
+    public void documentsSayfasinaDogrudanGit() {
+        page.navigate(BrowserManager.getBaseUrl() + "/documents");
     }
 
     public boolean documentsSayfasindaMi() {
@@ -60,6 +69,13 @@ public class DocumentsPage {
                         .setName("Upload without class")
                         .setExact(true)
         ).waitFor();
+    }
+
+    public void uploadWithoutClassSayfasinaDogrudanGit() {
+
+        page.navigate(
+                BrowserManager.getBaseUrl() + "/documents/new/unclassified"
+        );
     }
 
     public boolean uploadWithoutClassSayfasindaMi() {
@@ -126,28 +142,107 @@ public class DocumentsPage {
          * documents wildcard desenine uyduğu için
          * doğrudan UUID'li gerçek detail URL'sini bekliyoruz.
          */
-
-        long bitisZamani =
-                System.currentTimeMillis() + 20000;
-
-        while (System.currentTimeMillis() < bitisZamani) {
-
-            if (belgeDetaySayfasindaMi()) {
-                return;
-            }
-
-            page.waitForTimeout(250);
+        try {
+            page.waitForURL(
+                    url -> url.matches(".*/documents/[0-9a-fA-F-]{36}$"),
+                    new Page.WaitForURLOptions()
+                            .setTimeout(20000)
+            );
+        } catch (PlaywrightException e) {
+            throw new AssertionError(
+                    "Belge yüklendikten sonra detay sayfası açılmadı! URL: "
+                            + page.url(),
+                    e
+            );
         }
 
-        throw new AssertionError(
-                "Belge yüklendikten sonra detay sayfası açılmadı! URL: "
-                        + page.url()
-        );
+        // URL değiştiği anda eski upload sayfasının h1'i ("Upload without class")
+        // hâlâ DOM'da olabiliyor. Sonraki adımlar (ör. başlığı kaydetme) doğru
+        // belgeyi okusun diye detay başlığı render edilene kadar bekliyoruz.
+        belgeDetayBasliginiBekle(title);
+    }
+
+    private void belgeDetayBasliginiBekle(String title) {
+
+        try {
+            page.getByRole(
+                    AriaRole.HEADING,
+                    new Page.GetByRoleOptions()
+                            .setName(title)
+                            .setExact(true)
+                            .setLevel(1)
+            ).waitFor(
+                    new Locator.WaitForOptions()
+                            .setTimeout(10000)
+            );
+        } catch (PlaywrightException e) {
+            throw new AssertionError(
+                    "Belge detay başlığı görüntülenmedi: " + title
+                            + " | Görünen h1: " + page.locator("h1").allInnerTexts(),
+                    e
+            );
+        }
+    }
+
+    /*
+     * ID'si bilinen belgenin detay sayfasına doğrudan gider (listeden
+     * aramadan) ve detay başlığının render edilmesini bekler.
+     */
+    public void belgeDetayinaGitVeBasligiBekle(String documentId, String title) {
+
+        page.navigate(BrowserManager.getBaseUrl() + "/documents/" + documentId);
+
+        if (!page.url().endsWith("/documents/" + documentId)) {
+            throw new AssertionError(
+                    "Belge detay sayfası açılamadı. Beklenen id: " + documentId
+                            + " URL: " + page.url()
+            );
+        }
+
+        belgeDetayBasliginiBekle(title);
     }
 
     // =========================
     // DOCUMENT DETAIL
     // =========================
+
+    /*
+     * Negatif ("görünmemeli / yapamamalı") kontroller ancak belge verisi
+     * render edildikten sonra anlamlıdır: DocumentDetail.tsx önce
+     * "Loading document…" gösterir; butonlar ve lock durumu (aynı yüklemede
+     * çekiliyor) h1 ile birlikte gelir. navigate()+waitForLoadState() sadece
+     * "load" olayını bekler, SPA verisini beklemez; o anda hiçbir buton
+     * olmadığı için negatif kontrol her durumda geçiyordu (false positive riski).
+     * Sayfa hazır değilse sessizce geçmek yerine hata veriyoruz.
+     */
+    private void detayVerisiniBekle(Page targetPage) {
+        try {
+            targetPage.locator("h1").first().waitFor(
+                    new Locator.WaitForOptions().setTimeout(10000)
+            );
+            targetPage.getByText("Loading document…").waitFor(
+                    new Locator.WaitForOptions()
+                            .setState(WaitForSelectorState.HIDDEN)
+                            .setTimeout(10000)
+            );
+        } catch (PlaywrightException e) {
+            throw new AssertionError(
+                    "Belge detay verisi yüklenmeden görünürlük kontrolü yapılamaz. URL: "
+                            + targetPage.url(),
+                    e
+            );
+        }
+
+        // /login de bir h1 ("Welcome back") gösterir ve "Loading document…"
+        // içermez: oturum düşmüşse yukarıdaki bekleme geçer, negatif kontroller
+        // hiçbir şey test etmeden "görünmüyor" derdi. Detay URL'i zorunlu.
+        if (!targetPage.url().matches(".*/documents/[0-9a-fA-F-]{36}.*")) {
+            throw new AssertionError(
+                    "Belge detay sayfasında değil (oturum düşmüş olabilir). URL: "
+                            + targetPage.url()
+            );
+        }
+    }
 
     public boolean belgeDetaySayfasindaMi() {
 
@@ -167,7 +262,7 @@ public class DocumentsPage {
                             .setExact(true)
             ).waitFor(
                     new Locator.WaitForOptions()
-                            .setTimeout(5000)
+                            .setTimeout(UI_WAIT_MS)
             );
 
             return true;
@@ -192,7 +287,7 @@ public class DocumentsPage {
                             .setExact(true)
             ).first().waitFor(
                     new Locator.WaitForOptions()
-                            .setTimeout(5000)
+                            .setTimeout(UI_WAIT_MS)
             );
 
             return true;
@@ -227,6 +322,8 @@ public class DocumentsPage {
 
     public void belgeyiSoftDeleteYap() {
 
+        detayVerisiniBekle(page);
+
         page.getByRole(
                 AriaRole.BUTTON,
                 new Page.GetByRoleOptions()
@@ -241,7 +338,7 @@ public class DocumentsPage {
                         .setExact(true)
         ).waitFor(
                 new Locator.WaitForOptions()
-                        .setTimeout(5000)
+                        .setTimeout(UI_WAIT_MS)
         );
 
         page.getByRole(
@@ -268,9 +365,13 @@ public class DocumentsPage {
                             .setExact(true)
             ).first();
 
+            // Soft delete sonrası uygulama global /documents listesine döner;
+            // liste (8k+ belge) 3 JVM'li soğuk başlangıçta 5 sn'den geç render
+            // edildi (belge 3. satırda "Deleted" rozetiyle vardı). Koşul-temelli
+            // pozitif bekleme: başlık görünür görünmez döner.
             titleLocator.waitFor(
                     new Locator.WaitForOptions()
-                            .setTimeout(5000)
+                            .setTimeout(UI_WAIT_MS)
             );
 
             Locator documentRow =
@@ -282,7 +383,7 @@ public class DocumentsPage {
                             .setExact(true)
             ).waitFor(
                     new Locator.WaitForOptions()
-                            .setTimeout(5000)
+                            .setTimeout(UI_WAIT_MS)
             );
 
             return true;
@@ -296,6 +397,31 @@ public class DocumentsPage {
     // =========================
     // RESTORE
     // =========================
+
+    /*
+     * Belgenin detay adresi biliniyorsa Documents listesinde aramadan
+     * doğrudan detay sayfasına gidip restore eder. Liste navigasyonu bu
+     * adımın test ettiği şey değil; liste doğrulaması "belge Deleted
+     * durumunda görüntülenmelidir" adımında yapılıyor.
+     */
+    public void belgeyiRestoreEt(String title, String detailUrl) {
+
+        if (detailUrl == null || detailUrl.isBlank()) {
+            belgeyiRestoreEt(title);
+            return;
+        }
+
+        page.navigate(detailUrl);
+
+        if (!page.url().equals(detailUrl)) {
+            throw new AssertionError(
+                    "Soft delete yapılan belgenin detay sayfası açılamadı! Beklenen: "
+                            + detailUrl + " URL: " + page.url()
+            );
+        }
+
+        restoreButonunaTiklaVeDogrula();
+    }
 
     public void belgeyiRestoreEt(String title) {
 
@@ -312,30 +438,29 @@ public class DocumentsPage {
 
         titleLocator.waitFor(
                 new Locator.WaitForOptions()
-                        .setTimeout(5000)
+                        .setTimeout(UI_WAIT_MS)
         );
 
         titleLocator.click();
 
-        long detailBitisZamani =
-                System.currentTimeMillis() + 10000;
-
-        while (System.currentTimeMillis() < detailBitisZamani) {
-
-            if (belgeDetaySayfasindaMi()) {
-                break;
-            }
-
-            page.waitForTimeout(250);
-        }
-
-        if (!belgeDetaySayfasindaMi()) {
-
+        try {
+            page.waitForURL(
+                    url -> url.matches(".*/documents/[0-9a-fA-F-]{36}$"),
+                    new Page.WaitForURLOptions()
+                            .setTimeout(10000)
+            );
+        } catch (PlaywrightException e) {
             throw new AssertionError(
                     "Soft delete yapılan belgenin detay sayfası açılamadı! URL: "
-                            + page.url()
+                            + page.url(),
+                    e
             );
         }
+
+        restoreButonunaTiklaVeDogrula();
+    }
+
+    private void restoreButonunaTiklaVeDogrula() {
 
         Locator restoreButton = page.getByRole(
                 AriaRole.BUTTON,
@@ -346,26 +471,50 @@ public class DocumentsPage {
 
         restoreButton.waitFor(
                 new Locator.WaitForOptions()
-                        .setTimeout(5000)
+                        .setTimeout(UI_WAIT_MS)
         );
 
-        restoreButton.click();
-
-        long restoreBitisZamani =
-                System.currentTimeMillis() + 10000;
-
-        while (System.currentTimeMillis() < restoreBitisZamani) {
-
-            if (!detailSayfasindaDeletedGorunuyorMu()) {
-                return;
-            }
-
-            page.waitForTimeout(250);
+        // Restore'un tamamlandığını POST /restore yanıtı kanıtlar; ardından
+        // header'daki Deleted badge'inin kalkmasını bekliyoruz.
+        com.microsoft.playwright.Response response;
+        try {
+            response = page.waitForResponse(
+                    r -> r.url().matches(".*/v1/documents/[0-9a-fA-F-]{36}/restore$")
+                            && "POST".equals(r.request().method()),
+                    new Page.WaitForResponseOptions()
+                            .setTimeout(10000),
+                    restoreButton::click
+            );
+        } catch (PlaywrightException e) {
+            throw new AssertionError(
+                    "Restore tıklandıktan sonra POST /restore isteği gönderilmedi!",
+                    e
+            );
         }
 
-        throw new AssertionError(
-                "Restore işlemi sonrasında Deleted durumu kaybolmadı!"
-        );
+        if (!response.ok()) {
+            throw new AssertionError(
+                    "Restore başarısız: HTTP " + response.status() + " " + response.text()
+            );
+        }
+
+        try {
+            page.locator(
+                    "div:has(> span:text-matches('^Class:')) > span.rounded-full"
+            ).filter(
+                    new Locator.FilterOptions()
+                            .setHasText(Pattern.compile("^\\s*Deleted\\s*$"))
+            ).first().waitFor(
+                    new Locator.WaitForOptions()
+                            .setState(WaitForSelectorState.DETACHED)
+                            .setTimeout(10000)
+            );
+        } catch (PlaywrightException e) {
+            throw new AssertionError(
+                    "Restore işlemi sonrasında Deleted durumu kaybolmadı!",
+                    e
+            );
+        }
     }
 
     // =========================
@@ -407,27 +556,23 @@ public class DocumentsPage {
 
         belge.waitFor(
                 new Locator.WaitForOptions()
-                        .setTimeout(5000)
+                        .setTimeout(UI_WAIT_MS)
         );
 
         belge.click();
 
-        long bitisZamani =
-                System.currentTimeMillis() + 10000;
-
-        while (System.currentTimeMillis() < bitisZamani) {
-
-            if (belgeDetaySayfasindaMi()) {
-                return;
-            }
-
-            page.waitForTimeout(250);
+        try {
+            page.waitForURL(
+                    url -> url.matches(".*/documents/[0-9a-fA-F-]{36}.*"),
+                    new Page.WaitForURLOptions().setTimeout(10000)
+            );
+        } catch (PlaywrightException e) {
+            throw new AssertionError(
+                    "Belge listeden açıldı ancak detay sayfasına gidilemedi! URL: "
+                            + page.url(),
+                    e
+            );
         }
-
-        throw new AssertionError(
-                "Belge listeden açıldı ancak detay sayfasına gidilemedi! URL: "
-                        + page.url()
-        );
     }
 
     // =========================
@@ -478,12 +623,12 @@ public class DocumentsPage {
 
         Locator statusSelect = page.locator("select").filter(
                 new Locator.FilterOptions()
-                        .setHasText("Draft")
+                        .setHas(page.locator("option[value='under_review']"))
         ).first();
 
         statusSelect.waitFor(
                 new Locator.WaitForOptions()
-                        .setTimeout(5000)
+                        .setTimeout(UI_WAIT_MS)
         );
 
         /*
@@ -495,122 +640,107 @@ public class DocumentsPage {
          */
         statusSelect.selectOption("under_review");
 
-        page.getByRole(
+        Locator updateStatusButton = page.getByRole(
                 AriaRole.BUTTON,
                 new Page.GetByRoleOptions()
                         .setName("Update status")
                         .setExact(true)
-        ).click();
+        );
 
-        long bitisZamani =
-                System.currentTimeMillis() + 10000;
-
-        while (System.currentTimeMillis() < bitisZamani) {
-
-            if (statusUnderReviewMu()) {
-                return;
-            }
-
-            page.waitForTimeout(250);
+        // Select'in değeri sadece kullanıcının seçimini gösterir; kaydın
+        // gerçekleştiğini PATCH /status yanıtı ve header badge'i kanıtlar.
+        com.microsoft.playwright.Response response;
+        try {
+            response = page.waitForResponse(
+                    r -> r.url().matches(".*/v1/documents/[0-9a-fA-F-]{36}/status$")
+                            && "PATCH".equals(r.request().method()),
+                    new Page.WaitForResponseOptions()
+                            .setTimeout(10000),
+                    updateStatusButton::click
+            );
+        } catch (PlaywrightException e) {
+            throw new AssertionError(
+                    "Update status tıklandıktan sonra PATCH /status isteği gönderilmedi!",
+                    e
+            );
         }
 
-        throw new AssertionError(
-                "Belge statusu Under review olarak güncellenmedi!"
-        );
+        if (!response.ok()) {
+            throw new AssertionError(
+                    "Status güncellenemedi! HTTP " + response.status()
+                            + " " + response.text()
+            );
+        }
+
+        if (!belgeStatusuMu("Under review")) {
+            throw new AssertionError(
+                    "Belge statusu Under review olarak güncellenmedi! Görünen: "
+                            + mevcutStatusBadgeText()
+            );
+        }
     }
 
     public boolean statusUnderReviewMu() {
+        return belgeStatusuMu("Under review");
+    }
 
+    /*
+     * Belgenin kayıtlı (API'den gelen) status'u, detay header'ındaki
+     * "Class: ..." satırının yanındaki badge'dir
+     * (DocumentDetail.tsx -> statusLabel(data.document.status)).
+     *
+     * Admin actions içindeki <select> yalnızca düzenlenebilir taslak değerdir:
+     * belge yüklenmeden önce varsayılanı "draft"tır ve kullanıcının seçimini
+     * kaydedilmeden gösterir. Ayrıca getByText("Under review") dropdown
+     * option'ını da yakalar. Bu yüzden status kontrolü için kullanılmamalı.
+     */
+    private Locator mevcutStatusBadge() {
+        return page.locator(
+                "div:has(> span:text-matches('^Class:')) > span.rounded-full"
+        ).first();
+    }
+
+    public String mevcutStatusBadgeText() {
         try {
+            return mevcutStatusBadge().innerText(
+                    new Locator.InnerTextOptions().setTimeout(2000)
+            ).trim();
+        } catch (PlaywrightException e) {
+            return "(status badge bulunamadı)";
+        }
+    }
 
-            /*
-             * Status değiştikten sonra artık locator'ı "Draft"
-             * üzerinden aramıyoruz.
-             *
-             * Status alanını, aynı Admin actions bölümündeki
-             * Update status butonuna göre buluyoruz.
-             */
-            Locator updateStatusButton = page.getByRole(
-                    AriaRole.BUTTON,
-                    new Page.GetByRoleOptions()
-                            .setName("Update status")
-                            .setExact(true)
-            );
-
-            updateStatusButton.waitFor(
-                    new Locator.WaitForOptions()
-                            .setTimeout(5000)
-            );
-
-            Locator statusSelect = page.locator("select").filter(
-                    new Locator.FilterOptions()
-                            .setHas(
-                                    page.locator(
-                                            "option[value='under_review']"
-                                    )
-                            )
-            ).first();
-
-            statusSelect.waitFor(
-                    new Locator.WaitForOptions()
-                            .setTimeout(5000)
-            );
-
-            return statusSelect.inputValue()
-                    .equals("under_review");
-
-        } catch (Exception e) {
-
+    public boolean belgeStatusuMu(String expectedLabel) {
+        try {
+            com.microsoft.playwright.assertions.PlaywrightAssertions
+                    .assertThat(mevcutStatusBadge())
+                    // Badge "Under Review", dropdown "Under review" yazıyor;
+                    // büyük/küçük harf farkını yok sayıp tam eşleşme arıyoruz.
+                    .hasText(
+                            Pattern.compile(
+                                    // Regex tarayıcıda JS olarak çalışır; JS \Q..\E
+                                    // desteklemediği için Pattern.quote kullanılmaz.
+                                    "^\\s*"
+                                            + expectedLabel.replaceAll("[.*+?^${}()|\\[\\]\\\\]", "\\\\$0")
+                                            + "\\s*$",
+                                    Pattern.CASE_INSENSITIVE
+                            ),
+                            new com.microsoft.playwright.assertions.LocatorAssertions.HasTextOptions()
+                                    .setTimeout(5000)
+                    );
+            return true;
+        } catch (AssertionError | PlaywrightException e) {
             System.out.println(
-                    "Under review status kontrol hatası: "
-                            + e.getMessage()
+                    "Status eşleşmedi. Beklenen: " + expectedLabel
+                            + " | Görünen badge: " + mevcutStatusBadgeText()
+                            + " | API: " + BrowserManager.getDocumentStatusEvidence()
             );
-
             return false;
         }
     }
 
     public boolean statusDraftMi() {
-
-        try {
-
-            Locator updateStatusButton = page.getByRole(
-                    AriaRole.BUTTON,
-                    new Page.GetByRoleOptions()
-                            .setName("Update status")
-                            .setExact(true)
-            );
-
-            updateStatusButton.waitFor(
-                    new Locator.WaitForOptions()
-                            .setTimeout(5000)
-            );
-
-            Locator statusSelect = page.locator("select").filter(
-                    new Locator.FilterOptions()
-                            .setHas(
-                                    page.locator(
-                                            "option[value='draft']"
-                                    )
-                            )
-            ).first();
-
-            statusSelect.waitFor(
-                    new Locator.WaitForOptions()
-                            .setTimeout(5000)
-            );
-
-            return statusSelect.inputValue().equals("draft");
-
-        } catch (Exception e) {
-
-            System.out.println(
-                    "Draft status kontrol hatası: "
-                            + e.getMessage()
-            );
-
-            return false;
-        }
+        return belgeStatusuMu("Draft");
     }
 
     // =========================
@@ -719,6 +849,12 @@ public class DocumentsPage {
 
     public void yeniVersiyonSayfasiniAc() {
 
+        // copyPenceresiniAc ile aynı yarış (3 worker'lı koşuda görüldü):
+        // tıklama, GET /documents/{id}/lock sonrası yeniden render sırasında
+        // etkisiz kalıyordu (navigasyon/istek yok). Önce veri + kilit durumu.
+        detayVerisiniBekle(page);
+        kilitDurumunuBekle(page);
+
         page.getByRole(
                 AriaRole.BUTTON,
                 new Page.GetByRoleOptions()
@@ -737,8 +873,28 @@ public class DocumentsPage {
 
         heading.waitFor(
                 new Locator.WaitForOptions()
-                        .setTimeout(10000)
+                        .setTimeout(UI_WAIT_MS)
         );
+
+        // Re-version formu Title alanını GET /documents/{id} yanıtıyla async
+        // dolduruyor (DocumentNew.tsx). Title input'u "required" olduğu için
+        // dolmadan Save'e basılırsa tarayıcı form validasyonu submit'i sessizce
+        // engelliyor: istek yok, hata mesajı yok. Title dolana kadar bekliyoruz.
+        try {
+            com.microsoft.playwright.assertions.PlaywrightAssertions
+                    .assertThat(page.getByPlaceholder("e.g. Q3 Invoice — Acme Corp"))
+                    .hasValue(
+                            Pattern.compile("\\S"),
+                            new com.microsoft.playwright.assertions.LocatorAssertions.HasValueOptions()
+                                    .setTimeout(10000)
+                    );
+        } catch (AssertionError | PlaywrightException e) {
+            throw new AssertionError(
+                    "Yeni versiyon formunda Title alanı kaynak belgeden doldurulmadı. URL: "
+                            + page.url(),
+                    e
+            );
+        }
     }
 
     public void versionTipiniSec(String versionType) {
@@ -751,7 +907,7 @@ public class DocumentsPage {
 
         radio.waitFor(
                 new Locator.WaitForOptions()
-                        .setTimeout(5000)
+                        .setTimeout(UI_WAIT_MS)
         );
 
         radio.check();
@@ -769,23 +925,80 @@ public class DocumentsPage {
 
     public void yeniVersiyonuKaydet() {
 
-        page.getByRole(
+        Locator saveButton = page.getByRole(
                 AriaRole.BUTTON,
                 new Page.GetByRoleOptions()
                         .setName("Save new version")
                         .setExact(true)
-        ).click();
+        );
 
-        // Kayıt tamamlanınca tekrar document detail'e
-        // dönmesini bekliyoruz.
-        page.waitForURL(
-                url -> url.matches(
-                        ".*/documents/[0-9a-fA-F-]{36}$"
-                ),
-                new Page.WaitForURLOptions()
-                        .setTimeout(20000)
+        try {
+            saveButton.waitFor(
+                    new Locator.WaitForOptions()
+                            .setTimeout(10000)
+            );
+        } catch (Exception e) {
+            throw new AssertionError(
+                    "Save new version butonu bulunamadı. URL: " + page.url(),
+                    e
+            );
+        }
+
+        if (!saveButton.isEnabled()) {
+            throw new AssertionError(
+                    "Save new version butonu aktif değil. URL: " + page.url()
+            );
+        }
+
+        try {
+            page.waitForResponse(
+                    response -> response.url().matches(".*/v1/documents/[^/]+/checkin$")
+                            && "POST".equals(response.request().method()),
+                    new Page.WaitForResponseOptions()
+                            .setTimeout(20000),
+                    saveButton::click
+            );
+        } catch (PlaywrightException e) {
+            throw new AssertionError(
+                    "Save new version tıklandıktan sonra checkin isteği gönderilmedi. URL: "
+                            + page.url(),
+                    e
+            );
+        }
+
+        // Başarılı save sonrasında frontend document detail'e gider.
+        try {
+            page.waitForURL(
+                    url -> url.matches(
+                            ".*/documents/[0-9a-fA-F-]{36}$"
+                    ),
+                    new Page.WaitForURLOptions()
+                            .setTimeout(20000)
+            );
+        } catch (PlaywrightException e) {
+            throw new AssertionError(
+                    "Yeni versiyon kaydedildikten sonra belge detay sayfasına dönülmedi. URL: "
+                            + page.url(),
+                    e
+            );
+        }
+        // Detay sayfası h1'i belge verisi gelince render ediliyor; sonraki
+        // adımların yüklenmiş detay sayfasında çalıştığından emin oluyoruz.
+        // URL değiştiği anda eski form sayfasının h1'i DOM'da kalabildiği için
+        // onları hariç tutuyoruz.
+        page.locator("h1").filter(
+                new Locator.FilterOptions()
+                        .setHasNotText(Pattern.compile(
+                                "^(Save new version|New document|Upload without class)$"
+                        ))
+        ).first().waitFor(
+                new Locator.WaitForOptions()
+                        .setTimeout(10000)
         );
     }
+
+
+
 
     public boolean belgeVersiyonuMu(String expectedVersion) {
 
@@ -882,7 +1095,30 @@ public class DocumentsPage {
                         .setTimeout(10000)
         );
 
-        checkoutButton.click();
+        // Click sonrası hemen başka sayfaya gidilirse (ör. Move hedef klasörü
+        // oluşturma) POST /checkout isteği navigasyonla iptal olabiliyordu.
+        // Checkout'un tamamlandığını API yanıtıyla doğruluyoruz.
+        com.microsoft.playwright.Response response;
+        try {
+            response = page.waitForResponse(
+                    r -> r.url().matches(".*/v1/documents/[0-9a-fA-F-]{36}/checkout$")
+                            && "POST".equals(r.request().method()),
+                    new Page.WaitForResponseOptions()
+                            .setTimeout(10000),
+                    checkoutButton::click
+            );
+        } catch (PlaywrightException e) {
+            throw new AssertionError(
+                    "Check out tıklandıktan sonra POST /checkout isteği gönderilmedi!",
+                    e
+            );
+        }
+
+        if (!response.ok()) {
+            throw new AssertionError(
+                    "Checkout başarısız: HTTP " + response.status() + " " + response.text()
+            );
+        }
     }
 
     public boolean checkInButonuGorunuyorMu() {
@@ -977,6 +1213,8 @@ public class DocumentsPage {
         }
     }
     public boolean notCheckedOutGorunmuyorMu() {
+        detayVerisiniBekle(page);
+
 
         Locator notCheckedOut = page.getByText(
                 "Not checked out.",
@@ -989,6 +1227,8 @@ public class DocumentsPage {
     }
 
     public boolean checkOutButonuGorunmuyorMu() {
+        detayVerisiniBekle(page);
+
 
         Locator checkOutButton = page.getByRole(
                 AriaRole.BUTTON,
@@ -1033,29 +1273,10 @@ public class DocumentsPage {
     // =========================
 
     public void managerLogin(Page managerPage) {
-
-        managerPage.navigate(
-                BrowserManager.getBaseUrl() + "/login"
-        );
-
-        managerPage.locator("input[type='email']")
-                .fill("manager@local");
-
-        managerPage.locator("input[type='password']")
-                .fill("123");
-
-        managerPage.getByRole(
-                AriaRole.BUTTON,
-                new Page.GetByRoleOptions()
-                        .setName("Sign in")
-                        .setExact(true)
-        ).click();
-
-        managerPage.waitForURL(
-                "**/folders",
-                new Page.WaitForURLOptions()
-                        .setTimeout(15000)
-        );
+        // Ön koşul login'i: manager'ın kendi ayrı context'ine API ile giriş.
+        // Admin ve manager oturumları ayrı cookie jar'larda kalır. Çağıran
+        // adımlar ardından managerPage'i belge detayına yönlendiriyor.
+        BrowserManager.apiLogin(managerPage.context(), "manager@local", "123");
     }
 
     public void belgeyiBasligaGoreAraVeAc(
@@ -1159,6 +1380,8 @@ public class DocumentsPage {
     public boolean newVersionButonuGorunmuyorMu(
             Page managerPage
     ) {
+        detayVerisiniBekle(managerPage);
+
 
         Locator button = managerPage.getByRole(
                 AriaRole.BUTTON,
@@ -1236,6 +1459,8 @@ public class DocumentsPage {
 // CRITICAL LOCK TESTS
 // =========================
     public boolean classifyButonuGorunmuyorMu(Page targetPage) {
+        detayVerisiniBekle(targetPage);
+
         return targetPage.getByRole(
                 AriaRole.BUTTON,
                 new Page.GetByRoleOptions()
@@ -1245,38 +1470,60 @@ public class DocumentsPage {
     }
 
     public boolean tagDegistirmeKullanilamiyorMu(Page targetPage) {
+        detayVerisiniBekle(targetPage);
 
-        Locator tagButtons = targetPage.getByRole(
-                AriaRole.BUTTON,
-                new Page.GetByRoleOptions()
-                        .setName("Add tag")
-                        .setExact(true)
-        );
 
-        return tagButtons.count() == 0
-                || !tagButtons.first().isVisible()
-                || tagButtons.first().isDisabled();
+        // Detay sayfasında "Add tag" butonu yok (o metin yalnızca liste
+        // sayfasının toplu işlem çubuğunda); eski kontrol her durumda
+        // geçiyordu. Tag değiştirme giriş noktası tag input'udur.
+        Locator input = tagInput(targetPage);
+
+        return input.count() == 0
+                || !input.first().isVisible()
+                || input.first().isDisabled();
     }
 
+    /*
+     * Hard reload: sayfa baştan yüklenir, belge GET /documents/{id} ile
+     * yeniden çekilir. 250 ms polling yerine o yanıtı ve ardından detay
+     * başlığının render edilmesini bekliyoruz.
+     */
     public void belgeDetaySayfasiniYenile() {
-        page.reload();
-        page.waitForLoadState();
 
-        long end = System.currentTimeMillis() + 10000;
-        while (System.currentTimeMillis() < end) {
-            if (belgeDetaySayfasindaMi()
-                    && page.getByRole(AriaRole.HEADING).count() > 0) {
-                return;
-            }
-            page.waitForTimeout(250);
+        if (!belgeDetaySayfasindaMi()) {
+            throw new AssertionError(
+                    "Refresh öncesinde belge detay sayfasında değiliz! URL: " + page.url()
+            );
         }
 
-        throw new AssertionError(
-                "Refresh sonrasında belge detay sayfası hazır olmadı! URL: " + page.url()
-        );
+        try {
+            page.waitForResponse(
+                    r -> r.url().matches(".*/v1/documents/[0-9a-fA-F-]{36}$")
+                            && "GET".equals(r.request().method()),
+                    new Page.WaitForResponseOptions().setTimeout(10000),
+                    () -> page.reload()
+            );
+
+            page.getByRole(AriaRole.HEADING).first().waitFor(
+                    new Locator.WaitForOptions().setTimeout(10000)
+            );
+        } catch (PlaywrightException e) {
+            throw new AssertionError(
+                    "Refresh sonrasında belge detay sayfası hazır olmadı! URL: " + page.url(),
+                    e
+            );
+        }
+
+        if (!belgeDetaySayfasindaMi()) {
+            throw new AssertionError(
+                    "Refresh sonrasında belge detay sayfasında kalınmadı! URL: " + page.url()
+            );
+        }
     }
 
     public boolean newVersionButonuGorunuyorMu() {
+        detayVerisiniBekle(page);
+
         return page.getByRole(
                 AriaRole.BUTTON,
                 new Page.GetByRoleOptions()
@@ -1285,6 +1532,8 @@ public class DocumentsPage {
         ).isVisible();
     }
     public boolean checkOutButonuGorunuyorMu(Page targetPage) {
+        detayVerisiniBekle(targetPage);
+
 
         Locator checkOutButton = targetPage.getByRole(
                 AriaRole.BUTTON,
@@ -1301,6 +1550,8 @@ public class DocumentsPage {
 // =========================
 
     public boolean deleteButonuGorunmuyorMu() {
+        detayVerisiniBekle(page);
+
 
         Locator deleteButton = page.getByRole(
                 AriaRole.BUTTON,
@@ -1379,10 +1630,27 @@ public class DocumentsPage {
 
     public boolean belgeBasligiEsitMi(String expectedTitle) {
 
-        return page.getByText(
-                expectedTitle,
-                new Page.GetByTextOptions().setExact(true)
-        ).count() > 0;
+        // Anlık count() yerine detay h1'inin render edilmesini bekliyoruz;
+        // save sonrası navigation'da h1 kısa süre boş kalıyor.
+        try {
+            page.getByRole(
+                    AriaRole.HEADING,
+                    new Page.GetByRoleOptions()
+                            .setName(expectedTitle)
+                            .setExact(true)
+                            .setLevel(1)
+            ).waitFor(
+                    new Locator.WaitForOptions()
+                            .setTimeout(UI_WAIT_MS)
+            );
+            return true;
+        } catch (PlaywrightException e) {
+            System.out.println(
+                    "Belge başlığı eşleşmedi. Beklenen: " + expectedTitle
+                            + " | Görünen h1: " + page.locator("h1").allInnerTexts()
+            );
+            return false;
+        }
     }
 
     public boolean belgeVersiyonuKorunduMu(String expectedVersion) {
@@ -1406,52 +1674,185 @@ public class DocumentsPage {
     }
 
     public boolean restoreEdilenTxtIcerigiDogruMu() {
-
-        return page.locator("pre")
-                .getByText(
-                        "ECM UI automation test document.",
-                        new Locator.GetByTextOptions()
-                                .setExact(false)
-                )
-                .isVisible();
+        // Preview içeriği tıklamadan sonra async yükleniyor; anlık
+        // isVisible() yerine içeriğin görünmesini bekliyoruz.
+        try {
+            page.locator("pre")
+                    .getByText(
+                            "ECM UI automation test document.",
+                            new Locator.GetByTextOptions()
+                                    .setExact(false)
+                    )
+                    .first()
+                    .waitFor(
+                            new Locator.WaitForOptions()
+                                    .setTimeout(10000)
+                    );
+            return true;
+        } catch (PlaywrightException e) {
+            return false;
+        }
     }
     public boolean softDeleteEdilmisBelgeAktifDetayOlarakGoruntulenmiyorMu() {
 
-        // Soft-delete edilmiş belge eski URL'den açıldığında
-        // normal/aktif belge işlemlerinin kullanılabilir olmaması gerekir.
-        Locator deletedBadge = page.getByText(
-                "Deleted",
-                new Page.GetByTextOptions().setExact(true)
-        );
-
-        return deletedBadge.count() > 0
-                && deletedBadge.first().isVisible();
+        // Soft-delete edilmiş belge eski URL'den açıldığında header'da
+        // "Deleted" badge'i görünmeli. Sayfa navigate sonrası async
+        // render edildiği için anlık count() yerine badge'i bekliyoruz.
+        try {
+            page.locator(
+                    "div:has(> span:text-matches('^Class:')) > span.rounded-full"
+            ).filter(
+                    new Locator.FilterOptions()
+                            .setHasText(Pattern.compile("^\\s*Deleted\\s*$"))
+            ).first().waitFor(
+                    new Locator.WaitForOptions()
+                            .setTimeout(10000)
+            );
+            return true;
+        } catch (PlaywrightException e) {
+            return false;
+        }
     }
     // =========================
 // STATUS INTEGRITY
 // =========================
 
+    /*
+     * ECM'de status belge (document) seviyesindedir: document_version
+     * tablosunda status kolonu yoktur. Yeni versiyon kaydedildiğinde ECM
+     * belgenin status'unu Draft yapar ve bunu audit geçmişine
+     * "document.new_version" olayı olarak before/after state ile yazar.
+     * Önceki versiyonun hangi status ile devredildiği yalnızca bu geçmişte
+     * görülebilir, bu yüzden history API yanıtını kontrol ediyoruz.
+     *
+     * Detay sayfası yenilenirken UI'ın kendi yaptığı
+     * GET /documents/{id}/history yanıtını bekleyip okuyoruz.
+     * Dönüş: bulunursa null, bulunamazsa açıklayıcı hata metni.
+     */
+    public String yeniVersiyonGecisiGecmisteHata(
+            String oncekiVersiyon,
+            String oncekiStatus,
+            String yeniVersiyon,
+            String yeniStatus
+    ) {
+        // Reload öncesi sayfadan kalan (navigasyonla gövdesi atılan) history
+        // yanıtları da gelebildiği için gövdeyi yanıt gelir gelmez okuyoruz;
+        // okunamayanları (eski sayfaya ait) atlıyoruz.
+        String[] historyBody = new String[1];
+        int[] historyStatus = new int[1];
+
+        java.util.function.Consumer<com.microsoft.playwright.Response> listener = r -> {
+            if (historyBody[0] == null
+                    && "GET".equals(r.request().method())
+                    && r.url().matches(".*/v1/documents/[0-9a-fA-F-]{36}/history$")) {
+                try {
+                    historyStatus[0] = r.status();
+                    historyBody[0] = r.text();
+                } catch (PlaywrightException ignored) {
+                    // Eski sayfaya ait yanıt: gövde artık yok.
+                }
+            }
+        };
+
+        page.onResponse(listener);
+        try {
+            page.reload();
+            page.waitForCondition(
+                    () -> historyBody[0] != null,
+                    new Page.WaitForConditionOptions()
+                            .setTimeout(10000)
+            );
+        } catch (PlaywrightException e) {
+            return "Belge geçmişi (GET /documents/{id}/history) yüklenmedi: " + e.getMessage();
+        } finally {
+            page.offResponse(listener);
+        }
+
+        if (historyStatus[0] < 200 || historyStatus[0] >= 300) {
+            return "Belge geçmişi alınamadı: HTTP " + historyStatus[0];
+        }
+
+        String from = oncekiVersiyon.replaceFirst("^v", "");
+        String to = yeniVersiyon.replaceFirst("^v", "");
+
+        com.google.gson.JsonArray items = com.google.gson.JsonParser
+                .parseString(historyBody[0])
+                .getAsJsonObject()
+                .getAsJsonArray("items");
+
+        java.util.List<String> newVersionEvents = new java.util.ArrayList<>();
+
+        for (com.google.gson.JsonElement el : items) {
+            com.google.gson.JsonObject item = el.getAsJsonObject();
+
+            if (!"document.new_version".equals(item.get("action").getAsString())) {
+                continue;
+            }
+
+            String beforeStatus = jsonAlan(item, "before_state", "status");
+            String beforeVersion = jsonAlan(item, "before_state", "version");
+            String afterStatus = jsonAlan(item, "after_state", "status");
+            String afterVersion = jsonAlan(item, "after_state", "version");
+
+            newVersionEvents.add(
+                    beforeVersion + "(" + beforeStatus + ") -> "
+                            + afterVersion + "(" + afterStatus + ")"
+            );
+
+            if (from.equals(beforeVersion)
+                    && oncekiStatus.equals(beforeStatus)
+                    && to.equals(afterVersion)
+                    && yeniStatus.equals(afterStatus)) {
+                return null;
+            }
+        }
+
+        return "Beklenen geçiş: " + from + "(" + oncekiStatus + ") -> "
+                + to + "(" + yeniStatus + ") | Geçmişteki new_version olayları: "
+                + newVersionEvents;
+    }
+
+    private static String jsonAlan(
+            com.google.gson.JsonObject item,
+            String state,
+            String field
+    ) {
+        com.google.gson.JsonElement stateEl = item.get(state);
+        if (stateEl == null || !stateEl.isJsonObject()) {
+            return null;
+        }
+        com.google.gson.JsonElement value = stateEl.getAsJsonObject().get(field);
+        return value == null || value.isJsonNull() ? null : value.getAsString();
+    }
+
     public boolean statusUnderReviewGorunuyorMu() {
-        return page.getByText(
-                "Under review",
-                new Page.GetByTextOptions().setExact(true)
-        ).count() > 0;
+        // getByText("Under review") status dropdown'undaki <option>'ı da
+        // yakaladığı için status Draft iken bile true dönüyordu (false positive).
+        // Belgenin kayıtlı status'unu gösteren header badge'ini kontrol ediyoruz.
+        return statusUnderReviewMu();
     }
 
     public boolean deletedBelgedeStatusUnderReviewGorunuyorMu() {
-        Locator deleted = page.getByText(
-                "Deleted",
-                new Page.GetByTextOptions().setExact(true)
+        // Header'daki "Deleted" badge'i (DocumentDetail.tsx, is_deleted) ve
+        // yanındaki status badge'i birlikte kontrol ediyoruz.
+        Locator deletedBadge = page.locator(
+                "div:has(> span:text-matches('^Class:')) > span.rounded-full"
+        ).filter(
+                new Locator.FilterOptions()
+                        .setHasText(Pattern.compile("^\\s*Deleted\\s*$"))
         );
 
-        Locator underReview = page.getByText(
-                "Under review",
-                new Page.GetByTextOptions().setExact(true)
-        );
+        try {
+            deletedBadge.first().waitFor(
+                    new Locator.WaitForOptions()
+                            .setTimeout(5000)
+            );
+        } catch (PlaywrightException e) {
+            System.out.println("Deleted badge bulunamadı. URL: " + page.url());
+            return false;
+        }
 
-        return deleted.count() > 0
-                && deleted.first().isVisible()
-                && underReview.count() > 0;
+        return belgeStatusuMu("Under review");
     }
 // =========================
 // HARD DELETE
@@ -1530,17 +1931,45 @@ public class DocumentsPage {
 
     public void permanentlyDeleteYap() {
 
-        page.getByRole(
-                AriaRole.BUTTON,
-                new Page.GetByRoleOptions()
-                        .setName("Permanently delete")
-                        .setExact(true)
-        ).click();
+        // Tıklayıp dönmek yetmez: DELETE .../hard bitmeden yapılan sonraki
+        // navigate'in GET'i silmeden önce işlenip belgeyi "hâlâ erişilebilir"
+        // gösterebiliyordu (paralel koşuda görüldü). Yanıtı bekle.
+        com.microsoft.playwright.Response response;
+        try {
+            response = page.waitForResponse(
+                    r -> r.url().matches(".*/v1/documents/[0-9a-fA-F-]{36}/hard$")
+                            && "DELETE".equals(r.request().method()),
+                    new Page.WaitForResponseOptions().setTimeout(UI_WAIT_MS),
+                    () -> page.getByRole(
+                            AriaRole.BUTTON,
+                            new Page.GetByRoleOptions()
+                                    .setName("Permanently delete")
+                                    .setExact(true)
+                    ).click()
+            );
+        } catch (PlaywrightException e) {
+            throw new AssertionError(
+                    "Permanently delete tıklandı ancak DELETE /documents/{id}/hard yanıtı gelmedi. URL: "
+                            + page.url(),
+                    e
+            );
+        }
 
-        page.waitForLoadState();
+        if (!response.ok()) {
+            throw new AssertionError(
+                    "Hard delete başarısız: HTTP " + response.status() + " " + response.text()
+            );
+        }
     }
 
     public boolean hardDeleteEdilmisBelgeDetaydaGorunmuyorMu() {
+
+        // Anlık count() sayfa verisi gelmeden de 0 döner; önce yükleme bitmeli.
+        page.getByText("Loading document…").waitFor(
+                new Locator.WaitForOptions()
+                        .setState(WaitForSelectorState.HIDDEN)
+                        .setTimeout(UI_WAIT_MS)
+        );
 
         Locator deletedBadge = page.getByText(
                 "Deleted",
@@ -1564,6 +1993,8 @@ public class DocumentsPage {
     // =========================
 
     public boolean hardDeleteButonuGorunuyorMu() {
+        detayVerisiniBekle(page);
+
 
         Locator hardDeleteButton = page.getByRole(
                 AriaRole.BUTTON,
@@ -1596,13 +2027,13 @@ public class DocumentsPage {
     // =========================
 
     public boolean managerRenameYapamiyorMu(Page managerPage) {
+        detayVerisiniBekle(managerPage);
 
-        Locator button = managerPage.getByRole(
-                AriaRole.BUTTON,
-                new Page.GetByRoleOptions()
-                        .setName("Rename")
-                        .setExact(true)
-        );
+
+        // Kalem butonunun erişilebilir adı title'dır: "Rename document"
+        // (DocumentDetail.tsx). Tam eşleşen "Rename" adında buton yok; eski
+        // kontrol her durumda geçiyordu.
+        Locator button = managerPage.locator("button[title='Rename document']");
 
         return button.count() == 0
                 || !button.first().isVisible()
@@ -1610,6 +2041,8 @@ public class DocumentsPage {
     }
 
     public boolean managerStatusDegistiremiyorMu(Page managerPage) {
+        detayVerisiniBekle(managerPage);
+
 
         Locator button = managerPage.getByRole(
                 AriaRole.BUTTON,
@@ -1624,6 +2057,8 @@ public class DocumentsPage {
     }
 
     public boolean managerSoftDeleteYapamiyorMu(Page managerPage) {
+        detayVerisiniBekle(managerPage);
+
 
         Locator button = managerPage.getByRole(
                 AriaRole.BUTTON,
@@ -1642,6 +2077,8 @@ public class DocumentsPage {
     // =====================================================
 
     public boolean classifyButonuGorunuyorMu() {
+        detayVerisiniBekle(page);
+
         Locator button = page.getByRole(
                 AriaRole.BUTTON,
                 new Page.GetByRoleOptions().setName("Classify").setExact(true)
@@ -1656,34 +2093,83 @@ public class DocumentsPage {
         ).click();
     }
 
+    /*
+     * DocumentDetail.tsx: Classify -> navigate(/documents/{id}/classify),
+     * DocumentClassify.tsx h1 = "Assign to a class". Eski kontrol anlık
+     * count()'larla "herhangi bir dialog VEYA url'de 'classif' VEYA
+     * 'Classify' metni > 1" arıyordu (hem zayıf hem yarışa açık).
+     */
     public boolean classifyEkraniGorunuyorMu() {
-        return page.getByRole(AriaRole.DIALOG).count() > 0
-                || page.url().toLowerCase().contains("classif")
-                || page.getByText("Classify", new Page.GetByTextOptions().setExact(true)).count() > 1;
+        try {
+            page.waitForURL(
+                    url -> url.matches(".*/documents/[0-9a-fA-F-]{36}/classify$"),
+                    new Page.WaitForURLOptions().setTimeout(10000)
+            );
+            page.getByRole(
+                    AriaRole.HEADING,
+                    new Page.GetByRoleOptions().setName("Assign to a class").setExact(true)
+            ).waitFor(new Locator.WaitForOptions().setTimeout(10000));
+            return true;
+        } catch (PlaywrightException e) {
+            System.out.println("Classify ekranı açılmadı. URL: " + page.url());
+            return false;
+        }
     }
 
+    /*
+     * DocumentClassify.tsx: Cancel -> navigate(/documents/{id}). Eskiden anlık
+     * count() ile Cancel aranıyor (sayfa render olmadıysa goBack) ve ardından
+     * detay sayfası yüklenmeden "Unclassified" kontrol ediliyordu (yarış).
+     */
     public void classifyIsleminiIptalEt() {
         Locator cancel = page.getByRole(
                 AriaRole.BUTTON,
                 new Page.GetByRoleOptions().setName("Cancel").setExact(true)
-        );
-        if (cancel.count() > 0) {
-            cancel.last().click();
-            return;
+        ).last();
+
+        cancel.waitFor(new Locator.WaitForOptions().setTimeout(10000));
+        cancel.click();
+
+        try {
+            page.waitForURL(
+                    url -> url.matches(".*/documents/[0-9a-fA-F-]{36}$"),
+                    new Page.WaitForURLOptions().setTimeout(10000)
+            );
+            // URL client-side route değişiminde hemen güncelleniyor; eski
+            // sayfanın h1'i ("Assign to a class") DOM'dan kalkana kadar bekle.
+            page.getByRole(
+                    AriaRole.HEADING,
+                    new Page.GetByRoleOptions().setName("Assign to a class").setExact(true)
+            ).waitFor(new Locator.WaitForOptions()
+                    .setState(WaitForSelectorState.DETACHED)
+                    .setTimeout(10000));
+        } catch (PlaywrightException e) {
+            throw new AssertionError(
+                    "Classify iptalinden sonra belge detayına dönülmedi. URL: " + page.url(),
+                    e
+            );
         }
-        page.goBack();
     }
 
     public boolean belgeUnclassifiedMi() {
-        Locator value = page.getByText(
-                "Unclassified",
-                new Page.GetByTextOptions().setExact(false)
-        );
-        return value.count() > 0 && value.first().isVisible();
+        detayVerisiniBekle(page);
+        // Detay header'ı: "Class: Unclassified" (DocumentDetail.tsx). Anlık
+        // count() yerine pozitif bekleme.
+        try {
+            page.getByText(
+                    "Unclassified",
+                    new Page.GetByTextOptions().setExact(false)
+            ).first().waitFor(new Locator.WaitForOptions().setTimeout(5000));
+            return true;
+        } catch (PlaywrightException e) {
+            return false;
+        }
     }
 
     // Ekran görüntüsünde doğrulandı: bu bir BUTTON değil LINK.
     public boolean moveButonuGorunuyorMu() {
+        detayVerisiniBekle(page);
+
         Locator moveButton = page.getByRole(
                 AriaRole.BUTTON,
                 new Page.GetByRoleOptions().setName(
@@ -1723,16 +2209,51 @@ public class DocumentsPage {
 
     // Ekran görüntüsünde doğrulandı: Add tag button yok, doğrudan input var.
     public boolean tagGirisAlaniGorunuyorMu() {
-        Locator tagInput = page.locator("input[placeholder^='Type to add a tag']");
+        detayVerisiniBekle(page);
+
+        Locator tagInput = tagInput(page);
         return tagInput.count() > 0 && tagInput.first().isVisible();
     }
 
+    // TagManager.tsx: yazma yetkisi (canWrite) varsa tek giriş noktası bu
+    // input'tur; "Add tags" butonu yalnızca bekleyen etiket varken çıkar.
+    private static Locator tagInput(Page targetPage) {
+        return targetPage.locator("input[placeholder^='Type to add a tag']");
+    }
+
     public boolean tagGirisAlaniGorunmuyorMu(Page targetPage) {
-        Locator input = targetPage.getByPlaceholder("Type to add a tag...");
+        detayVerisiniBekle(targetPage);
+
+        // Negatif kontrol, Tags kartı (TagManager.tsx) kendi GET
+        // /documents/{id}/tags isteğini bitirmeden yapılmamalı: "Loading tags…"
+        // kaybolana kadar bekle. Önce kartın başlığı: kart henüz mount
+        // edilmemişken "Loading tags…" de yoktur (HIDDEN anında geçerdi).
+        try {
+            targetPage.getByRole(
+                    AriaRole.HEADING,
+                    new Page.GetByRoleOptions().setName("Tags").setExact(true)
+            ).first().waitFor(new Locator.WaitForOptions().setTimeout(UI_WAIT_MS));
+            targetPage.getByText("Loading tags…").waitFor(
+                    new Locator.WaitForOptions()
+                            .setState(WaitForSelectorState.HIDDEN)
+                            .setTimeout(UI_WAIT_MS)
+            );
+        } catch (PlaywrightException e) {
+            throw new AssertionError(
+                    "Tags kartı yüklenmeden tag giriş alanı kontrolü yapılamaz."
+                            + detayDurumKaniti(targetPage), e);
+        }
+
+        // ECM placeholder'ı "Type to add a tag…" (tek karakter U+2026).
+        // Eski getByPlaceholder("Type to add a tag...") (üç nokta) hiçbir
+        // zaman eşleşmiyordu: kontrol, alan görünürken bile geçiyordu.
+        Locator input = tagInput(targetPage);
         return input.count() == 0 || !input.first().isVisible();
     }
 
     public boolean downloadButonuGorunuyorMu() {
+        detayVerisiniBekle(page);
+
         Locator button = page.getByRole(
                 AriaRole.BUTTON,
                 new Page.GetByRoleOptions().setName("Download").setExact(true)
@@ -1745,7 +2266,23 @@ public class DocumentsPage {
     }
 
 
+    // Assertion mesajı için kanıt: hangi sayfada, belge Deleted mı, kilit var mı.
+    public String detayDurumKaniti(Page targetPage) {
+        try {
+            boolean deleted = targetPage.getByText(
+                    "Deleted", new Page.GetByTextOptions().setExact(true)).first().isVisible();
+            boolean lockedBy = targetPage.getByText(
+                    Pattern.compile("^Checked out by ")).first().isVisible();
+            return " [URL: " + targetPage.url() + ", Deleted rozeti: " + deleted
+                    + ", 'Checked out by' görünür: " + lockedBy + "]";
+        } catch (PlaywrightException e) {
+            return " [durum kanıtı alınamadı: " + e.getMessage() + "]";
+        }
+    }
+
     public boolean moveButonuGorunmuyorMu(Page targetPage) {
+        detayVerisiniBekle(targetPage);
+
         Locator moveButton = targetPage.getByRole(
                 AriaRole.BUTTON,
                 new Page.GetByRoleOptions().setName(
@@ -1762,25 +2299,28 @@ public class DocumentsPage {
     // =========================
 
     public void hedefKlasorOlustur(String folderName) {
-        page.navigate(BrowserManager.getBaseUrl() + "/folders");
-        page.waitForLoadState();
-
-        Locator nameInput = page.getByPlaceholder("e.g. Finance");
-        if (nameInput.count() == 0) {
-            throw new AssertionError("Folder name alanı bulunamadı!");
-        }
-
-        nameInput.fill(folderName);
-        page.getByRole(
-                AriaRole.BUTTON,
-                new Page.GetByRoleOptions().setName("Create folder").setExact(true)
-        ).click();
-
-        Locator folderLink = page.getByRole(
-                AriaRole.LINK,
-                new Page.GetByRoleOptions().setName(folderName).setExact(true)
+        /*
+         * Move/Copy hedef klasörü bir ön koşul; klasör oluşturma UI'ı
+         * folders.feature'da test ediliyor. UI'ın gönderdiği payload'ın
+         * aynısıyla (Folders.tsx handleCreate) API üzerinden oluşturuyoruz;
+         * ağır /folders sayfasını açmıyoruz.
+         */
+        String response = BrowserManager.apiPostJson(
+                page.context(),
+                BrowserManager.getAccessToken(),
+                "/v1/folders",
+                java.util.Map.of(
+                        "name", folderName,
+                        "parent_id", "00000000-0000-0000-0000-000000000001",
+                        "inherit_permissions", true
+                )
         );
-        folderLink.waitFor();
+
+        if (!response.contains(folderName)) {
+            throw new AssertionError(
+                    "Hedef klasör oluşturulamadı: " + folderName + " | " + response
+            );
+        }
     }
 
     public void belgeDetayAdresiniAc(String url) {
@@ -1788,72 +2328,175 @@ public class DocumentsPage {
         page.waitForLoadState();
     }
 
+    /*
+     * Move dialog'undaki Destination select'i (MoveDocumentDialog.tsx).
+     * Sayfada status/ACL select'leri de olduğu için "select.last()" yerine
+     * "Destination" etiketli form'a scope'luyoruz.
+     */
+    private Locator moveDestinationSelect() {
+        return page.locator("form").filter(
+                new Locator.FilterOptions()
+                        .setHas(page.getByText(
+                                "Destination",
+                                new Page.GetByTextOptions().setExact(true)
+                        ))
+        ).locator("select");
+    }
+
     public void moveHedefKlasorSec(String folderName) {
-        Locator select = page.locator("select").last();
-        if (select.count() == 0) {
-            throw new AssertionError("Move ekranında Destination select bulunamadı!");
-        }
+        klasorOptionSec(moveDestinationSelect(), folderName, "Move");
+    }
 
-        Locator options = select.locator("option");
-        String optionValue = null;
+    /*
+     * FolderPicker select'inde hedef klasörü seçer.
+     *
+     * FolderPicker önce disabled bir "Loading folders…" select'i render
+     * ediyor, GET /folders/picker yanıtı gelince gerçek listeyi çiziyor.
+     * Hedef klasörün option'ı DOM'a gelene kadar bekliyoruz.
+     * Seçenekler tam yol gösterebilir: "Root / Parent / QA Move Folder ..."
+     *
+     * Ortamda binlerce klasör olduğu için option'lar Java'dan tek tek
+     * okunmaz (her biri bir round-trip'ti, ~30 sn); eşleşme tek bir
+     * locator filtresiyle tarayıcıda yapılır.
+     */
+    private void klasorOptionSec(Locator select, String folderName, String islem) {
 
-        for (int i = 0; i < options.count(); i++) {
-            Locator option = options.nth(i);
-            String text = option.textContent();
-            if (text != null) {
-                String optionText = text.trim();
+        Locator targetOption = select.locator("option").filter(
+                new Locator.FilterOptions()
+                        .setHasText(klasorOptionPattern(folderName))
+        ).first();
 
-                // Destination seçenekleri tam yol gösterebilir:
-                // "Root / Parent / QA Move Folder ..."
-                if (optionText.equals(folderName)
-                        || optionText.endsWith("/ " + folderName)
-                        || optionText.endsWith("/" + folderName)) {
-                    optionValue = option.getAttribute("value");
-                    break;
-                }
+        try {
+            targetOption.waitFor(
+                    new Locator.WaitForOptions()
+                            .setState(WaitForSelectorState.ATTACHED)
+                            .setTimeout(10000)
+            );
+        } catch (PlaywrightException e) {
+            String ozet;
+            try {
+                ozet = String.valueOf(select.first().evaluate(
+                        "s => s.options.length + ' option, ilk: ' + Array.from(s.options).slice(0, 3).map(o => o.text).join(' | ')"
+                ));
+            } catch (PlaywrightException ignored) {
+                ozet = "(select bulunamadı)";
             }
+            throw new AssertionError(
+                    islem + " hedef klasörü listede bulunamadı: " + folderName
+                            + " | " + ozet,
+                    e
+            );
         }
 
-        if (optionValue == null) {
-            throw new AssertionError("Move hedef klasörü listede bulunamadı: " + folderName);
-        }
+        select.selectOption(targetOption.getAttribute("value"));
+    }
 
-        select.selectOption(optionValue);
+    private static Pattern klasorOptionPattern(String folderName) {
+        // Regex tarayıcıda JS olarak çalışır (Pattern.quote kullanılmaz).
+        String escaped = folderName.replaceAll("[.*+?^${}()|\\[\\]\\\\]", "\\\\$0");
+        return Pattern.compile("(^|/)\\s*" + escaped + "\\s*$");
+    }
+
+    /*
+     * Seçili option'ın metni, tek bir evaluate ile. Select henüz
+     * "Loading folders…" durumundaysa (disabled) yüklenmesini bekler.
+     */
+    private String seciliKlasorOptionMetni(Locator select) {
+        com.microsoft.playwright.assertions.PlaywrightAssertions
+                .assertThat(select)
+                .isEnabled(
+                        new com.microsoft.playwright.assertions.LocatorAssertions.IsEnabledOptions()
+                                .setTimeout(10000)
+                );
+
+        Object text = select.evaluate(
+                "s => s.selectedIndex >= 0 ? s.options[s.selectedIndex].text : ''"
+        );
+        return text == null ? "" : text.toString().trim();
+    }
+
+    private static boolean klasorOptionMetniEslesiyorMu(String optionText, String folderName) {
+        return optionText.equals(folderName)
+                || optionText.endsWith("/ " + folderName)
+                || optionText.endsWith("/" + folderName);
     }
 
     public boolean moveHedefKlasorSeciliMi(String folderName) {
-        Locator select = page.locator("select").last();
-        if (select.count() == 0) {
+        try {
+            return klasorOptionMetniEslesiyorMu(
+                    seciliKlasorOptionMetni(moveDestinationSelect()),
+                    folderName
+            );
+        } catch (AssertionError | PlaywrightException e) {
+            System.out.println("Move seçili klasör okunamadı: " + e.getMessage());
             return false;
         }
-
-        String selectedValue = select.inputValue();
-        Locator options = select.locator("option");
-
-        for (int i = 0; i < options.count(); i++) {
-            Locator option = options.nth(i);
-            String value = option.getAttribute("value");
-            String text = option.textContent();
-
-            if (selectedValue.equals(value) && text != null) {
-                String optionText = text.trim();
-
-                // Seçili option metni de tam klasör yolu olabilir.
-                if (optionText.equals(folderName)
-                        || optionText.endsWith("/ " + folderName)
-                        || optionText.endsWith("/" + folderName)) {
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 
     public void moveIsleminiOnayla() {
-        page.getByRole(
+
+        Locator moveButton = page.getByRole(
                 AriaRole.BUTTON,
                 new Page.GetByRoleOptions().setName("Move").setExact(true)
-        ).click();
+        );
+
+        /*
+         * Move tamamlandığını PUT /documents/{id}/folder yanıtı kanıtlar.
+         * YARIŞ DÜZELTMESİ: ECM başarılı PUT sonrası onMoved -> reload() ile
+         * belgeyi async yeniden çekiyor; Move dialog'u açılışta hedefi
+         * data.folder.id'den alıyor. Yeniden çekim bitmeden dialog tekrar
+         * açılırsa eski klasör görünüyordu. Dış dinleyici tıklamadan ÖNCE
+         * kurulduğu için PUT'tan sonraki GET /documents/{id} kaçırılmaz.
+         */
+        com.microsoft.playwright.Response[] put = new com.microsoft.playwright.Response[1];
+        // put[0] iç bekleme DÖNDÜKTEN sonra atanır; GET o aralıkta gelirse dış
+        // bekleme onu kaçırıp 15 sn sonra düşüyordu (yükte görüldü). PUT
+        // yanıtı, predicate içinde görüldüğü anda işaretlenir.
+        boolean[] putSeen = new boolean[1];
+        com.microsoft.playwright.Response response;
+        try {
+            page.waitForResponse(
+                    r -> r.url().matches(".*/v1/documents/[0-9a-fA-F-]{36}$")
+                            && "GET".equals(r.request().method())
+                            && putSeen[0],
+                    new Page.WaitForResponseOptions()
+                            .setTimeout(UI_WAIT_MS),
+                    () -> {
+                        put[0] = page.waitForResponse(
+                                r -> {
+                                    boolean match = r.url().matches(".*/v1/documents/[0-9a-fA-F-]{36}/folder$")
+                                            && "PUT".equals(r.request().method());
+                                    if (match) {
+                                        putSeen[0] = true;
+                                    }
+                                    return match;
+                                },
+                                new Page.WaitForResponseOptions()
+                                        .setTimeout(10000),
+                                moveButton::click
+                        );
+                        if (!put[0].ok()) {
+                            throw new AssertionError(
+                                    "Move başarısız: HTTP " + put[0].status() + " " + put[0].text()
+                            );
+                        }
+                    }
+            );
+            response = put[0];
+        } catch (PlaywrightException e) {
+            throw new AssertionError(
+                    putSeen[0]
+                            ? "Move PUT tamamlandı ancak ardından GET /documents/{id} (yeniden yükleme) gelmedi!"
+                            : "Move onaylandıktan sonra PUT /documents/{id}/folder yanıtı gelmedi!",
+                    e
+            );
+        }
+
+        if (!response.ok()) {
+            throw new AssertionError(
+                    "Move başarısız: HTTP " + response.status() + " " + response.text()
+            );
+        }
     }
 
     public boolean movePenceresiKapandiMi() {
@@ -1869,11 +2512,20 @@ public class DocumentsPage {
     }
 
     public boolean mevcutKlasorAdiGorunuyorMu(String folderName) {
-        Locator exactText = page.getByText(
-                folderName,
-                new Page.GetByTextOptions().setExact(true)
-        );
-        return exactText.count() > 0 && exactText.first().isVisible();
+        // Move sonrası detay sayfası reload() ile yeniden yükleniyor;
+        // anlık count() yerine klasör adının görünmesini bekliyoruz.
+        try {
+            page.getByText(
+                    folderName,
+                    new Page.GetByTextOptions().setExact(true)
+            ).first().waitFor(
+                    new Locator.WaitForOptions()
+                            .setTimeout(UI_WAIT_MS)
+            );
+            return true;
+        } catch (PlaywrightException e) {
+            return false;
+        }
     }
 
 
@@ -1883,6 +2535,8 @@ public class DocumentsPage {
     // =========================
 
     public boolean copyButonuGorunuyorMu() {
+        detayVerisiniBekle(page);
+
         Locator button = page.getByRole(
                 AriaRole.BUTTON,
                 new Page.GetByRoleOptions().setName("Copy").setExact(true)
@@ -1891,26 +2545,75 @@ public class DocumentsPage {
     }
 
     public void copyPenceresiniAc() {
-        Locator buttons = page.getByRole(
-                AriaRole.BUTTON,
-                new Page.GetByRoleOptions().setName("Copy").setExact(true)
-        );
-        if (buttons.count() == 0) {
-            throw new AssertionError("Copy butonu bulunamadı!");
-        }
-        buttons.first().click();
+        /*
+         * YARIŞ DÜZELTMESİ (4 worker'lı koşuda 1 kez görüldü): Copy butonu
+         * canEdit = can_write && !lockedByOther(lockStatus) ile render
+         * ediliyor; lockStatus, başlık (h1) render edildikten SONRA ayrı bir
+         * GET /documents/{id}/lock ile geliyor. Tıklamadan önce hem belge
+         * verisinin hem kilit durumunun render edildiğini bekliyoruz.
+         * Tıklama tekrarlanmaz: diyalog açılmazsa kanıtla birlikte düşer.
+         */
+        detayVerisiniBekle(page);
+        kilitDurumunuBekle(page);
 
-        page.getByRole(
-                AriaRole.HEADING,
-                new Page.GetByRoleOptions().setName("Copy document").setExact(true)
-        ).waitFor(new Locator.WaitForOptions().setTimeout(5000));
+        Locator button = page.getByRole(
+                AriaRole.BUTTON,
+                new Page.GetByRoleOptions()
+                        .setName("Copy")
+                        .setExact(true)
+        ).first();
+
+        try {
+            button.waitFor(
+                    new Locator.WaitForOptions()
+                            .setTimeout(UI_WAIT_MS)
+            );
+        } catch (Exception e) {
+            throw new AssertionError("Copy butonu bulunamadı!" + detayDurumKaniti(page), e);
+        }
+
+        button.click();
+
+        try {
+            copyDialogHeading().first().waitFor(
+                    new Locator.WaitForOptions()
+                            .setTimeout(10000)
+            );
+        } catch (PlaywrightException e) {
+            throw new AssertionError(
+                    "Copy tıklandı ancak 'Copy document' penceresi açılmadı."
+                            + detayDurumKaniti(page)
+                            + " [Copy butonu hâlâ görünür: " + button.isVisible()
+                            + ", 'Loading document…' görünür: "
+                            + page.getByText("Loading document…").isVisible() + "]",
+                    e
+            );
+        }
+    }
+
+    /*
+     * Check-out kartı (DocumentLockCard.tsx) kilit durumu gelene kadar
+     * "Loading…" gösterir; sonra "Not checked out." ya da "Checked out by …".
+     * Silinmiş belgede kart hiç render edilmez; bu yardımcı yalnızca aktif
+     * belgede kilide bağlı aksiyonlardan önce kullanılır.
+     */
+    private void kilitDurumunuBekle(Page targetPage) {
+        try {
+            targetPage.getByText(
+                    Pattern.compile("^(Not checked out\\.|Checked out by .+)$")
+            ).first().waitFor(
+                    new Locator.WaitForOptions().setTimeout(10000)
+            );
+        } catch (PlaywrightException e) {
+            throw new AssertionError(
+                    "Belgenin kilit (check-out) durumu yüklenmedi." + detayDurumKaniti(targetPage),
+                    e
+            );
+        }
     }
 
     public boolean copyPenceresiGorunuyorMu() {
-        Locator heading = page.getByRole(
-                AriaRole.HEADING,
-                new Page.GetByRoleOptions().setName("Copy document").setExact(true)
-        );
+        Locator heading = copyDialogHeading();
         return heading.count() > 0 && heading.first().isVisible();
     }
 
@@ -1921,30 +2624,32 @@ public class DocumentsPage {
         ).count() > 0;
     }
 
-    private Locator copyTitleInput() {
-        Locator label = page.getByText(
-                "New title",
-                new Page.GetByTextOptions().setExact(true)
+    /*
+     * CopyDocumentDialog.tsx: <form> içinde "New title" ve
+     * "Destination folder" label'lı alanlar. Önceki sürüm bu alanları
+     * count() denemeleriyle (her biri ayrı bir round-trip) arıyordu.
+     */
+    private Locator copyForm() {
+        return page.locator("form").filter(
+                new Locator.FilterOptions().setHas(
+                        page.locator("label", new Page.LocatorOptions().setHasText(Pattern.compile("^New title$")))
+                )
         );
-        if (label.count() > 0) {
-            Locator input = label.first().locator("xpath=following::input[1]");
-            if (input.count() > 0) return input.first();
-        }
-        return page.locator("input").filter(
-                new Locator.FilterOptions().setHasNot(page.locator("[type='hidden']"))
-        ).last();
+    }
+
+    private Locator copyTitleInput() {
+        return copyForm().locator("div:has(> label:text-is('New title')) > input");
     }
 
     private Locator copyDestinationSelect() {
-        Locator heading = page.getByRole(
+        return copyForm().locator("div:has(> label:text-is('Destination folder')) select");
+    }
+
+    private Locator copyDialogHeading() {
+        return page.getByRole(
                 AriaRole.HEADING,
                 new Page.GetByRoleOptions().setName("Copy document").setExact(true)
         );
-        Locator dialog = heading.locator("xpath=ancestor::*[self::div or self::section][.//select][1]");
-        if (dialog.count() > 0 && dialog.locator("select").count() > 0) {
-            return dialog.locator("select").first();
-        }
-        return page.locator("select").last();
     }
 
     public String copyBaslangicBasligi() {
@@ -1964,33 +2669,31 @@ public class DocumentsPage {
     }
 
     public boolean copyDestinationRootMu() {
-        Locator select = copyDestinationSelect();
-        String text = select.locator("option:checked").innerText().trim();
-        return text.equals("Root") || text.endsWith("/ Root") || text.endsWith("/Root");
+        // FolderPicker önce disabled "Loading folders…" select'i çiziyor;
+        // seçili değeri ancak liste yüklendikten sonra okuyoruz.
+        try {
+            String text = seciliKlasorOptionMetni(copyDestinationSelect());
+            return text.equals("Root") || text.endsWith("/ Root") || text.endsWith("/Root");
+        } catch (AssertionError | PlaywrightException e) {
+            System.out.println("Copy seçili hedef klasör okunamadı: " + e.getMessage());
+            return false;
+        }
     }
 
     public void copyHedefKlasorSec(String folderName) {
-        Locator select = copyDestinationSelect();
-        Locator options = select.locator("option");
-
-        for (int i = 0; i < options.count(); i++) {
-            Locator option = options.nth(i);
-            String text = option.innerText().trim();
-            if (text.equals(folderName)
-                    || text.endsWith("/ " + folderName)
-                    || text.endsWith("/" + folderName)) {
-                select.selectOption(option.getAttribute("value"));
-                return;
-            }
-        }
-        throw new AssertionError("Copy hedef klasörü listede bulunamadı: " + folderName);
+        klasorOptionSec(copyDestinationSelect(), folderName, "Copy");
     }
 
     public boolean copyHedefKlasorSeciliMi(String folderName) {
-        String text = copyDestinationSelect().locator("option:checked").innerText().trim();
-        return text.equals(folderName)
-                || text.endsWith("/ " + folderName)
-                || text.endsWith("/" + folderName);
+        try {
+            return klasorOptionMetniEslesiyorMu(
+                    seciliKlasorOptionMetni(copyDestinationSelect()),
+                    folderName
+            );
+        } catch (AssertionError | PlaywrightException e) {
+            System.out.println("Copy seçili klasör okunamadı: " + e.getMessage());
+            return false;
+        }
     }
 
     public void copyIsleminiIptalEt() {
@@ -2001,64 +2704,100 @@ public class DocumentsPage {
     }
 
     public void copyPenceresiniXileKapat() {
-        Locator heading = page.getByRole(
-                AriaRole.HEADING,
-                new Page.GetByRoleOptions().setName("Copy document").setExact(true)
-        );
-        Locator dialog = heading.locator("xpath=ancestor::*[self::div or self::section][.//button][1]");
-        Locator close = dialog.locator("button").filter(
-                new Locator.FilterOptions().setHas(page.locator("svg"))
-        ).first();
-        if (close.count() == 0) {
-            close = page.locator("button").filter(
-                    new Locator.FilterOptions().setHasNotText("Copy")
-            ).first();
-        }
-        close.click();
+        // Dialog header'ındaki aria-label="Close" butonu.
+        page.locator("header").filter(
+                new Locator.FilterOptions().setHas(copyDialogHeading())
+        ).getByRole(
+                AriaRole.BUTTON,
+                new Locator.GetByRoleOptions().setName("Close").setExact(true)
+        ).click();
     }
 
     public boolean copyPenceresiKapandiMi() {
-        return page.getByRole(
-                AriaRole.HEADING,
-                new Page.GetByRoleOptions().setName("Copy document").setExact(true)
-        ).count() == 0;
+        // Anlık count() yerine dialog'un DOM'dan kalkmasını (en fazla 5 sn) bekliyoruz.
+        try {
+            copyDialogHeading().waitFor(
+                    new Locator.WaitForOptions()
+                            .setState(WaitForSelectorState.DETACHED)
+                            .setTimeout(5000)
+            );
+            return true;
+        } catch (PlaywrightException e) {
+            return false;
+        }
     }
 
-    public void copyIsleminiOnayla() {
-        Locator buttons = page.getByRole(
+    /*
+     * Copy'yi onaylar ve tamamlandığını deterministik olarak doğrular:
+     * POST /documents/{kaynak}/copy başarılı yanıtı + dialog'un kapanması.
+     * 250 ms polling yerine gerçek API yanıtını bekliyoruz.
+     * Dönüş: API'nin oluşturduğu kopya belgenin id'si.
+     */
+    public String copyIsleminiOnayla() {
+        Locator submit = copyForm().getByRole(
                 AriaRole.BUTTON,
-                new Page.GetByRoleOptions().setName("Copy").setExact(true)
+                new Locator.GetByRoleOptions().setName("Copy").setExact(true)
         );
-        buttons.last().click();
 
-        long end = System.currentTimeMillis() + 15000;
-        while (System.currentTimeMillis() < end) {
-            if (!copyPenceresiGorunuyorMu()) return;
-            page.waitForTimeout(250);
+        com.microsoft.playwright.Response response;
+        try {
+            response = page.waitForResponse(
+                    r -> r.url().matches(".*/v1/documents/[0-9a-fA-F-]{36}/copy$")
+                            && "POST".equals(r.request().method()),
+                    new Page.WaitForResponseOptions().setTimeout(15000),
+                    submit::click
+            );
+        } catch (PlaywrightException e) {
+            throw new AssertionError(
+                    "Copy onaylandıktan sonra POST /documents/{id}/copy isteği gönderilmedi!",
+                    e
+            );
         }
-        throw new AssertionError("Copy işlemi sonrasında pencere kapanmadı!");
+
+        if (!response.ok()) {
+            throw new AssertionError(
+                    "Copy başarısız: HTTP " + response.status() + " " + response.text()
+            );
+        }
+
+        com.google.gson.JsonElement idEl = com.google.gson.JsonParser
+                .parseString(response.text())
+                .getAsJsonObject()
+                .get("document_id");
+        String newId = idEl == null || idEl.isJsonNull() ? null : idEl.getAsString();
+        if (newId == null || newId.isBlank()) {
+            throw new AssertionError(
+                    "Copy yanıtında document_id yok: " + response.text()
+            );
+        }
+
+        if (!copyPenceresiKapandiMi()) {
+            throw new AssertionError("Copy işlemi sonrasında pencere kapanmadı!");
+        }
+
+        return newId;
     }
 
-    public void kopyaBelgeDetayiniBekle(String copyTitle, String sourceUrl) {
-        long end = System.currentTimeMillis() + 15000;
-
-        while (System.currentTimeMillis() < end) {
-            boolean differentUrl = sourceUrl == null || !page.url().equals(sourceUrl);
-
-            if (differentUrl
-                    && belgeDetaySayfasindaMi()
-                    && belgeBasligiGorunuyorMu(copyTitle)) {
-                return;
-            }
-
-            page.waitForTimeout(250);
+    /*
+     * Uygulama copy sonrası /documents/{yeniId} adresine gider. API'nin
+     * döndürdüğü id'nin detay sayfasının açılmasını ve kopya başlığının
+     * render edilmesini bekliyoruz.
+     */
+    public void kopyaBelgeDetayiniBekle(String copyTitle, String copyDocumentId) {
+        try {
+            page.waitForURL(
+                    url -> url.endsWith("/documents/" + copyDocumentId),
+                    new Page.WaitForURLOptions().setTimeout(10000)
+            );
+        } catch (PlaywrightException e) {
+            throw new AssertionError(
+                    "Copy oluşturuldu ancak yeni kopyanın detay sayfasına gidilmedi. "
+                            + "Beklenen id: " + copyDocumentId + ", URL: " + page.url(),
+                    e
+            );
         }
 
-        throw new AssertionError(
-                "Copy oluşturuldu ancak yeni kopyanın detay sayfası hazır olmadı. "
-                        + "Beklenen başlık: " + copyTitle
-                        + ", URL: " + page.url()
-        );
+        belgeDetayBasliginiBekle(copyTitle);
     }
 
     public boolean copyBasligiBoskenButonDisabledMi() {
@@ -2069,9 +2808,47 @@ public class DocumentsPage {
         return buttons.last().isDisabled();
     }
 
+    /*
+     * Bilinen detay adresine tam sayfa yüklemesiyle gider ve belge verisi
+     * gelene kadar bekler (gerekçe: belgeDetayAdresiniAcBatch13). Ardışık iki
+     * navigate arasında SPA'nın refresh isteği yarıda kalmaz.
+     */
+    public void belgeDetayAdresineGit(String url) {
+        belgeDetayAdresiniAcBatch13(url);
+    }
+
+    /*
+     * Detay adresine gider ve SPA'nın GET /documents/{id} yanıtını (durum ne
+     * olursa olsun) bekler: bu yanıt oturum yenilemesinin bittiğini kanıtlar.
+     * Belge verisinin yüklenmesini ŞART KOŞMAZ; hard delete edilmiş belgede
+     * de (404) kullanılabilir. Sonraki Then adımları durumu kendileri doğrular.
+     */
+    public void detayAdresiniAcVeYanitiBekle(String url) {
+        try {
+            page.waitForResponse(
+                    r -> r.url().matches(".*/v1/documents/[0-9a-fA-F-]{36}$")
+                            && "GET".equals(r.request().method()),
+                    new Page.WaitForResponseOptions().setTimeout(UI_WAIT_MS),
+                    () -> page.navigate(url)
+            );
+        } catch (PlaywrightException e) {
+            throw new AssertionError(
+                    "Detay adresi açıldı ancak GET /documents/{id} yanıtı gelmedi "
+                            + "(oturum düşmüş olabilir). URL: " + page.url(),
+                    e
+            );
+        }
+    }
+
     public void belgeDetayAdresiniAcBatch13(String url) {
         page.navigate(url);
         page.waitForLoadState();
+        // "load" SPA'nın oturum yenilemesinden (GET /auth/me -> POST
+        // /auth/refresh) ÖNCE gelir. ECM refresh token'ı tek kullanımlık
+        // döndürür (auth.rs); hemen ardından yapılan ikinci navigate yarım
+        // kalan refresh'i iptal edince yeni cookie kaybolup /login'e
+        // düşülüyordu (paralel koşuda görüldü). Belge verisi yüklenene kadar bekle.
+        detayVerisiniBekle(page);
     }
 
     public boolean belgeDetayUrlFarkliMi(String oldUrl) {
@@ -2121,7 +2898,7 @@ public class DocumentsPage {
 
         addLabelButton.waitFor(new Locator.WaitForOptions()
                 .setState(WaitForSelectorState.VISIBLE)
-                .setTimeout(5000));
+                .setTimeout(UI_WAIT_MS));
 
         addLabelButton.click();
 
@@ -2133,7 +2910,7 @@ public class DocumentsPage {
 
         input.waitFor(new Locator.WaitForOptions()
                 .setState(WaitForSelectorState.VISIBLE)
-                .setTimeout(5000));
+                .setTimeout(UI_WAIT_MS));
     }
 
     public boolean versionLabelEditoruAcikMi(String version) {
@@ -2158,8 +2935,19 @@ public class DocumentsPage {
                 .first()
                 .inputValue();
     }
+    /*
+     * YARIŞ DÜZELTMESİ: eskiden "Add" tıklanıp hemen dönülüyordu; ardından
+     * gelen refresh / silme adımı POST isteği bitmeden çalışıp etiketi
+     * bulamıyordu (ya da istek reload ile iptal oluyordu). Şimdi
+     * POST /documents/{id}/versions/{vid}/labels yanıtını bekliyoruz;
+     * başarılıysa etiketin satırda render edilmesini de bekliyoruz.
+     * Başarısız yanıt (ör. doğrulama hatası) burada hata vermez: UI'ın hata
+     * gösterdiği senaryolar sonraki Then adımlarıyla doğrulanıyor.
+     */
     public void versionLabelEkle(String version) {
         Locator row = versionHistoryRow(version);
+
+        String label = row.locator("input[type='text']").first().inputValue().trim();
 
         Locator addButton = row.getByRole(
                 AriaRole.BUTTON,
@@ -2168,13 +2956,44 @@ public class DocumentsPage {
                         .setExact(true)
         );
 
-        addButton.click();
+        com.microsoft.playwright.Response response;
+        try {
+            response = page.waitForResponse(
+                    r -> r.url().matches(".*/v1/documents/[0-9a-fA-F-]{36}/versions/[0-9a-fA-F-]{36}/labels$")
+                            && "POST".equals(r.request().method()),
+                    new Page.WaitForResponseOptions().setTimeout(10000),
+                    addButton::click
+            );
+        } catch (PlaywrightException e) {
+            throw new AssertionError(
+                    "Version label Add tıklandıktan sonra POST .../labels isteği gönderilmedi: " + label,
+                    e
+            );
+        }
+
+        if (response.ok() && !label.isEmpty()) {
+            versionHistoryRow(version).locator(
+                    "button[aria-label='Remove label " + label + "']"
+            ).waitFor(new Locator.WaitForOptions()
+                    .setState(WaitForSelectorState.VISIBLE)
+                    .setTimeout(10000));
+        }
     }
 
     public void versionLabelIptalEt(String version) {
         Locator row = versionHistoryRow(version);
         row.getByText("Cancel", new Locator.GetByTextOptions().setExact(true)).click();
-        page.waitForTimeout(250);
+
+        // Sabit 250 ms yerine label editörünün kapanmasını bekliyoruz.
+        // Kapanmazsa sonraki Then adımları durumu kendi assertion'larıyla yakalar.
+        try {
+            row.locator("input[type='text']").first().waitFor(
+                    new Locator.WaitForOptions()
+                            .setState(WaitForSelectorState.HIDDEN)
+                            .setTimeout(5000)
+            );
+        } catch (PlaywrightException ignored) {
+        }
     }
 
     public boolean versionLabelGorunuyorMu(String version, String label) {
@@ -2187,15 +3006,30 @@ public class DocumentsPage {
         try {
             removeButton.waitFor(new Locator.WaitForOptions()
                     .setState(WaitForSelectorState.VISIBLE)
-                    .setTimeout(5000));
+                    .setTimeout(UI_WAIT_MS));
 
             return removeButton.isVisible();
         } catch (PlaywrightException e) {
             return false;
         }
     }
+    /*
+     * Eskiden !versionLabelGorunuyorMu(): etiketin GÖRÜNMESİNİ 5 sn bekliyordu.
+     * Silme sonrası (DELETE bitmeden) etiket hâlâ ekrandaysa hemen "görünüyor"
+     * dönüp yanlış hata veriyordu; doğru durumda ise her seferinde 5 sn
+     * harcıyordu. Şimdi etiketin DOM'dan kalkmasını bekliyoruz.
+     */
     public boolean versionLabelGorunmuyorMu(String version, String label) {
-        return !versionLabelGorunuyorMu(version, label);
+        try {
+            versionHistoryRow(version).locator(
+                    "button[aria-label='Remove label " + label + "']"
+            ).waitFor(new Locator.WaitForOptions()
+                    .setState(WaitForSelectorState.DETACHED)
+                    .setTimeout(5000));
+            return true;
+        } catch (PlaywrightException e) {
+            return false;
+        }
     }
 
     public void versionLabelSil(String version, String label) {
@@ -2205,14 +3039,38 @@ public class DocumentsPage {
                 "button[aria-label='Remove label " + label + "']"
         );
 
-        if (removeButton.count() == 0) {
+        // Anlık count()==0 yerine etiketin render edilmesini bekle.
+        try {
+            removeButton.waitFor(new Locator.WaitForOptions()
+                    .setState(WaitForSelectorState.VISIBLE)
+                    .setTimeout(10000));
+        } catch (PlaywrightException e) {
             throw new AssertionError(
-                    "Silinecek version label bulunamadı: " + label
+                    "Silinecek version label bulunamadı: " + label,
+                    e
             );
         }
 
-        removeButton.click();
+        com.microsoft.playwright.Response response;
+        try {
+            response = page.waitForResponse(
+                    r -> r.url().matches(".*/v1/documents/[0-9a-fA-F-]{36}/versions/[0-9a-fA-F-]{36}/labels/.+")
+                            && "DELETE".equals(r.request().method()),
+                    new Page.WaitForResponseOptions().setTimeout(10000),
+                    removeButton::click
+            );
+        } catch (PlaywrightException e) {
+            throw new AssertionError(
+                    "Version label silme tıklandıktan sonra DELETE isteği gönderilmedi: " + label,
+                    e
+            );
+        }
 
+        if (!response.ok()) {
+            throw new AssertionError(
+                    "Version label silinemedi: HTTP " + response.status() + " " + response.text()
+            );
+        }
     }
 
     public int versionLabelSayisi(String version) {
@@ -2243,7 +3101,8 @@ public class DocumentsPage {
 
         // Document title'ın hemen yanındaki kalem/edit butonu.
         // Edit modunda Confirm rename / Cancel butonları oluşuyor.
-        Locator confirm = page.locator("button[title='Confirm rename']");
+        Locator confirm =
+                page.locator("button[title='Confirm rename']");
 
         if (confirm.count() > 0 && confirm.first().isVisible()) {
             throw new AssertionError(
@@ -2251,7 +3110,8 @@ public class DocumentsPage {
             );
         }
 
-        Locator titleHeading = page.locator("h1").first();
+        Locator titleHeading =
+                page.locator("h1").first();
 
         if (titleHeading.count() == 0) {
             throw new AssertionError(
@@ -2259,9 +3119,11 @@ public class DocumentsPage {
             );
         }
 
-        Locator container = titleHeading.locator("xpath=..");
+        Locator container =
+                titleHeading.locator("xpath=..");
 
-        Locator buttons = container.locator("button");
+        Locator buttons =
+                container.locator("button");
 
         if (buttons.count() == 0) {
             throw new AssertionError(
@@ -2302,7 +3164,6 @@ public class DocumentsPage {
         );
 
         return input;
-    
     }
 
     public boolean renameEditButonuGorunuyorMu() {
@@ -2345,7 +3206,11 @@ public class DocumentsPage {
         renameInput().fill(newTitle);
     }
 
-    public void renameKaydet() {
+    // =========================
+    // BATCH 16 - RENAME VALIDATION
+    // =========================
+
+    public boolean renameKaydetDisabledMi() {
 
         Locator confirm =
                 page.locator("button[title='Confirm rename']");
@@ -2354,6 +3219,20 @@ public class DocumentsPage {
                 new Locator.WaitForOptions()
                         .setState(WaitForSelectorState.VISIBLE)
                         .setTimeout(5000)
+        );
+
+        return confirm.isDisabled();
+    }
+
+    public void renameKaydet() {
+
+        Locator confirm =
+                page.locator("button[title='Confirm rename']");
+
+        confirm.waitFor(
+                new Locator.WaitForOptions()
+                        .setState(WaitForSelectorState.VISIBLE)
+                        .setTimeout(UI_WAIT_MS)
         );
 
         confirm.click();
@@ -2367,7 +3246,7 @@ public class DocumentsPage {
         cancel.waitFor(
                 new Locator.WaitForOptions()
                         .setState(WaitForSelectorState.VISIBLE)
-                        .setTimeout(5000)
+                        .setTimeout(UI_WAIT_MS)
         );
 
         cancel.click();
@@ -2422,24 +3301,32 @@ public class DocumentsPage {
 
     public void renameSonucunuBekle(String expectedTitle) {
 
-        long end =
-                System.currentTimeMillis() + 10000;
+        // Aynı iki koşul (yeni başlık görünür + rename editörü kapalı),
+        // 250 ms polling yerine Playwright'ın auto-wait'iyle.
+        try {
+            page.getByRole(
+                    AriaRole.HEADING,
+                    new Page.GetByRoleOptions()
+                            .setName(expectedTitle)
+                            .setExact(true)
+            ).waitFor(
+                    new Locator.WaitForOptions()
+                            .setState(WaitForSelectorState.VISIBLE)
+                            .setTimeout(10000)
+            );
 
-        while (System.currentTimeMillis() < end) {
-
-            if (belgeBasligiDegistiMi(expectedTitle)
-                    && renameEditoruKapandiMi()) {
-
-                return;
-            }
-
-            page.waitForTimeout(250);
+            page.locator("button[title='Confirm rename']").first().waitFor(
+                    new Locator.WaitForOptions()
+                            .setState(WaitForSelectorState.HIDDEN)
+                            .setTimeout(10000)
+            );
+        } catch (PlaywrightException e) {
+            throw new AssertionError(
+                    "Document rename tamamlanmadı. Beklenen title: "
+                            + expectedTitle,
+                    e
+            );
         }
-
-        throw new AssertionError(
-                "Document rename tamamlanmadı. Beklenen title: "
-                        + expectedTitle
-        );
     }
 
     public boolean renameSonrasiUrlAyniMi(String oldUrl) {
@@ -2459,6 +3346,323 @@ public class DocumentsPage {
             );
         }
     }
+    public boolean renameBasligiKaydedilmediMi(String originalTitle) {
+
+        try {
+
+            Locator heading = page.getByRole(
+                    AriaRole.HEADING,
+                    new Page.GetByRoleOptions()
+                            .setName(originalTitle)
+                            .setExact(true)
+            );
+
+            heading.waitFor(
+                    new Locator.WaitForOptions()
+                            .setState(WaitForSelectorState.VISIBLE)
+                            .setTimeout(5000)
+            );
+
+            return heading.isVisible();
+
+        } catch (Exception e) {
+
+            return false;
+        }
+    }
+    // =========================
+// BATCH 17 - VERSION COMMENT
+// =========================
+
+    public boolean versionCommentAlaniGorunuyorMu() {
+
+        try {
+
+            Locator textarea = page.locator(
+                    "textarea[placeholder^='Describe what changed in this version']"
+            );
+
+            textarea.waitFor(
+                    new Locator.WaitForOptions()
+                            .setState(WaitForSelectorState.VISIBLE)
+                            .setTimeout(5000)
+            );
+
+            return textarea.isVisible();
+
+        } catch (Exception e) {
+
+            return false;
+        }
+    }
+
+    public void versionCommentGir(String comment) {
+
+        Locator textarea = page.locator(
+                "textarea[placeholder^='Describe what changed in this version']"
+        );
+
+        textarea.waitFor(
+                new Locator.WaitForOptions()
+                        .setState(WaitForSelectorState.VISIBLE)
+                        .setTimeout(UI_WAIT_MS)
+        );
+
+        textarea.fill(comment);
+    }
+
+    public void versionCommentBosBirak() {
+
+        Locator textarea = page.locator(
+                "textarea[placeholder^='Describe what changed in this version']"
+        );
+
+        textarea.waitFor(
+                new Locator.WaitForOptions()
+                        .setState(WaitForSelectorState.VISIBLE)
+                        .setTimeout(UI_WAIT_MS)
+        );
+
+        textarea.fill("");
+    }
+
+    public boolean versionCommentGorunuyorMu(String comment) {
+        try {
+            Locator comments = page.getByText(
+                    comment,
+                    new Page.GetByTextOptions().setExact(true)
+            );
+
+            comments.first().waitFor(
+                    new Locator.WaitForOptions()
+                            .setState(WaitForSelectorState.VISIBLE)
+                            .setTimeout(UI_WAIT_MS)
+            );
+
+            return comments.first().isVisible();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    // =====================================================
+    // BATCH 18 - DOCUMENT RELATIONSHIPS
+    // =====================================================
+
+    public boolean relationshipsAlaniGorunuyorMu() {
+
+        try {
+            Locator heading = page.getByRole(
+                    AriaRole.HEADING,
+                    new Page.GetByRoleOptions()
+                            .setName("Relationships")
+                            .setExact(true)
+            );
+
+            heading.waitFor(
+                    new Locator.WaitForOptions()
+                            .setState(WaitForSelectorState.VISIBLE)
+                            .setTimeout(5000)
+            );
+
+            return heading.isVisible();
+
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public void linkDocumentPenceresiniAc() {
+
+        Locator button = page.getByRole(
+                AriaRole.BUTTON,
+                new Page.GetByRoleOptions()
+                        .setName("Link document")
+                        .setExact(true)
+        );
+
+        button.waitFor(
+                new Locator.WaitForOptions()
+                        .setState(WaitForSelectorState.VISIBLE)
+                        .setTimeout(UI_WAIT_MS)
+        );
+
+        button.click();
+    }
+
+    public boolean linkDocumentPenceresiGorunuyorMu() {
+
+        try {
+            Locator heading = page.getByRole(
+                    AriaRole.HEADING,
+                    new Page.GetByRoleOptions()
+                            .setName("Link document")
+                            .setExact(true)
+            );
+
+            heading.waitFor(
+                    new Locator.WaitForOptions()
+                            .setState(WaitForSelectorState.VISIBLE)
+                            .setTimeout(5000)
+            );
+
+            return heading.isVisible();
+
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public boolean targetDocumentIdAlaniGorunuyorMu() {
+
+        try {
+            Locator input = page.locator(
+                    "input[placeholder='Paste the target document UUID']"
+            );
+
+            input.waitFor(
+                    new Locator.WaitForOptions()
+                            .setState(WaitForSelectorState.VISIBLE)
+                            .setTimeout(5000)
+            );
+
+            return input.isVisible();
+
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public boolean floatToLatestSeciliMi() {
+
+        try {
+            Locator radio = page.locator(
+                    "input[name='binding'][value='LATEST']"
+            );
+
+            radio.waitFor(
+                    new Locator.WaitForOptions()
+                            .setState(WaitForSelectorState.VISIBLE)
+                            .setTimeout(5000)
+            );
+
+            return radio.isChecked();
+
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public String mevcutDocumentId() {
+
+        String url = page.url();
+
+        String marker = "/documents/";
+        int start = url.indexOf(marker);
+
+        if (start < 0) {
+            throw new AssertionError(
+                    "Document ID URL'den alınamadı. URL: " + url
+            );
+        }
+
+        String id = url.substring(start + marker.length());
+
+        int queryIndex = id.indexOf('?');
+        if (queryIndex >= 0) {
+            id = id.substring(0, queryIndex);
+        }
+
+        int hashIndex = id.indexOf('#');
+        if (hashIndex >= 0) {
+            id = id.substring(0, hashIndex);
+        }
+
+        int slashIndex = id.indexOf('/');
+        if (slashIndex >= 0) {
+            id = id.substring(0, slashIndex);
+        }
+
+        if (id.isBlank()) {
+            throw new AssertionError(
+                    "Document ID URL'de boş. URL: " + url
+            );
+        }
+
+        return id;
+    }
+
+    public void documentDetayinaGit(String documentId) {
+
+        if (documentId == null || documentId.isBlank()) {
+            throw new AssertionError(
+                    "Document detail açılamadı: document ID boş!"
+            );
+        }
+
+        page.navigate(
+                BrowserManager.getBaseUrl() + "/documents/" + documentId
+        );
+
+        page.waitForLoadState();
+
+        if (!belgeDetaySayfasindaMi()) {
+            throw new AssertionError(
+                    "Document detail açılamadı. ID: " + documentId
+                            + " URL: " + page.url()
+            );
+        }
+    }
+
+    public void targetDocumentIdGir(String documentId) {
+
+        Locator input = page.locator(
+                "input[placeholder='Paste the target document UUID']"
+        );
+
+        input.waitFor(
+                new Locator.WaitForOptions()
+                        .setState(WaitForSelectorState.VISIBLE)
+                        .setTimeout(UI_WAIT_MS)
+        );
+
+        input.fill(documentId);
+    }
+
+    public void pinToSpecificVersionSec() {
+
+        Locator radio = page.locator(
+                "input[name='binding'][value='SPECIFIC']"
+        );
+
+        radio.waitFor(
+                new Locator.WaitForOptions()
+                        .setState(WaitForSelectorState.VISIBLE)
+                        .setTimeout(UI_WAIT_MS)
+        );
+
+        radio.check();
+    }
+
+    public boolean targetVersionAlaniGorunuyorMu() {
+
+        try {
+            Locator label = page.getByText(
+                    "Target version",
+                    new Page.GetByTextOptions()
+                            .setExact(true)
+            );
+
+            label.waitFor(
+                    new Locator.WaitForOptions()
+                            .setState(WaitForSelectorState.VISIBLE)
+                            .setTimeout(10000)
+            );
+
+            return label.isVisible();
+
+        } catch (Exception e) {
+            return false;
+        }
+    }
 
 }
-

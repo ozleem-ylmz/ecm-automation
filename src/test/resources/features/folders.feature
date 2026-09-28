@@ -1,3 +1,4 @@
+@folders
 Feature: ECM klasör işlemleri
 
   Scenario: Admin kullanıcı klasörler sayfasını açabilmelidir
@@ -58,9 +59,11 @@ Feature: ECM klasör işlemleri
     When kullanıcı allowed classes bölümünü açar
     Then izin verilen class bilgileri görüntülenmelidir
 
+  @batch34
   Scenario: Klasör breadcrumb bilgisi görüntülenmelidir
     Given admin kullanıcı bir alt klasörün detay sayfasındadır
     Then klasör breadcrumb bilgisi görüntülenmelidir
+    And açık klasörün breadcrumb'ı API'deki üst klasör zinciriyle eşleşmeli ve üst klasöre gidilebilmelidir
 
   Scenario: Aynı isimde root klasör ikinci kez oluşturulamamalıdır
     Given admin kullanıcı duplicate testi için benzersiz bir klasör oluşturmuştur
@@ -81,18 +84,24 @@ Feature: ECM klasör işlemleri
     Given admin kullanıcı benzersiz bir parent klasörün detay sayfasındadır
     Then alt klasör adı alanının maksimum uzunluğu 255 olmalıdır
 
+  @batch34
   Scenario: Rename alanının maksimum uzunluğu 255 olmalıdır
     Given admin kullanıcı benzersiz bir parent klasörün detay sayfasındadır
     When kullanıcı rename formunu açar
     Then rename alanının maksimum uzunluğu 255 olmalıdır
+    And açık klasörün adı sunucuda 255 karakterle değiştirilebilmeli, 256 karakter reddedilmelidir
 
+  @batch34
   Scenario: Klasör detayında Explorer bölümü görüntülenmelidir
     Given admin kullanıcı benzersiz bir parent klasörün detay sayfasındadır
     Then Explorer bölümü görüntülenmelidir
+    And Explorer bölümü API ile eklenen alt klasörü ve belgeyi listelemeli ve alt klasör açılabilmelidir
 
+  @batch34
   Scenario: Alt klasör breadcrumb alanında parent ve child görünmelidir
     Given admin kullanıcı benzersiz parent ve child klasör oluşturup child detayını açmıştır
     Then breadcrumb alanında parent ve child klasör adları görüntülenmelidir
+    And açık klasörün breadcrumb'ı API'deki üst klasör zinciriyle eşleşmeli ve üst klasöre gidilebilmelidir
 
   Scenario: Pasif klasörde Inactive etiketi görüntülenmelidir
     Given admin kullanıcı benzersiz bir parent klasörün detay sayfasındadır

@@ -6,6 +6,10 @@ import io.cucumber.java.en.When;
 import pages.FolderPage;
 import pages.LoginPage;
 import utils.BrowserManager;
+import utils.TestData;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class FolderSteps {
 
@@ -22,32 +26,93 @@ public class FolderSteps {
     private String temporaryFolderName;
     private String expectedTrimmedName;
 
-    private void adminGirisYap() {
+    /*
+     * Feature dosyasındaki sabit klasör isimleri ("QA Folder 01",
+     * "QA Child Folder", "QA Folder Renamed") senaryoya özel benzersiz
+     * isimlere eşlenir. Eskiden bu sabit isimler koşular arasında paylaşılıyor
+     * ve oluşturma/pasifleştirme "yoksa oluştur / aktifse pasifleştir"
+     * şeklinde koşullu yapılıyordu: ilk koşudan sonra test edilen işlem hiç
+     * yapılmadan senaryo geçiyordu (false positive). Step sınıfı Cucumber'da
+     * senaryo başına yeniden oluşturulduğu için eşleme senaryoya özeldir.
+     */
+    private final Map<String, String> folderNames = new HashMap<>();
+    private final Map<String, String> folderIds = new HashMap<>();
+
+    private String isim(String featureName) {
+        return folderNames.computeIfAbsent(featureName, TestData::unique);
+    }
+
+    /*
+     * Doğrulama adımları için: bu senaryoda eşlenmiş bir isim varsa onu,
+     * yoksa feature'daki ismi olduğu gibi kullanır (ör. tek karakterli "A"
+     * alt klasörü bilinçli olarak gerçek adıyla oluşturuluyor).
+     */
+    private String beklenenIsim(String featureName) {
+        return folderNames.getOrDefault(featureName, featureName);
+    }
+
+    /*
+     * Ön koşul oturumu: login UI'ı login.feature'da test ediliyor. Yeni ve
+     * izole context'e rol havuzundan oturum eklenir (BrowserManager.apiLogin).
+     * Sayfa açılmaz; çağıran adım gideceği sayfaya doğrudan gider.
+     */
+    private void adminOturumuAc() {
 
         BrowserManager.startBrowser();
+        BrowserManager.apiLoginMainContext("admin@local", "123");
 
         loginPage = new LoginPage(BrowserManager.page);
         folderPage = new FolderPage(BrowserManager.page);
+    }
 
-        loginPage.loginSayfasiniAc();
-        loginPage.emailGir("admin@local");
-        loginPage.sifreGir("123");
-        loginPage.girisYapButonunaTikla();
+    // Ön koşul klasörü API ile (klasör oluşturma UI'ı ayrı senaryolarda test ediliyor).
+    private String apiKlasorOlustur(String name, String parentId) {
 
-        BrowserManager.page.waitForURL("**/folders");
+        String id = BrowserManager.apiCreateFolder(
+                BrowserManager.context,
+                BrowserManager.getAccessToken(),
+                name,
+                parentId
+        );
+
+        folderIds.put(name, id);
+        return id;
+    }
+
+    private String klasorId(String name) {
+
+        String id = folderIds.get(name);
+
+        if (id == null) {
+            throw new IllegalStateException(
+                    "Klasör bu senaryoda API ile oluşturulmadı: " + name
+            );
+        }
+
+        return id;
+    }
+
+    private void apiKlasorOlusturVeDetayinaGit(String name) {
+
+        String id = apiKlasorOlustur(name, null);
+        folderPage.klasorDetayinaGit(id, name);
     }
 
     @Given("admin kullanıcı ECM sistemine giriş yapmıştır")
     public void adminKullaniciEcmSistemineGirisYapmistir() {
 
-        adminGirisYap();
+        adminOturumuAc();
+
+        // Login sonrası uygulamanın açtığı yer: "/" -> /folders (App.tsx).
+        BrowserManager.page.navigate(BrowserManager.getBaseUrl() + "/");
+        BrowserManager.page.waitForURL("**/folders");
     }
 
     @Given("admin kullanıcı klasörler sayfasındadır")
     public void adminKullaniciKlasorlerSayfasindadir() {
 
-        adminGirisYap();
-        folderPage.klasorlerSayfasiniAc();
+        adminOturumuAc();
+        folderPage.klasorlerSayfasinaDogrudanGit();
     }
 
     @When("kullanıcı klasörler sayfasını açar")
@@ -69,11 +134,9 @@ public class FolderSteps {
     @When("kullanıcı {string} isimli yeni klasör oluşturur")
     public void kullaniciYeniKlasorOlusturur(String folderName) {
 
-        folderPage.klasorlerSayfasiniAc();
-
-        if (!folderPage.klasorGorunuyorMu(folderName)) {
-            folderPage.klasorOlustur(folderName);
-        }
+        // Test edilen işlem: klasör oluşturma UI'ı. Artık koşulsuz ve
+        // benzersiz isimle (eskiden isim zaten varsa oluşturma atlanıyordu).
+        folderPage.klasorOlustur(isim(folderName));
     }
 
     @Then("{string} klasörü görüntülenmelidir")
@@ -81,9 +144,11 @@ public class FolderSteps {
 
         folderPage.klasorlerSayfasiniAc();
 
-        if (!folderPage.klasorGorunuyorMu(folderName)) {
+        String expected = beklenenIsim(folderName);
+
+        if (!folderPage.klasorGorunuyorMu(expected)) {
             throw new AssertionError(
-                    folderName + " klasörü görüntülenmedi!"
+                    expected + " klasörü görüntülenmedi!"
             );
         }
     }
@@ -91,19 +156,17 @@ public class FolderSteps {
     @Given("{string} klasörü mevcuttur")
     public void klasorMevcuttur(String folderName) {
 
-        folderPage.klasorlerSayfasiniAc();
-
-        if (!folderPage.klasorGorunuyorMu(folderName)) {
-
-            folderPage.klasorOlustur(folderName);
-            folderPage.klasorlerSayfasiniAc();
-        }
+        apiKlasorOlustur(isim(folderName), null);
     }
 
     @When("kullanıcı {string} klasörünü açar")
     public void kullaniciKlasoruAcar(String folderName) {
 
-        folderPage.klasoruAc(folderName);
+        // Test edilen işlem: klasörler listesinden klasörü açmak (UI).
+        // Klasör, sayfa açıldıktan sonra API ile oluşturulduğu için listeyi
+        // güncel haliyle yeniden açıyoruz.
+        folderPage.klasorlerSayfasinaDogrudanGit();
+        folderPage.klasoruAc(isim(folderName));
     }
 
     @Then("klasör detay sayfası görüntülenmelidir")
@@ -122,18 +185,21 @@ public class FolderSteps {
             String childFolder
     ) {
 
-        folderPage.altKlasorOlustur(
-                parentFolder,
-                childFolder
-        );
+        // Test edilen işlem alt klasör oluşturma; parent'a ID ile gidiyoruz.
+        String parent = isim(parentFolder);
+        folderPage.klasorDetayinaGit(klasorId(parent), parent);
+
+        folderPage.altKlasorOlusturDetaySayfasinda(isim(childFolder));
     }
 
     @Then("{string} alt klasörü görüntülenmelidir")
     public void altKlasorGoruntulenmelidir(String childFolder) {
 
-        if (!folderPage.altKlasorGorunuyorMu(childFolder)) {
+        String expected = beklenenIsim(childFolder);
+
+        if (!folderPage.altKlasorGorunuyorMu(expected)) {
             throw new AssertionError(
-                    childFolder + " alt klasörü görüntülenmedi!"
+                    expected + " alt klasörü görüntülenmedi!"
             );
         }
     }
@@ -141,22 +207,19 @@ public class FolderSteps {
     @Given("admin kullanıcı yeniden adlandırma için benzersiz bir klasör oluşturmuştur")
     public void adminKullaniciYenidenAdlandirmaIcinBenzersizBirKlasorOlusturmustur() {
 
-        adminKullaniciKlasorlerSayfasindadir();
+        adminOturumuAc();
 
-        renameSourceName =
-                "QA Rename Source " + System.currentTimeMillis();
+        renameSourceName = TestData.unique("QA Rename Source");
 
-        folderPage.klasorOlustur(renameSourceName);
+        apiKlasorOlusturVeDetayinaGit(renameSourceName);
     }
 
     @When("kullanıcı klasörü benzersiz yeni bir adla yeniden adlandırır")
     public void kullaniciKlasoruBenzersizYeniBirAdlaYenidenAdlandirir() {
 
-        renameTargetName =
-                "QA Rename Target " + System.currentTimeMillis();
+        renameTargetName = TestData.unique("QA Rename Target");
 
-        folderPage.klasoruAc(renameSourceName);
-
+        // Kaynak klasörün detay sayfasındayız (Given); test edilen işlem rename UI'ı.
         folderPage.klasoruYenidenAdlandir(
                 renameTargetName
         );
@@ -177,15 +240,18 @@ public class FolderSteps {
     @When("kullanıcı klasörü pasif hale getirir")
     public void kullaniciKlasoruPasifHaleGetirir() {
 
-        folderPage.klasorlerSayfasiniAc();
+        String name = isim("QA Folder Renamed");
+        folderPage.klasorDetayinaGit(klasorId(name), name);
 
-        folderPage.klasoruAc(
-                "QA Folder Renamed"
-        );
-
-        if (folderPage.klasorAktifMi()) {
-            folderPage.klasoruPasifYap();
+        // Test edilen işlem pasifleştirme; yeni klasör aktif olmalı ve
+        // pasifleştirme her zaman gerçekten yapılır (eskiden koşulluydu).
+        if (!folderPage.klasorSuAnAktifMi()) {
+            throw new AssertionError(
+                    "Ön koşul bozuk: yeni oluşturulan klasör aktif değil: " + name
+            );
         }
+
+        folderPage.klasoruPasifYap();
     }
 
     @Then("klasör pasif olarak görüntülenmelidir")
@@ -202,23 +268,26 @@ public class FolderSteps {
     @Given("admin kullanıcı pasif bir klasörün detay sayfasındadır")
     public void adminKullaniciPasifKlasorDetaySayfasindadir() {
 
-        adminKullaniciKlasorlerSayfasindadir();
+        adminOturumuAc();
 
-        if (!folderPage.klasorGorunuyorMu("QA Folder Renamed")) {
+        // Ön koşul: pasif klasör (oluşturma + pasifleştirme API ile; pasifleştirme
+        // UI'ı "klasörü pasif hale getirebilmelidir" senaryosunda test ediliyor).
+        String name = isim("QA Folder Renamed");
+        String id = apiKlasorOlustur(name, null);
 
-            folderPage.klasorOlustur(
-                    "QA Folder Renamed"
-            );
-
-            folderPage.klasorlerSayfasiniAc();
-        }
-
-        folderPage.klasoruAc(
-                "QA Folder Renamed"
+        BrowserManager.apiSetFolderActive(
+                BrowserManager.context,
+                BrowserManager.getAccessToken(),
+                id,
+                false
         );
 
-        if (folderPage.klasorAktifMi()) {
-            folderPage.klasoruPasifYap();
+        folderPage.klasorDetayinaGit(id, name);
+
+        if (!folderPage.klasorPasifMi()) {
+            throw new AssertionError(
+                    "Ön koşul bozuk: klasör pasif olarak açılmadı: " + name
+            );
         }
     }
 
@@ -242,27 +311,13 @@ public class FolderSteps {
     @Given("admin kullanıcı klasör detay sayfasındadır")
     public void adminKullaniciKlasorDetaySayfasindadir() {
 
-        adminKullaniciKlasorlerSayfasindadir();
+        adminOturumuAc();
 
-        if (!folderPage.klasorGorunuyorMu("QA Folder 01")) {
+        String parent = isim("QA Folder 01");
+        String parentId = apiKlasorOlustur(parent, null);
+        apiKlasorOlustur(isim("QA Child Folder"), parentId);
 
-            folderPage.klasorOlustur(
-                    "QA Folder 01"
-            );
-
-            folderPage.klasorlerSayfasiniAc();
-        }
-
-        folderPage.klasoruAc(
-                "QA Folder 01"
-        );
-
-        if (!folderPage.altKlasorGorunuyorMu("QA Child Folder")) {
-
-            folderPage.altKlasorOlusturDetaySayfasinda(
-                    "QA Child Folder"
-            );
-        }
+        folderPage.klasorDetayinaGit(parentId, parent);
     }
 
     @When("kullanıcı alt klasörleri görüntüler")
@@ -274,7 +329,7 @@ public class FolderSteps {
     @Then("mevcut alt klasörler listelenmelidir")
     public void mevcutAltKlasorlerListelenmelidir() {
 
-        if (!folderPage.altKlasorGorunuyorMu("QA Child Folder")) {
+        if (!folderPage.altKlasorGorunuyorMu(isim("QA Child Folder"))) {
 
             throw new AssertionError(
                     "Alt klasörler görüntülenmedi!"
@@ -336,40 +391,25 @@ public class FolderSteps {
     @Given("admin kullanıcı bir alt klasörün detay sayfasındadır")
     public void adminKullaniciAltKlasorDetaySayfasindadir() {
 
-        adminKullaniciKlasorlerSayfasindadir();
+        adminOturumuAc();
 
-        if (!folderPage.klasorGorunuyorMu("QA Folder 01")) {
+        String parent = isim("QA Folder 01");
+        String child = isim("QA Child Folder");
 
-            folderPage.klasorOlustur(
-                    "QA Folder 01"
-            );
+        String parentId = apiKlasorOlustur(parent, null);
+        String childId = apiKlasorOlustur(child, parentId);
 
-            folderPage.klasorlerSayfasiniAc();
-        }
-
-        folderPage.klasoruAc(
-                "QA Folder 01"
-        );
-
-        if (!folderPage.altKlasorGorunuyorMu("QA Child Folder")) {
-
-            folderPage.altKlasorOlusturDetaySayfasinda(
-                    "QA Child Folder"
-            );
-        }
-
-        folderPage.klasoruAc(
-                "QA Child Folder"
-        );
+        folderPage.klasorDetayinaGit(childId, child);
     }
 
     @Then("klasör breadcrumb bilgisi görüntülenmelidir")
     public void klasorBreadcrumbBilgisiGoruntulenmelidir() {
 
-        if (!folderPage.breadcrumbGorunuyorMu()) {
+        if (!folderPage.breadcrumbGorunuyorMu(isim("QA Folder 01"))) {
 
             throw new AssertionError(
-                    "Klasör breadcrumb bilgisi görüntülenmedi!"
+                    "Klasör breadcrumb bilgisi görüntülenmedi! Beklenen parent: "
+                            + isim("QA Folder 01")
             );
         }
     }
@@ -381,20 +421,18 @@ public class FolderSteps {
     @Given("admin kullanıcı duplicate testi için benzersiz bir klasör oluşturmuştur")
     public void adminKullaniciDuplicateTestiIcinBenzersizKlasorOlusturmustur() {
 
-        adminKullaniciKlasorlerSayfasindadir();
+        adminOturumuAc();
 
-        testFolderName =
-                "QA Duplicate Root " + System.currentTimeMillis();
+        testFolderName = TestData.unique("QA Duplicate Root");
 
-        folderPage.klasorOlustur(
-                testFolderName
-        );
+        apiKlasorOlustur(testFolderName, null);
     }
 
     @When("kullanıcı aynı isimde klasörü tekrar oluşturmaya çalışır")
     public void kullaniciAyniIsimdeKlasoruTekrarOlusturmayaCalisir() {
 
-        folderPage.klasorlerSayfasiniAc();
+        // Test edilen işlem: /folders sayfasındaki oluşturma formu (UI).
+        folderPage.klasorlerSayfasinaDogrudanGit();
 
         folderPage.klasorOlusturBeklemeden(
                 testFolderName
@@ -415,28 +453,21 @@ public class FolderSteps {
     @Given("admin kullanıcı duplicate alt klasör testi için benzersiz bir parent ve child oluşturmuştur")
     public void adminKullaniciDuplicateAltKlasorTestiIcinBenzersizParentVeChildOlusturmustur() {
 
-        adminKullaniciKlasorlerSayfasindadir();
+        adminOturumuAc();
 
-        long timestamp =
-                System.currentTimeMillis();
+        testFolderName = TestData.unique("QA Duplicate Parent");
+        testChildName = TestData.unique("QA Duplicate Child");
 
-        testFolderName =
-                "QA Duplicate Parent " + timestamp;
+        String parentId = apiKlasorOlustur(testFolderName, null);
+        apiKlasorOlustur(testChildName, parentId);
 
-        testChildName =
-                "QA Duplicate Child " + timestamp;
+        folderPage.klasorDetayinaGit(parentId, testFolderName);
 
-        folderPage.klasorOlustur(
-                testFolderName
-        );
-
-        folderPage.klasoruAc(
-                testFolderName
-        );
-
-        folderPage.altKlasorOlusturDetaySayfasinda(
-                testChildName
-        );
+        if (!folderPage.altKlasorGorunuyorMu(testChildName)) {
+            throw new AssertionError(
+                    "Ön koşul bozuk: child klasör parent detayında görünmüyor: " + testChildName
+            );
+        }
     }
 
     @When("kullanıcı aynı child klasörü tekrar oluşturmaya çalışır")
@@ -450,18 +481,11 @@ public class FolderSteps {
     @Given("admin kullanıcı benzersiz bir parent klasörün detay sayfasındadır")
     public void adminKullaniciBenzersizBirParentKlasorunDetaySayfasindadir() {
 
-        adminKullaniciKlasorlerSayfasindadir();
+        adminOturumuAc();
 
-        testFolderName =
-                "QA Parent " + System.currentTimeMillis();
+        testFolderName = TestData.unique("QA Parent");
 
-        folderPage.klasorOlustur(
-                testFolderName
-        );
-
-        folderPage.klasoruAc(
-                testFolderName
-        );
+        apiKlasorOlusturVeDetayinaGit(testFolderName);
     }
 
     @When("kullanıcı {string} isimli tek karakterli alt klasör oluşturur")
@@ -469,6 +493,7 @@ public class FolderSteps {
             String childFolder
     ) {
 
+        // Parent benzersiz olduğu için tek karakterli isim parent içinde benzersiz.
         folderPage.altKlasorOlusturDetaySayfasinda(
                 childFolder
         );
@@ -516,32 +541,17 @@ public class FolderSteps {
     @Given("admin kullanıcı benzersiz parent ve child klasör oluşturup child detayını açmıştır")
     public void adminKullaniciBenzersizParentVeChildKlasorOlusturupChildDetayiniAcmistir() {
 
-        adminKullaniciKlasorlerSayfasindadir();
+        adminOturumuAc();
 
-        long timestamp =
-                System.currentTimeMillis();
+        testFolderName = TestData.unique("QA Breadcrumb Parent");
+        testChildName = TestData.unique("QA Breadcrumb Child");
 
-        testFolderName =
-                "QA Breadcrumb Parent " + timestamp;
+        String parentId = apiKlasorOlustur(testFolderName, null);
+        String childId = apiKlasorOlustur(testChildName, parentId);
 
-        testChildName =
-                "QA Breadcrumb Child " + timestamp;
-
-        folderPage.klasorOlustur(
-                testFolderName
-        );
-
-        folderPage.klasoruAc(
-                testFolderName
-        );
-
-        folderPage.altKlasorOlusturDetaySayfasinda(
-                testChildName
-        );
-
-        folderPage.klasoruAc(
-                testChildName
-        );
+        // Doğrudan navigasyon tam sayfa yüklemesidir; eski akıştaki ayrı
+        // reload() bu yüzden gerekmiyor.
+        folderPage.klasorDetayinaGit(childId, testChildName);
     }
 
     @Then("breadcrumb alanında parent ve child klasör adları görüntülenmelidir")
@@ -561,10 +571,14 @@ public class FolderSteps {
     @When("kullanıcı test klasörünü pasif hale getirir")
     public void kullaniciTestKlasorunuPasifHaleGetirir() {
 
-        if (folderPage.klasorAktifMi()) {
-
-            folderPage.klasoruPasifYap();
+        // Yeni oluşturulan klasör aktif olmalı; pasifleştirme koşulsuz yapılır.
+        if (!folderPage.klasorSuAnAktifMi()) {
+            throw new AssertionError(
+                    "Ön koşul bozuk: yeni oluşturulan klasör aktif değil: " + testFolderName
+            );
         }
+
+        folderPage.klasoruPasifYap();
     }
 
     @Then("Inactive etiketi görüntülenmelidir")
@@ -581,8 +595,7 @@ public class FolderSteps {
     @Then("pasif klasör altında yeni alt klasör oluşturulamamalıdır")
     public void pasifKlasorAltindaYeniAltKlasorOlusturulamamalidir() {
 
-        testChildName =
-                "QA Inactive Child " + System.currentTimeMillis();
+        testChildName = TestData.unique("QA Inactive Child");
 
         if (!folderPage.pasifKlasordeAltKlasorOlusturulamiyorMu(
                 testChildName
@@ -597,10 +610,13 @@ public class FolderSteps {
     @When("kullanıcı test klasörünü pasif hale getirip tekrar aktif eder")
     public void kullaniciTestKlasorunuPasifHaleGetiripTekrarAktifEder() {
 
-        if (folderPage.klasorAktifMi()) {
-
-            folderPage.klasoruPasifYap();
+        if (!folderPage.klasorSuAnAktifMi()) {
+            throw new AssertionError(
+                    "Ön koşul bozuk: yeni oluşturulan klasör aktif değil: " + testFolderName
+            );
         }
+
+        folderPage.klasoruPasifYap();
 
         folderPage.klasoruAktifYap();
     }
@@ -608,8 +624,7 @@ public class FolderSteps {
     @Then("aktif klasör altında yeni alt klasör oluşturulabilmelidir")
     public void aktifKlasorAltindaYeniAltKlasorOlusturulabilmelidir() {
 
-        testChildName =
-                "QA Reactivated Child " + System.currentTimeMillis();
+        testChildName = TestData.unique("QA Reactivated Child");
 
         folderPage.altKlasorOlusturDetaySayfasinda(
                 testChildName
@@ -673,21 +688,13 @@ public class FolderSteps {
     @Given("admin kullanıcı rename cancel testi için benzersiz bir klasör oluşturmuştur")
     public void adminKullaniciRenameCancelTestiIcinBenzersizKlasorOlusturmustur() {
 
-        adminKullaniciKlasorlerSayfasindadir();
+        adminOturumuAc();
 
-        originalFolderName =
-                "QA Rename Cancel " + System.currentTimeMillis();
+        originalFolderName = TestData.unique("QA Rename Cancel");
 
-        temporaryFolderName =
-                "QA Should Not Save " + System.currentTimeMillis();
+        temporaryFolderName = TestData.unique("QA Should Not Save");
 
-        folderPage.klasorOlustur(
-                originalFolderName
-        );
-
-        folderPage.klasoruAc(
-                originalFolderName
-        );
+        apiKlasorOlusturVeDetayinaGit(originalFolderName);
     }
 
     @When("kullanıcı rename formunu açıp yeni isim girer ve Cancel butonuna basar")
@@ -725,18 +732,11 @@ public class FolderSteps {
     @Given("admin kullanıcı same name rename testi için benzersiz bir klasör oluşturmuştur")
     public void adminKullaniciSameNameRenameTestiIcinBenzersizKlasorOlusturmustur() {
 
-        adminKullaniciKlasorlerSayfasindadir();
+        adminOturumuAc();
 
-        originalFolderName =
-                "QA Same Rename " + System.currentTimeMillis();
+        originalFolderName = TestData.unique("QA Same Rename");
 
-        folderPage.klasorOlustur(
-                originalFolderName
-        );
-
-        folderPage.klasoruAc(
-                originalFolderName
-        );
+        apiKlasorOlusturVeDetayinaGit(originalFolderName);
     }
 
     @When("kullanıcı klasörü mevcut adıyla yeniden kaydeder")
@@ -767,25 +767,17 @@ public class FolderSteps {
     @Given("admin kullanıcı trim testi için benzersiz bir parent klasörün detay sayfasındadır")
     public void adminKullaniciTrimTestiIcinBenzersizParentKlasorDetaySayfasindadir() {
 
-        adminKullaniciKlasorlerSayfasindadir();
+        adminOturumuAc();
 
-        testFolderName =
-                "QA Trim Parent " + System.currentTimeMillis();
+        testFolderName = TestData.unique("QA Trim Parent");
 
-        folderPage.klasorOlustur(
-                testFolderName
-        );
-
-        folderPage.klasoruAc(
-                testFolderName
-        );
+        apiKlasorOlusturVeDetayinaGit(testFolderName);
     }
 
     @When("kullanıcı başında ve sonunda boşluk olan benzersiz bir alt klasör oluşturur")
     public void kullaniciBoslukOlanBenzersizAltKlasorOlusturur() {
 
-        expectedTrimmedName =
-                "QA Trim Child " + System.currentTimeMillis();
+        expectedTrimmedName = TestData.unique("QA Trim Child");
 
         String nameWithSpaces =
                 "   " + expectedTrimmedName + "   ";
@@ -813,25 +805,17 @@ public class FolderSteps {
     @Given("admin kullanıcı rename trim testi için benzersiz bir klasör oluşturmuştur")
     public void adminKullaniciRenameTrimTestiIcinBenzersizKlasorOlusturmustur() {
 
-        adminKullaniciKlasorlerSayfasindadir();
+        adminOturumuAc();
 
-        originalFolderName =
-                "QA Rename Trim Source " + System.currentTimeMillis();
+        originalFolderName = TestData.unique("QA Rename Trim Source");
 
-        folderPage.klasorOlustur(
-                originalFolderName
-        );
-
-        folderPage.klasoruAc(
-                originalFolderName
-        );
+        apiKlasorOlusturVeDetayinaGit(originalFolderName);
     }
 
     @When("kullanıcı klasörü başında ve sonunda boşluk olan yeni isimle yeniden adlandırır")
     public void kullaniciKlasoruBoslukOlanYeniIsimleYenidenAdlandirir() {
 
-        expectedTrimmedName =
-                "QA Rename Trim Target " + System.currentTimeMillis();
+        expectedTrimmedName = TestData.unique("QA Rename Trim Target");
 
         folderPage.renameFormunuAc();
 
@@ -897,18 +881,11 @@ public class FolderSteps {
     @Given("admin kullanıcı rename input testi için benzersiz bir klasör oluşturmuştur")
     public void adminKullaniciRenameInputTestiIcinBenzersizKlasorOlusturmustur() {
 
-        adminKullaniciKlasorlerSayfasindadir();
+        adminOturumuAc();
 
-        originalFolderName =
-                "QA Rename Input " + System.currentTimeMillis();
+        originalFolderName = TestData.unique("QA Rename Input");
 
-        folderPage.klasorOlustur(
-                originalFolderName
-        );
-
-        folderPage.klasoruAc(
-                originalFolderName
-        );
+        apiKlasorOlusturVeDetayinaGit(originalFolderName);
     }
 
     @Then("rename alanında mevcut klasör adı bulunmalıdır")

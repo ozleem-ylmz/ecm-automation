@@ -2,7 +2,11 @@ package pages;
 
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
+import com.microsoft.playwright.PlaywrightException;
+import com.microsoft.playwright.Response;
 import com.microsoft.playwright.options.AriaRole;
+import com.microsoft.playwright.options.WaitForSelectorState;
+import utils.BrowserManager;
 
 public class FolderPage {
 
@@ -24,6 +28,46 @@ public class FolderPage {
 
     public boolean klasorlerSayfasindaMi() {
         return page.url().contains("/folders");
+    }
+
+    /*
+     * /folders sayfasına doğrudan gider (login sonrası uygulamanın açtığı
+     * sayfa) ve "Create a new folder" formunun render edilmesini bekler.
+     */
+    public void klasorlerSayfasinaDogrudanGit() {
+
+        page.navigate(BrowserManager.getBaseUrl() + "/folders");
+
+        page.getByText("Create a new folder").waitFor(
+                new Locator.WaitForOptions().setTimeout(10000)
+        );
+    }
+
+    /*
+     * ID'si bilinen klasörün detayına doğrudan gider (tüm klasör ağacında
+     * isim aramadan) ve h1'de klasör adının render edilmesini bekler.
+     */
+    public void klasorDetayinaGit(String folderId, String folderName) {
+
+        page.navigate(BrowserManager.getBaseUrl() + "/folders/" + folderId);
+
+        try {
+            page.getByRole(
+                    AriaRole.HEADING,
+                    new Page.GetByRoleOptions()
+                            .setName(folderName)
+                            .setExact(true)
+                            .setLevel(1)
+            ).waitFor(
+                    new Locator.WaitForOptions().setTimeout(10000)
+            );
+        } catch (PlaywrightException e) {
+            throw new AssertionError(
+                    "Klasör detay sayfası açılamadı: " + folderName
+                            + " (" + folderId + ") URL: " + page.url(),
+                    e
+            );
+        }
     }
 
     public void klasorOlustur(String folderName) {
@@ -127,11 +171,20 @@ public class FolderPage {
 
     public boolean altKlasorGorunuyorMu(String childFolder) {
 
-        return page.getByText(
-                childFolder,
-                new Page.GetByTextOptions()
-                        .setExact(true)
-        ).first().isVisible();
+        // Anlık isVisible() yerine (sayfa henüz render edilmemiş olabilir)
+        // pozitif bekleme.
+        try {
+            page.getByText(
+                    childFolder,
+                    new Page.GetByTextOptions()
+                            .setExact(true)
+            ).first().waitFor(
+                    new Locator.WaitForOptions().setTimeout(5000)
+            );
+            return true;
+        } catch (PlaywrightException e) {
+            return false;
+        }
     }
 
     public void klasoruYenidenAdlandir(String newName) {
@@ -268,6 +321,35 @@ public class FolderPage {
         }
     }
 
+    /*
+     * Ön koşul dallanması için: klasörün mevcut durumunu, "Inactivate" veya
+     * "Re-activate" butonundan HANGİSİ render edilirse ona göre döner.
+     * klasorAktifMi() pasif klasörde 5 sn timeout'a kadar bekliyordu.
+     */
+    public boolean klasorSuAnAktifMi() {
+
+        Locator inactivate = page.getByRole(
+                AriaRole.BUTTON,
+                new Page.GetByRoleOptions()
+                        .setName("Inactivate")
+                        .setExact(true)
+        );
+
+        Locator reactivate = page.getByRole(
+                AriaRole.BUTTON,
+                new Page.GetByRoleOptions()
+                        .setName("Re-activate")
+                        .setExact(true)
+        );
+
+        inactivate.or(reactivate).first().waitFor(
+                new Locator.WaitForOptions()
+                        .setTimeout(10000)
+        );
+
+        return inactivate.count() > 0;
+    }
+
     public boolean klasorAktifMi() {
 
         try {
@@ -300,40 +382,75 @@ public class FolderPage {
         ).click();
     }
 
+    /*
+     * HistoryTimeline.tsx: "History" <h2>'si toggle butonunun İÇİNDE; eski
+     * kontrol (getByText("History").isVisible()) panel açılmasa da true
+     * dönüyordu. Panel açıldığında timeline girdileri (ol > li) veya
+     * "No activity recorded yet." görünür; onu bekliyoruz.
+     */
     public boolean historyGorunuyorMu() {
 
-        return page.getByText(
-                "History",
-                new Page.GetByTextOptions()
-                        .setExact(true)
-        ).first().isVisible();
+        Locator section = page.locator("section").filter(
+                new Locator.FilterOptions().setHas(
+                        page.getByRole(
+                                AriaRole.HEADING,
+                                new Page.GetByRoleOptions().setName("History").setExact(true)
+                        )
+                )
+        );
+
+        Locator content = section.locator("ol > li")
+                .or(section.getByText("No activity recorded yet.", new Locator.GetByTextOptions().setExact(true)));
+
+        try {
+            content.first().waitFor(
+                    new Locator.WaitForOptions().setTimeout(5000)
+            );
+            return true;
+        } catch (PlaywrightException e) {
+            return false;
+        }
     }
 
     public boolean aclAlaniGorunuyorMu() {
-
-        return page.getByText(
-                "Folder access",
-                new Page.GetByTextOptions()
-                        .setExact(true)
-        ).first().isVisible();
+        return metinGorunurMu("Folder access");
     }
 
     public boolean allowedClassesAlaniGorunuyorMu() {
-
-        return page.getByText(
-                "Allowed document classes",
-                new Page.GetByTextOptions()
-                        .setExact(true)
-        ).first().isVisible();
+        return metinGorunurMu("Allowed document classes");
     }
 
-    public boolean breadcrumbGorunuyorMu() {
+    private boolean metinGorunurMu(String text) {
+        // Anlık isVisible() yerine pozitif bekleme (kartlar async render oluyor).
+        try {
+            page.getByText(
+                    text,
+                    new Page.GetByTextOptions().setExact(true)
+            ).first().waitFor(
+                    new Locator.WaitForOptions().setTimeout(5000)
+            );
+            return true;
+        } catch (PlaywrightException e) {
+            return false;
+        }
+    }
 
-        return page.getByText(
-                "Folders",
-                new Page.GetByTextOptions()
-                        .setExact(true)
-        ).first().isVisible();
+    /*
+     * Alt klasörün breadcrumb'ı (BreadcrumbNav.tsx: nav[aria-label=Breadcrumb],
+     * öğeler title=<ad>) parent klasörü göstermeli. Eski kontrol
+     * getByText("Folders") idi; sol menüdeki "Folders" linki her sayfada
+     * olduğu için breadcrumb olmasa da true dönüyordu.
+     */
+    public boolean breadcrumbGorunuyorMu(String parentName) {
+        try {
+            page.locator("nav[aria-label='Breadcrumb']")
+                    .locator("[title=\"" + parentName + "\"]")
+                    .first()
+                    .waitFor(new Locator.WaitForOptions().setTimeout(5000));
+            return true;
+        } catch (PlaywrightException e) {
+            return false;
+        }
     }
 
     public void klasorOlusturBeklemeden(String folderName) {
@@ -355,17 +472,18 @@ public class FolderPage {
                 "input[placeholder='Subfolder name']"
         );
 
-        if (input.isVisible()) {
+        // Eskiden anlık isVisible() false ise (sayfa henüz render olmamışsa)
+        // test edilen işlem sessizce atlanıyordu. İnput'u bekliyoruz.
+        input.waitFor(new Locator.WaitForOptions().setTimeout(10000));
 
-            input.fill(childFolder);
+        input.fill(childFolder);
 
-            page.getByRole(
-                    AriaRole.BUTTON,
-                    new Page.GetByRoleOptions()
-                            .setName("Create")
-                            .setExact(true)
-            ).click();
-        }
+        page.getByRole(
+                AriaRole.BUTTON,
+                new Page.GetByRoleOptions()
+                        .setName("Create")
+                        .setExact(true)
+        ).click();
     }
 
     public boolean duplicateKlasorHatasiGorunuyorMu() {
@@ -451,31 +569,35 @@ public class FolderPage {
             String parentName,
             String childName
     ) {
-
         try {
+            Locator breadcrumb = page.locator("nav[aria-label='Breadcrumb']");
 
-            page.getByText(
-                    parentName,
-                    new Page.GetByTextOptions()
-                            .setExact(true)
-            ).first().waitFor(
+            breadcrumb.waitFor(
                     new Locator.WaitForOptions()
                             .setTimeout(5000)
             );
 
-            page.getByText(
-                    childName,
-                    new Page.GetByTextOptions()
-                            .setExact(true)
-            ).first().waitFor(
+            Locator parent = breadcrumb.locator(
+                    "[title=\"" + parentName + "\"]"
+            );
+
+            Locator child = breadcrumb.locator(
+                    "[title=\"" + childName + "\"]"
+            );
+
+            parent.waitFor(
                     new Locator.WaitForOptions()
                             .setTimeout(5000)
             );
 
-            return true;
+            child.waitFor(
+                    new Locator.WaitForOptions()
+                            .setTimeout(5000)
+            );
+
+            return parent.isVisible() && child.isVisible();
 
         } catch (Exception e) {
-
             return false;
         }
     }
@@ -489,10 +611,6 @@ public class FolderPage {
                     new Page.GetByTextOptions()
                             .setExact(true)
             );
-
-            if (inactiveLabels.count() == 0) {
-                return false;
-            }
 
             inactiveLabels.first().waitFor(
                     new Locator.WaitForOptions()
@@ -511,30 +629,49 @@ public class FolderPage {
             String childFolder
     ) {
 
+        /*
+         * Önce pasif durumun render edildiğini pozitif olarak doğrula
+         * (FolderDetail.tsx inactive notice); anlık negatif isVisible()
+         * sayfa henüz güncellenmeden true dönebilirdi.
+         */
+        try {
+            page.getByText(
+                    "This folder is inactive — regular users cannot see it or its documents.",
+                    new Page.GetByTextOptions().setExact(true)
+            ).waitFor(new Locator.WaitForOptions().setTimeout(10000));
+        } catch (PlaywrightException e) {
+            throw new AssertionError(
+                    "Pasif klasör uyarısı görüntülenmedi; klasör pasif durumda değil. URL: "
+                            + page.url(),
+                    e
+            );
+        }
+
         Locator input = page.locator(
                 "input[placeholder='Subfolder name']"
         );
 
-        if (!input.isVisible()) {
+        // Aynı render'da (canUploadHere = folderActive && ...) form yok.
+        if (input.count() == 0 || !input.first().isVisible()) {
             return true;
         }
 
-        input.fill(childFolder);
+        // Form görünüyorsa gerçekten dene: sunucu isteği reddetmeli ve
+        // klasör oluşmamalı. Sabit 1.5 sn yerine API yanıtını bekliyoruz.
+        input.first().fill(childFolder);
 
-        page.getByRole(
-                AriaRole.BUTTON,
-                new Page.GetByRoleOptions()
-                        .setName("Create")
-                        .setExact(true)
-        ).click();
+        Response response = page.waitForResponse(
+                r -> r.url().endsWith("/v1/folders") && "POST".equals(r.request().method()),
+                new Page.WaitForResponseOptions().setTimeout(10000),
+                () -> page.getByRole(
+                        AriaRole.BUTTON,
+                        new Page.GetByRoleOptions()
+                                .setName("Create")
+                                .setExact(true)
+                ).click()
+        );
 
-        page.waitForTimeout(1500);
-
-        return !page.getByText(
-                childFolder,
-                new Page.GetByTextOptions()
-                        .setExact(true)
-        ).first().isVisible();
+        return !response.ok();
     }
 
     public boolean permissionInheritanceAcikMi() {
@@ -575,6 +712,15 @@ public class FolderPage {
                         .setTimeout(5000)
         );
 
+        // FolderDetail.tsx: input, PATCH + refresh() süresince disabled
+        // (inheritBusy). setForce(true) disabled input'a tıklamayı sessizce
+        // yutar; önceki değişiklik bitmeden gelen ikinci toggle kayboluyordu
+        // (paralel koşuda tek PATCH görüldü). Tıklamadan önce etkin olmalı.
+        com.microsoft.playwright.assertions.PlaywrightAssertions
+                .assertThat(checkbox)
+                .isEnabled(new com.microsoft.playwright.assertions.LocatorAssertions.IsEnabledOptions()
+                        .setTimeout(15000));
+
         boolean eskiDurum = checkbox.isChecked();
         boolean beklenenDurum = !eskiDurum;
 
@@ -583,16 +729,23 @@ public class FolderPage {
                         .setForce(true)
         );
 
-        long bitisZamani =
-                System.currentTimeMillis() + 15000;
-
-        while (System.currentTimeMillis() < bitisZamani) {
-
-            if (checkbox.isChecked() == beklenenDurum) {
-                return;
-            }
-
-            page.waitForTimeout(250);
+        try {
+            com.microsoft.playwright.assertions.PlaywrightAssertions
+                    .assertThat(checkbox)
+                    .isChecked(
+                            new com.microsoft.playwright.assertions.LocatorAssertions.IsCheckedOptions()
+                                    .setChecked(beklenenDurum)
+                                    .setTimeout(15000)
+                    );
+            // checked durumu refresh() ile değişir; inheritBusy bundan SONRA
+            // false olur. Sonraki adım işlemi bitmiş kabul edebilsin diye bekle.
+            com.microsoft.playwright.assertions.PlaywrightAssertions
+                    .assertThat(checkbox)
+                    .isEnabled(new com.microsoft.playwright.assertions.LocatorAssertions.IsEnabledOptions()
+                            .setTimeout(15000));
+            return;
+        } catch (AssertionError | com.microsoft.playwright.PlaywrightException ignored) {
+            // Aşağıda kanıtlı hata mesajıyla düşüyoruz.
         }
 
         throw new AssertionError(
@@ -644,11 +797,17 @@ public class FolderPage {
                     "input[maxlength='255']:not([placeholder='Subfolder name'])"
             );
 
-            return !renameInput.isVisible();
-
-        } catch (Exception e) {
-
+            // Anlık negatif kontrol yerine gizlenmesini bekle (en fazla 5 sn).
+            renameInput.first().waitFor(
+                    new Locator.WaitForOptions()
+                            .setState(WaitForSelectorState.HIDDEN)
+                            .setTimeout(5000)
+            );
             return true;
+
+        } catch (PlaywrightException e) {
+
+            return false;
         }
     }
 

@@ -1,101 +1,110 @@
-Feature: ECM Documents iÅŸlemleri
+﻿Feature: ECM Documents işlemleri
 
-  Scenario: Admin kullanÄ±cÄ± Documents sayfasÄ±nÄ± aÃ§abilmelidir
-    Given admin kullanÄ±cÄ± ECM sistemine giriÅŸ yapmÄ±ÅŸtÄ±r
-    When kullanÄ±cÄ± Documents sayfasÄ±nÄ± aÃ§ar
-    Then Documents sayfasÄ± gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: Admin kullanıcı Documents sayfasını açabilmelidir
+    Given admin kullanıcı ECM sistemine giriş yapmıştır
+    When kullanıcı Documents sayfasını açar
+    Then Documents sayfası görüntülenmelidir
 
-  Scenario: Admin kullanÄ±cÄ± Upload without class sayfasÄ±nÄ± aÃ§abilmelidir
-    Given admin kullanÄ±cÄ± Documents sayfasÄ±ndadÄ±r
-    When kullanÄ±cÄ± Upload without class butonuna tÄ±klar
-    Then Upload without class sayfasÄ± gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: Admin kullanıcı Upload without class sayfasını açabilmelidir
+    Given admin kullanıcı Documents sayfasındadır
+    When kullanıcı Upload without class butonuna tıklar
+    Then Upload without class sayfası görüntülenmelidir
 
-  Scenario: Admin kullanÄ±cÄ± class seÃ§meden TXT belge yÃ¼kleyebilmelidir
-    Given admin kullanÄ±cÄ± Upload without class sayfasÄ±ndadÄ±r
-    When kullanÄ±cÄ± benzersiz baÅŸlÄ±kla TXT belge yÃ¼kler
-    Then yÃ¼klenen belgenin detay sayfasÄ± gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: Admin kullanıcı class seçmeden TXT belge yükleyebilmelidir
+    Given admin kullanıcı Upload without class sayfasındadır
+    When kullanıcı benzersiz başlıkla TXT belge yükler
+    Then yüklenen belgenin detay sayfası görüntülenmelidir
 
-  Scenario: YÃ¼klenen belgenin baÅŸlÄ±ÄŸÄ± detay sayfasÄ±nda gÃ¶rÃ¼ntÃ¼lenmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    Then yÃ¼klenen belgenin baÅŸlÄ±ÄŸÄ± detay sayfasÄ±nda gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: Yüklenen belgenin başlığı detay sayfasında görüntülenmelidir
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    Then yüklenen belgenin başlığı detay sayfasında görüntülenmelidir
 
-  Scenario: YÃ¼klenen belge Documents listesinde bulunabilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± Documents sayfasÄ±na dÃ¶ner
-    Then yÃ¼klenen belge Documents listesinde gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: Yüklenen belge Documents listesinde bulunabilmelidir
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    When kullanıcı Documents sayfasına döner
+    Then yüklenen belge Documents listesinde görüntülenmelidir
 
-  Scenario: BaÅŸlÄ±k girilmeden belge yÃ¼klenememelidir
-    Given admin kullanÄ±cÄ± Upload without class sayfasÄ±ndadÄ±r
-    When kullanÄ±cÄ± dosya seÃ§er ancak baÅŸlÄ±k girmez
-    And kullanÄ±cÄ± Upload document butonuna tÄ±klar
-    Then kullanÄ±cÄ± Upload without class sayfasÄ±nda kalmalÄ±dÄ±r
+  Scenario: Başlık girilmeden belge yüklenememelidir
+    Given admin kullanıcı Upload without class sayfasındadır
+    When kullanıcı dosya seçer ancak başlık girmez
+    And kullanıcı Upload document butonuna tıklar
+    Then kullanıcı Upload without class sayfasında kalmalıdır
 
-  Scenario: Dosya seÃ§ilmeden belge yÃ¼klenememelidir
-    Given admin kullanÄ±cÄ± Upload without class sayfasÄ±ndadÄ±r
-    When kullanÄ±cÄ± benzersiz belge baÅŸlÄ±ÄŸÄ± girer
-    And kullanÄ±cÄ± Upload document butonuna tÄ±klar
-    Then kullanÄ±cÄ± Upload without class sayfasÄ±nda kalmalÄ±dÄ±r
+  Scenario: Dosya seçilmeden belge yüklenememelidir
+    Given admin kullanıcı Upload without class sayfasındadır
+    When kullanıcı benzersiz belge başlığı girer
+    And kullanıcı Upload document butonuna tıklar
+    Then kullanıcı Upload without class sayfasında kalmalıdır
 
-  Scenario: Admin kullanÄ±cÄ± belgeyi soft delete yapabilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± belgeyi soft delete yapar
-    Then belge Deleted durumunda gÃ¶rÃ¼ntÃ¼lenmelidir
+  @batch34
+  Scenario: Admin kullanıcı belgeyi soft delete yapabilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı belgeyi soft delete yapar
+    Then belge Deleted durumunda görüntülenmelidir
 
-  Scenario: Admin kullanÄ±cÄ± soft delete yapÄ±lan belgeyi restore edebilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± belgeyi soft delete yapar
-    And kullanÄ±cÄ± belgeyi restore eder
-    Then belge artÄ±k Deleted durumunda olmamalÄ±dÄ±r
+  Scenario: Admin kullanıcı soft delete yapılan belgeyi restore edebilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı belgeyi soft delete yapar
+    And kullanıcı belgeyi restore eder
+    Then belge artık Deleted durumunda olmamalıdır
 
-  Scenario: Restore edilen belge tekrar kullanÄ±labilir olmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± belgeyi soft delete yapar
-    And kullanÄ±cÄ± belgeyi restore eder
-    Then belge detay sayfasÄ± aktif olarak gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: Restore edilen belge tekrar kullanılabilir olmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı belgeyi soft delete yapar
+    And kullanıcı belgeyi restore eder
+    Then belge detay sayfası aktif olarak görüntülenmelidir
   # Documents Batch 2
-  # Status iÅŸlemleri
+  # Status işlemleri
   # =========================
 
-  Scenario: YÃ¼klenen belgenin mevcut durumu gÃ¶rÃ¼ntÃ¼lenebilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    Then belgenin status bilgisi gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: Yüklenen belgenin mevcut durumu görüntülenebilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    Then belgenin status bilgisi görüntülenmelidir
 
-  Scenario: Admin kullanÄ±cÄ± belgenin status bilgisini deÄŸiÅŸtirebilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± belgenin status bilgisini deÄŸiÅŸtirir
-    Then belgenin yeni status bilgisi gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: Admin kullanıcı belgenin status bilgisini değiştirebilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı belgenin status bilgisini değiştirir
+    Then belgenin yeni status bilgisi görüntülenmelidir
 
-  Scenario: Admin kullanÄ±cÄ± Documents listesinden belge detayÄ±na gidebilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± Documents sayfasÄ±na dÃ¶ner
-    And kullanÄ±cÄ± yÃ¼klenen belgeyi listeden aÃ§ar
-    Then yÃ¼klenen belgenin detay sayfasÄ± gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: Admin kullanıcı Documents listesinden belge detayına gidebilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı Documents sayfasına döner
+    And kullanıcı yüklenen belgeyi listeden açar
+    Then yüklenen belgenin detay sayfası görüntülenmelidir
 
-  Scenario: Belge detay sayfasÄ±ndan Documents listesine dÃ¶nÃ¼lebilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± Documents sayfasÄ±na dÃ¶ner
-    Then Documents sayfasÄ± gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: Belge detay sayfasından Documents listesine dönülebilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı Documents sayfasına döner
+    Then Documents sayfası görüntülenmelidir
       # =========================
   # Documents Batch 3
   # Download / Preview / Version
   # =========================
 
-  Scenario: Admin kullanÄ±cÄ± yÃ¼klenen belgeyi indirebilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± belgeyi indirir
-    Then belge dosyasÄ± baÅŸarÄ±yla indirilmelidir
+  Scenario: Admin kullanıcı yüklenen belgeyi indirebilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı belgeyi indirir
+    Then belge dosyası başarıyla indirilmelidir
 
-  Scenario: Admin kullanÄ±cÄ± TXT belgenin Ã¶nizlemesini gÃ¶rÃ¼ntÃ¼leyebilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    Then belge Ã¶nizlemesi gÃ¶rÃ¼ntÃ¼lenmelidir
+  # ECM kaynağı: api/rest/documents.rs build_attachment_response (Content-Disposition: özgün ad) +
+  # frontend api/documents.ts downloadFromUrl (sunucu adını tercih eder) + routes.rs CORS expose_headers
+  # (yalnız x-total-count). UI API'yi farklı kökenden çağırdığı için ad okunamıyor -> belge kimliği.
+  @batch35 @DL-01 @known-bug
+  Scenario: DL-01 Arayüzden indirilen dosya özgün dosya adını korumalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    Then arayüzden indirilen dosya güncel sürümün özgün dosya adını taşımalıdır
 
-  Scenario Outline: Admin kullanÄ±cÄ± belgeye yeni <versionType> versiyonu ekleyebilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± yeni versiyon sayfasÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± "<versionType>" versiyon tipini seÃ§er
-    And kullanÄ±cÄ± yeni versiyon dosyasÄ±nÄ± yÃ¼kler
-    And kullanÄ±cÄ± yeni versiyonu kaydeder
-    Then belge versiyonu "<expectedVersion>" olmalÄ±dÄ±r
+  Scenario: Admin kullanıcı TXT belgenin önizlemesini görüntüleyebilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    Then belge önizlemesi görüntülenmelidir
+
+  Scenario Outline: Admin kullanıcı belgeye yeni <versionType> versiyonu ekleyebilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "<versionType>" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    Then belge versiyonu "<expectedVersion>" olmalıdır
 
     Examples:
       | versionType | expectedVersion |
@@ -108,556 +117,572 @@ Feature: ECM Documents iÅŸlemleri
 # Check-out / Check-in / Lock
 # =========================
 
-  Scenario: Yeni yÃ¼klenen belge checkout durumda olmamalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    Then belge checkout durumda olmamalÄ±dÄ±r
+  Scenario: Yeni yüklenen belge checkout durumda olmamalıdır
+    Given admin kullanıcı benzersiz bir TXT belge yüklemiştir
+    Then belge checkout durumda olmamalıdır
 
-  Scenario: Admin kullanÄ±cÄ± belgeyi checkout yapabilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± belgeyi checkout yapar
-    Then belge checkout durumda olmalÄ±dÄ±r
+  Scenario: Admin kullanıcı belgeyi checkout yapabilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı belgeyi checkout yapar
+    Then belge checkout durumda olmalıdır
 
-  Scenario: Checkout yapÄ±lan belgede Check in butonu gÃ¶rÃ¼ntÃ¼lenmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± belgeyi checkout yapar
-    Then Check in butonu gÃ¶rÃ¼ntÃ¼lenmelidir
+  @batch34
+  Scenario: Checkout yapılan belgede Check in butonu görüntülenmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı belgeyi checkout yapar
+    Then Check in butonu görüntülenmelidir
+    And "Check in" işlemi açık belgede gerçekten çalışmalı ve sonucu API ile doğrulanmalıdır
 
-  Scenario: Admin kullanÄ±cÄ± checkout yaptÄ±ÄŸÄ± belgeyi check in yapabilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± belgeyi checkout yapar
-    And kullanÄ±cÄ± belgeyi check in yapar
-    Then belge checkout durumda olmamalÄ±dÄ±r
+  Scenario: Admin kullanıcı checkout yaptığı belgeyi check in yapabilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı belgeyi checkout yapar
+    And kullanıcı belgeyi check in yapar
+    Then belge checkout durumda olmamalıdır
 
-  Scenario: Check in sonrasÄ±nda Check out butonu tekrar gÃ¶rÃ¼ntÃ¼lenmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± belgeyi checkout yapar
-    And kullanÄ±cÄ± belgeyi check in yapar
-    Then Check out butonu gÃ¶rÃ¼ntÃ¼lenmelidir
+  @batch34
+  Scenario: Check in sonrasında Check out butonu tekrar görüntülenmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı belgeyi checkout yapar
+    And kullanıcı belgeyi check in yapar
+    Then Check out butonu görüntülenmelidir
+    And "Check out" işlemi açık belgede gerçekten çalışmalı ve sonucu API ile doğrulanmalıdır
 
     # =========================
 # Multi-user Document Lock
 # =========================
 
-  Scenario: Manager admin tarafÄ±ndan checkout edilen belgenin lock bilgisini gÃ¶rebilmelidir
-    Given admin kullanÄ±cÄ± bir belgeyi checkout yapmÄ±ÅŸtÄ±r
-    When manager kullanÄ±cÄ± aynÄ± belgeyi aÃ§ar
-    Then belge "Checked out by Admin" olarak gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: Manager admin tarafından checkout edilen belgenin lock bilgisini görebilmelidir
+    Given admin kullanıcı bir belgeyi checkout yapmıştır
+    When manager kullanıcı aynı belgeyi açar
+    Then belge "Checked out by Admin" olarak görüntülenmelidir
   @multiuser
-  Scenario: Manager admin tarafÄ±ndan checkout edilen belgeyi read-only gÃ¶rmelidir
-    Given admin kullanÄ±cÄ± bir belgeyi checkout yapmÄ±ÅŸtÄ±r
-    When manager kullanÄ±cÄ± aynÄ± belgeyi aÃ§ar
-    Then belge read-only olarak gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: Manager admin tarafından checkout edilen belgeyi read-only görmelidir
+    Given admin kullanıcı bir belgeyi checkout yapmıştır
+    When manager kullanıcı aynı belgeyi açar
+    Then belge read-only olarak görüntülenmelidir
   @multiuser
-  Scenario: Manager admin tarafÄ±ndan checkout edilen belgede yeni versiyon oluÅŸturamamalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± bir belgeyi checkout yapmÄ±ÅŸtÄ±r
-    When manager kullanÄ±cÄ± aynÄ± belgeyi aÃ§ar
-    Then New version butonu gÃ¶rÃ¼ntÃ¼lenmemelidir
-  @multiuser
-  Scenario: Manager admin tarafÄ±ndan checkout edilen belgeyi indirebilmelidir
-    Given admin kullanÄ±cÄ± bir belgeyi checkout yapmÄ±ÅŸtÄ±r
-    When manager kullanÄ±cÄ± aynÄ± belgeyi aÃ§ar
-    Then Download butonu gÃ¶rÃ¼ntÃ¼lenmelidir
-  @multiuser
-  Scenario: Manager admin tarafÄ±ndan checkout edilen belgenin Ã¶nizlemesini aÃ§abilmelidir
-    Given admin kullanÄ±cÄ± bir belgeyi checkout yapmÄ±ÅŸtÄ±r
-    When manager kullanÄ±cÄ± aynÄ± belgeyi aÃ§ar
-    Then admin iÃ§in Preview butonu gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: Manager admin tarafından checkout edilen belgede yeni versiyon oluşturamamalıdır
+    Given admin kullanıcı bir belgeyi checkout yapmıştır
+    When manager kullanıcı aynı belgeyi açar
+    Then New version butonu görüntülenmemelidir
+  @multiuser @batch34
+  Scenario: Manager admin tarafından checkout edilen belgeyi indirebilmelidir
+    Given admin kullanıcı bir belgeyi checkout yapmıştır
+    When manager kullanıcı aynı belgeyi açar
+    Then Download butonu görüntülenmelidir
+    And manager "Download" işlemini açık belgede gerçekten yapabilmeli ve sonucu API ile doğrulanmalıdır
+  @multiuser @batch34
+  Scenario: Manager admin tarafından checkout edilen belgenin önizlemesini açabilmelidir
+    Given admin kullanıcı bir belgeyi checkout yapmıştır
+    When manager kullanıcı aynı belgeyi açar
+    Then admin için Preview butonu görüntülenmelidir
+    And manager "Preview" işlemini açık belgede gerçekten yapabilmeli ve sonucu API ile doğrulanmalıdır
   @critical @lock
-  Scenario: Manager admin tarafÄ±ndan checkout edilen belgede Move iÅŸlemi yapamamalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± bir belgeyi checkout yapmÄ±ÅŸtÄ±r
-    When manager kullanÄ±cÄ± aynÄ± belgeyi aÃ§ar
-    Then Move butonu gÃ¶rÃ¼ntÃ¼lenmemelidir
-
-  @critical @lock
-  Scenario: Manager admin tarafÄ±ndan checkout edilen belgede Classify iÅŸlemi yapamamalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± bir belgeyi checkout yapmÄ±ÅŸtÄ±r
-    When manager kullanÄ±cÄ± aynÄ± belgeyi aÃ§ar
-    Then Classify butonu gÃ¶rÃ¼ntÃ¼lenmemelidir
+  Scenario: Manager admin tarafından checkout edilen belgede Move işlemi yapamamalıdır
+    Given admin kullanıcı bir belgeyi checkout yapmıştır
+    When manager kullanıcı aynı belgeyi açar
+    Then Move butonu görüntülenmemelidir
 
   @critical @lock
-  Scenario: Manager admin tarafÄ±ndan checkout edilen belgenin tag bilgisini deÄŸiÅŸtirememelidir
-    Given admin kullanÄ±cÄ± bir belgeyi checkout yapmÄ±ÅŸtÄ±r
-    When manager kullanÄ±cÄ± aynÄ± belgeyi aÃ§ar
-    Then tag deÄŸiÅŸtirme iÅŸlemi kullanÄ±lamamalÄ±dÄ±r
+  Scenario: Manager admin tarafından checkout edilen belgede Classify işlemi yapamamalıdır
+    Given admin kullanıcı bir belgeyi checkout yapmıştır
+    When manager kullanıcı aynı belgeyi açar
+    Then Classify butonu görüntülenmemelidir
 
   @critical @lock
-  Scenario: Checkout durumu sayfa yenilendiÄŸinde korunmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± bir belgeyi checkout yapmÄ±ÅŸtÄ±r
-    When admin belge detay sayfasÄ±nÄ± yeniler
-    Then belge checkout durumda olmalÄ±dÄ±r
+  Scenario: Manager admin tarafından checkout edilen belgenin tag bilgisini değiştirememelidir
+    Given admin kullanıcı bir belgeyi checkout yapmıştır
+    When manager kullanıcı aynı belgeyi açar
+    Then tag değiştirme işlemi kullanılamamalıdır
 
   @critical @lock
-  Scenario: Check in sonrasÄ±nda belge deÄŸiÅŸiklik iÅŸlemleri tekrar kullanÄ±labilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± belgeyi checkout yapar
-    And kullanÄ±cÄ± belgeyi check in yapar
-    Then New version butonu gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: Checkout durumu sayfa yenilendiğinde korunmalıdır
+    Given admin kullanıcı bir belgeyi checkout yapmıştır
+    When admin belge detay sayfasını yeniler
+    Then belge checkout durumda olmalıdır
+
+  @critical @lock @batch34
+  Scenario: Check in sonrasında belge değişiklik işlemleri tekrar kullanılabilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı belgeyi checkout yapar
+    And kullanıcı belgeyi check in yapar
+    Then New version butonu görüntülenmelidir
+    And "New version" işlemi açık belgede gerçekten çalışmalı ve sonucu API ile doğrulanmalıdır
 
   @critical @lock
-  Scenario: Ä°ki kullanÄ±cÄ± aynÄ± belgeyi aynÄ± anda checkout yapamamalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When admin kullanÄ±cÄ± belgeyi checkout yapar
-    And manager kullanÄ±cÄ± aynÄ± belgeyi aÃ§ar
-    Then manager kullanÄ±cÄ± belgeyi checkout yapamamalÄ±dÄ±r
-  @critical @integrity
-  Scenario: Checkout edilmiÅŸ belge silinememelidir
-    Given admin kullanÄ±cÄ± bir belgeyi checkout yapmÄ±ÅŸtÄ±r
-    Then Delete butonu gÃ¶rÃ¼ntÃ¼lenmemelidir
-  @critical @integrity
-  Scenario: Checkout edilmiÅŸ belge Delete iÅŸlemi ile gerÃ§ekten silinememelidir
-    Given admin kullanÄ±cÄ± bir belgeyi checkout yapmÄ±ÅŸtÄ±r
-    When kullanÄ±cÄ± checkout edilmiÅŸ belgeyi silmeyi dener
-    Then checkout edilmiÅŸ belge silinmemelidir
+  Scenario: İki kullanıcı aynı belgeyi aynı anda checkout yapamamalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When admin kullanıcı belgeyi checkout yapar
+    And manager kullanıcı aynı belgeyi açar
+    Then manager kullanıcı belgeyi checkout yapamamalıdır
+
+  @critical @integrity @batch34
+  Scenario: Checkout edilmiş belge check in sonrasında silinebilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı belgeyi checkout yapar
+    And kullanıcı belgeyi check in yapar
+    Then Delete butonu görüntülenmelidir
+    And "Delete" işlemi açık belgede gerçekten çalışmalı ve sonucu API ile doğrulanmalıdır
 
   @critical @integrity
-  Scenario: Checkout edilmiÅŸ belge check in sonrasÄ±nda silinebilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± belgeyi checkout yapar
-    And kullanÄ±cÄ± belgeyi check in yapar
-    Then Delete butonu gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: Silinen belge eski detay URL üzerinden Deleted olarak görüntülenmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And belgenin detay adresi kaydedilmiştir
+    When kullanıcı yüklenen belgeyi listeden siler
+    And kullanıcı eski belge detay adresini açar
+    Then belge eski detay adresinde Deleted olarak görüntülenmelidir
 
   @critical @integrity
-  Scenario: Silinen belge eski detay URL Ã¼zerinden Deleted olarak gÃ¶rÃ¼ntÃ¼lenmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And belgenin detay adresi kaydedilmiÅŸtir
-    When kullanÄ±cÄ± yÃ¼klenen belgeyi listeden siler
-    And kullanÄ±cÄ± eski belge detay adresini aÃ§ar
-    Then belge eski detay adresinde Deleted olarak gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: Restore edilen belgenin başlığı korunmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And yüklenen belgenin başlığı kaydedilmiştir
+    When kullanıcı yüklenen belgeyi listeden siler
+    And kullanıcı silinen belgeyi restore eder
+    Then restore edilen belgenin başlığı değişmemelidir
 
   @critical @integrity
-  Scenario: Restore edilen belgenin baÅŸlÄ±ÄŸÄ± korunmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And yÃ¼klenen belgenin baÅŸlÄ±ÄŸÄ± kaydedilmiÅŸtir
-    When kullanÄ±cÄ± yÃ¼klenen belgeyi listeden siler
-    And kullanÄ±cÄ± silinen belgeyi restore eder
-    Then restore edilen belgenin baÅŸlÄ±ÄŸÄ± deÄŸiÅŸmemelidir
+  Scenario: Restore edilen belgenin versiyonu korunmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And yüklenen belgenin başlığı kaydedilmiştir
+    And belgenin mevcut versiyonu kaydedilmiştir
+    When kullanıcı yüklenen belgeyi listeden siler
+    And kullanıcı silinen belgeyi restore eder
+    Then restore edilen belgenin versiyonu değişmemelidir
 
   @critical @integrity
-  Scenario: Restore edilen belgenin versiyonu korunmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And belgenin mevcut versiyonu kaydedilmiÅŸtir
-    When kullanÄ±cÄ± yÃ¼klenen belgeyi listeden siler
-    And kullanÄ±cÄ± silinen belgeyi restore eder
-    Then restore edilen belgenin versiyonu deÄŸiÅŸmemelidir
-
-  @critical @integrity
-  Scenario: Restore edilen belgenin iÃ§eriÄŸi korunmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± yÃ¼klenen belgeyi listeden siler
-    And kullanÄ±cÄ± silinen belgeyi restore eder
-    And kullanÄ±cÄ± restore edilen belgenin Ã¶nizlemesini aÃ§ar
-    Then restore edilen belge orijinal TXT iÃ§eriÄŸini gÃ¶stermelidir
-    # =========================
+  Scenario: Restore edilen belgenin içeriği korunmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And yüklenen belgenin başlığı kaydedilmiştir
+    When kullanıcı yüklenen belgeyi listeden siler
+    And kullanıcı silinen belgeyi restore eder
+    And kullanıcı restore edilen belgenin önizlemesini açar
+    Then restore edilen belge orijinal TXT içeriğini göstermelidir
   # Documents Batch 5
   # Status / Version / Restore Integrity
   # =========================
 
   @documents @integrity @batch5
-  Scenario: Under review yapÄ±lan belge sayfa yenilendiÄŸinde durumunu korumalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± belgenin status bilgisini deÄŸiÅŸtirir
-    And kullanÄ±cÄ± belge detay sayfasÄ±nÄ± yeniler
-    Then belgenin statusu Under review olmalÄ±dÄ±r
+  Scenario: Under review yapılan belge sayfa yenilendiğinde durumunu korumalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı belgenin status bilgisini değiştirir
+    And kullanıcı belge detay sayfasını yeniler
+    Then belgenin statusu Under review olmalıdır
 
   @documents @integrity @batch5
-  Scenario: Soft delete edilen Under review belgenin statusu korunmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± belgenin status bilgisini deÄŸiÅŸtirir
-    And kullanÄ±cÄ± belgeyi soft delete yapar
-    Then soft delete edilen belgenin statusu Under review olmalÄ±dÄ±r
+  Scenario: Soft delete edilen Under review belgenin statusu korunmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı belgenin status bilgisini değiştirir
+    And kullanıcı belgeyi soft delete yapar
+    Then soft delete edilen belgenin statusu Under review olmalıdır
 
   @documents @integrity @batch5
-  Scenario: Restore edilen Under review belgenin statusu korunmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± belgenin status bilgisini deÄŸiÅŸtirir
-    And kullanÄ±cÄ± belgeyi soft delete yapar
-    And kullanÄ±cÄ± belgeyi restore eder
-    Then belgenin statusu Under review olmalÄ±dÄ±r
+  Scenario: Restore edilen Under review belgenin statusu korunmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı belgenin status bilgisini değiştirir
+    And kullanıcı belgeyi soft delete yapar
+    And kullanıcı belgeyi restore eder
+    Then belgenin statusu Under review olmalıdır
 
   @documents @integrity @batch5
-  Scenario: Patch versiyonu sayfa yenilendiÄŸinde korunmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± yeni versiyon sayfasÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± "Patch" versiyon tipini seÃ§er
-    And kullanÄ±cÄ± yeni versiyon dosyasÄ±nÄ± yÃ¼kler
-    And kullanÄ±cÄ± yeni versiyonu kaydeder
-    And kullanÄ±cÄ± belge detay sayfasÄ±nÄ± yeniler
-    Then belge versiyonu "v1.0.1" olmalÄ±dÄ±r
+  Scenario: Patch versiyonu sayfa yenilendiğinde korunmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Patch" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    And kullanıcı belge detay sayfasını yeniler
+    Then belge versiyonu "v1.0.1" olmalıdır
 
   @documents @integrity @batch5
-  Scenario: Minor versiyonu sayfa yenilendiÄŸinde korunmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± yeni versiyon sayfasÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± "Minor" versiyon tipini seÃ§er
-    And kullanÄ±cÄ± yeni versiyon dosyasÄ±nÄ± yÃ¼kler
-    And kullanÄ±cÄ± yeni versiyonu kaydeder
-    And kullanÄ±cÄ± belge detay sayfasÄ±nÄ± yeniler
-    Then belge versiyonu "v1.1.0" olmalÄ±dÄ±r
+  Scenario: Minor versiyonu sayfa yenilendiğinde korunmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Minor" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    And kullanıcı belge detay sayfasını yeniler
+    Then belge versiyonu "v1.1.0" olmalıdır
 
   @documents @integrity @batch5
-  Scenario: Major versiyonu sayfa yenilendiÄŸinde korunmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± yeni versiyon sayfasÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± "Major" versiyon tipini seÃ§er
-    And kullanÄ±cÄ± yeni versiyon dosyasÄ±nÄ± yÃ¼kler
-    And kullanÄ±cÄ± yeni versiyonu kaydeder
-    And kullanÄ±cÄ± belge detay sayfasÄ±nÄ± yeniler
-    Then belge versiyonu "v2.0.0" olmalÄ±dÄ±r
+  Scenario: Major versiyonu sayfa yenilendiğinde korunmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Major" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    And kullanıcı belge detay sayfasını yeniler
+    Then belge versiyonu "v2.0.0" olmalıdır
 
   @documents @integrity @batch5
-  Scenario: Patch versiyonlu belge restore sonrasÄ±nda versiyonunu korumalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± yeni versiyon sayfasÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± "Patch" versiyon tipini seÃ§er
-    And kullanÄ±cÄ± yeni versiyon dosyasÄ±nÄ± yÃ¼kler
-    And kullanÄ±cÄ± yeni versiyonu kaydeder
-    And kullanÄ±cÄ± belgeyi soft delete yapar
-    And kullanÄ±cÄ± belgeyi restore eder
-    Then belge versiyonu "v1.0.1" olmalÄ±dÄ±r
+  Scenario: Patch versiyonlu belge restore sonrasında versiyonunu korumalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Patch" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    And kullanıcı belgeyi soft delete yapar
+    And kullanıcı belgeyi restore eder
+    Then belge versiyonu "v1.0.1" olmalıdır
 
   @documents @integrity @batch5
-  Scenario: Restore sonrasÄ±nda Deleted bilgisi kaybolmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± belgeyi soft delete yapar
-    And kullanÄ±cÄ± belgeyi restore eder
-    Then belge artÄ±k Deleted durumunda olmamalÄ±dÄ±r
+  Scenario: Restore sonrasında Deleted bilgisi kaybolmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı belgeyi soft delete yapar
+    And kullanıcı belgeyi restore eder
+    Then belge artık Deleted durumunda olmamalıdır
 
   @documents @integrity @batch5
-  Scenario: Restore sonrasÄ±nda Preview tekrar kullanÄ±labilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± belgeyi soft delete yapar
-    And kullanÄ±cÄ± belgeyi restore eder
-    Then belge Ã¶nizlemesi gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: Restore sonrasında Preview tekrar kullanılabilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı belgeyi soft delete yapar
+    And kullanıcı belgeyi restore eder
+    Then belge önizlemesi görüntülenmelidir
 
   @documents @integrity @batch5
-  Scenario: Restore sonrasÄ±nda Download tekrar kullanÄ±labilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± belgeyi soft delete yapar
-    And kullanÄ±cÄ± belgeyi restore eder
-    And kullanÄ±cÄ± belgeyi indirir
-    Then belge dosyasÄ± baÅŸarÄ±yla indirilmelidir
+  Scenario: Restore sonrasında Download tekrar kullanılabilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı belgeyi soft delete yapar
+    And kullanıcı belgeyi restore eder
+    And kullanıcı belgeyi indirir
+    Then belge dosyası başarıyla indirilmelidir
       # =========================
   # Documents Batch 6
   # Version / Delete Integrity
   # =========================
 
   @documents @integrity @batch6
-  Scenario: Patch versiyonu oluÅŸturulduÄŸunda belge baÅŸlÄ±ÄŸÄ± deÄŸiÅŸmemelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And yÃ¼klenen belgenin baÅŸlÄ±ÄŸÄ± kaydedilmiÅŸtir
-    When kullanÄ±cÄ± yeni versiyon sayfasÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± "Patch" versiyon tipini seÃ§er
-    And kullanÄ±cÄ± yeni versiyon dosyasÄ±nÄ± yÃ¼kler
-    And kullanÄ±cÄ± yeni versiyonu kaydeder
-    Then yÃ¼klenen belgenin baÅŸlÄ±ÄŸÄ± deÄŸiÅŸmemelidir
+  Scenario: Patch versiyonu oluşturulduğunda belge başlığı değişmemelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And yüklenen belgenin başlığı kaydedilmiştir
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Patch" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    Then yüklenen belgenin başlığı değişmemelidir
 
   @documents @integrity @batch6 @minorTitle
-  Scenario: Minor versiyonu oluÅŸturulduÄŸunda belge baÅŸlÄ±ÄŸÄ± deÄŸiÅŸmemelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And yÃ¼klenen belgenin baÅŸlÄ±ÄŸÄ± kaydedilmiÅŸtir
-    When kullanÄ±cÄ± yeni versiyon sayfasÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± "Minor" versiyon tipini seÃ§er
-    And kullanÄ±cÄ± yeni versiyon dosyasÄ±nÄ± yÃ¼kler
-    And kullanÄ±cÄ± yeni versiyonu kaydeder
-    Then yÃ¼klenen belgenin baÅŸlÄ±ÄŸÄ± deÄŸiÅŸmemelidir
+  Scenario: Minor versiyonu oluşturulduğunda belge başlığı değişmemelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And yüklenen belgenin başlığı kaydedilmiştir
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Minor" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    Then yüklenen belgenin başlığı değişmemelidir
 
   @documents @integrity @batch6
-  Scenario: Major versiyonu oluÅŸturulduÄŸunda belge baÅŸlÄ±ÄŸÄ± deÄŸiÅŸmemelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And yÃ¼klenen belgenin baÅŸlÄ±ÄŸÄ± kaydedilmiÅŸtir
-    When kullanÄ±cÄ± yeni versiyon sayfasÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± "Major" versiyon tipini seÃ§er
-    And kullanÄ±cÄ± yeni versiyon dosyasÄ±nÄ± yÃ¼kler
-    And kullanÄ±cÄ± yeni versiyonu kaydeder
-    Then yÃ¼klenen belgenin baÅŸlÄ±ÄŸÄ± deÄŸiÅŸmemelidir
+  Scenario: Major versiyonu oluşturulduğunda belge başlığı değişmemelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And yüklenen belgenin başlığı kaydedilmiştir
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Major" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    Then yüklenen belgenin başlığı değişmemelidir
 
   @documents @integrity @batch6
-  Scenario: Patch versiyonundan sonra ikinci Patch doÄŸru artÄ±rÄ±lmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± yeni versiyon sayfasÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± "Patch" versiyon tipini seÃ§er
-    And kullanÄ±cÄ± yeni versiyon dosyasÄ±nÄ± yÃ¼kler
-    And kullanÄ±cÄ± yeni versiyonu kaydeder
-    And kullanÄ±cÄ± yeni versiyon sayfasÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± "Patch" versiyon tipini seÃ§er
-    And kullanÄ±cÄ± yeni versiyon dosyasÄ±nÄ± yÃ¼kler
-    And kullanÄ±cÄ± yeni versiyonu kaydeder
-    Then belge versiyonu "v1.0.2" olmalÄ±dÄ±r
+  Scenario: Patch versiyonundan sonra ikinci Patch doğru artırılmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Patch" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    And kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Patch" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    Then belge versiyonu "v1.0.2" olmalıdır
 
   @documents @integrity @batch6
-  Scenario: Minor versiyonundan sonra Patch doÄŸru artÄ±rÄ±lmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± yeni versiyon sayfasÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± "Minor" versiyon tipini seÃ§er
-    And kullanÄ±cÄ± yeni versiyon dosyasÄ±nÄ± yÃ¼kler
-    And kullanÄ±cÄ± yeni versiyonu kaydeder
-    And kullanÄ±cÄ± yeni versiyon sayfasÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± "Patch" versiyon tipini seÃ§er
-    And kullanÄ±cÄ± yeni versiyon dosyasÄ±nÄ± yÃ¼kler
-    And kullanÄ±cÄ± yeni versiyonu kaydeder
-    Then belge versiyonu "v1.1.1" olmalÄ±dÄ±r
+  Scenario: Minor versiyonundan sonra Patch doğru artırılmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Minor" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    And kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Patch" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    Then belge versiyonu "v1.1.1" olmalıdır
 
   @documents @integrity @batch6
-  Scenario: Major versiyonundan sonra Minor doÄŸru artÄ±rÄ±lmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± yeni versiyon sayfasÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± "Major" versiyon tipini seÃ§er
-    And kullanÄ±cÄ± yeni versiyon dosyasÄ±nÄ± yÃ¼kler
-    And kullanÄ±cÄ± yeni versiyonu kaydeder
-    And kullanÄ±cÄ± yeni versiyon sayfasÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± "Minor" versiyon tipini seÃ§er
-    And kullanÄ±cÄ± yeni versiyon dosyasÄ±nÄ± yÃ¼kler
-    And kullanÄ±cÄ± yeni versiyonu kaydeder
-    Then belge versiyonu "v2.1.0" olmalÄ±dÄ±r
+  Scenario: Major versiyonundan sonra Minor doğru artırılmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Major" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    And kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Minor" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    Then belge versiyonu "v2.1.0" olmalıdır
 
   @documents @integrity @batch6
-  Scenario: Birden fazla versiyon oluÅŸturulan belge restore sonrasÄ±nda son versiyonunu korumalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± yeni versiyon sayfasÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± "Minor" versiyon tipini seÃ§er
-    And kullanÄ±cÄ± yeni versiyon dosyasÄ±nÄ± yÃ¼kler
-    And kullanÄ±cÄ± yeni versiyonu kaydeder
-    And kullanÄ±cÄ± yeni versiyon sayfasÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± "Patch" versiyon tipini seÃ§er
-    And kullanÄ±cÄ± yeni versiyon dosyasÄ±nÄ± yÃ¼kler
-    And kullanÄ±cÄ± yeni versiyonu kaydeder
-    And kullanÄ±cÄ± belgeyi soft delete yapar
-    And kullanÄ±cÄ± belgeyi restore eder
-    Then belge versiyonu "v1.1.1" olmalÄ±dÄ±r
+  Scenario: Birden fazla versiyon oluşturulan belge restore sonrasında son versiyonunu korumalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Minor" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    And kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Patch" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    And kullanıcı belgeyi soft delete yapar
+    And kullanıcı belgeyi restore eder
+    Then belge versiyonu "v1.1.1" olmalıdır
     # =========================
   # Batch 6 - Hard Delete
   # =========================
 
   @documents @integrity @batch6 @harddelete
-  Scenario: Hard delete penceresi DELETE onayÄ± istemelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And belgenin detay adresi kaydedilmiÅŸtir
-    When kullanÄ±cÄ± belgeyi soft delete yapar
-    And kullanÄ±cÄ± silinen belgeyi tekrar aÃ§ar
-    And kullanÄ±cÄ± Hard delete iÅŸlemini aÃ§ar
-    Then hard delete onay penceresi gÃ¶rÃ¼ntÃ¼lenmelidir
-    And Permanently delete butonu disabled olmalÄ±dÄ±r
+  Scenario: Hard delete penceresi DELETE onayı istemelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And belgenin detay adresi kaydedilmiştir
+    When kullanıcı belgeyi soft delete yapar
+    And kullanıcı silinen belgeyi tekrar açar
+    And kullanıcı Hard delete işlemini açar
+    Then hard delete onay penceresi görüntülenmelidir
+    And Permanently delete butonu disabled olmalıdır
 
   @documents @integrity @batch6 @harddelete
-  Scenario: DELETE yazÄ±ldÄ±ÄŸÄ±nda Permanently delete butonu aktif olmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And belgenin detay adresi kaydedilmiÅŸtir
-    When kullanÄ±cÄ± belgeyi soft delete yapar
-    And kullanÄ±cÄ± silinen belgeyi tekrar aÃ§ar
-    And kullanÄ±cÄ± Hard delete iÅŸlemini aÃ§ar
-    And kullanÄ±cÄ± hard delete onay alanÄ±na "DELETE" yazar
-    Then Permanently delete butonu aktif olmalÄ±dÄ±r
+  Scenario: DELETE yazıldığında Permanently delete butonu aktif olmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And belgenin detay adresi kaydedilmiştir
+    When kullanıcı belgeyi soft delete yapar
+    And kullanıcı silinen belgeyi tekrar açar
+    And kullanıcı Hard delete işlemini açar
+    And kullanıcı hard delete onay alanına "DELETE" yazar
+    Then Permanently delete butonu aktif olmalıdır
 
   @documents @integrity @batch6 @harddelete
-  Scenario: Hard delete edilen belge eski detay URL Ã¼zerinden aÃ§Ä±lamamalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And belgenin detay adresi kaydedilmiÅŸtir
-    When kullanÄ±cÄ± belgeyi soft delete yapar
-    And kullanÄ±cÄ± silinen belgeyi tekrar aÃ§ar
-    And kullanÄ±cÄ± Hard delete iÅŸlemini aÃ§ar
-    And kullanÄ±cÄ± hard delete onay alanÄ±na "DELETE" yazar
-    And kullanÄ±cÄ± belgeyi kalÄ±cÄ± olarak siler
-    And kullanÄ±cÄ± eski belge detay adresini aÃ§ar
-    Then hard delete edilen belge detay sayfasÄ± gÃ¶rÃ¼ntÃ¼lenmemelidir
+  Scenario: Hard delete edilen belge eski detay URL üzerinden açılamamalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And belgenin detay adresi kaydedilmiştir
+    When kullanıcı belgeyi soft delete yapar
+    And kullanıcı silinen belgeyi tekrar açar
+    And kullanıcı Hard delete işlemini açar
+    And kullanıcı hard delete onay alanına "DELETE" yazar
+    And kullanıcı belgeyi kalıcı olarak siler
+    And kullanıcı eski belge detay adresini açar
+    Then hard delete edilen belge detay sayfası görüntülenmemelidir
       # =========================
   # Documents Batch 7
   # Version / Status / Delete Bug Hunt
   # =========================
 
   @documents @bughunt @batch7
-  Scenario: Under review belgeye Patch versiyonu eklendiÄŸinde status korunmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± belgenin status bilgisini deÄŸiÅŸtirir
-    And kullanÄ±cÄ± yeni versiyon sayfasÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± "Patch" versiyon tipini seÃ§er
-    And kullanÄ±cÄ± yeni versiyon dosyasÄ±nÄ± yÃ¼kler
-    And kullanÄ±cÄ± yeni versiyonu kaydeder
-    Then belgenin statusu Under review olmalÄ±dÄ±r
+  # ECM'de status belge seviyesindedir (document.status); versiyonlarda status yoktur.
+  # Yeni versiyon kaydı belgeyi Draft'a çeker ve önceki status'u audit geçmişine yazar
+  # (save.rs -> DocumentStatus::Draft, audit: document.new_version before/after).
+  Scenario: Under review belgeye eklenen yeni Patch versiyonu Draft olarak başlamalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı belgenin status bilgisini değiştirir
+    And kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Patch" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    Then belge versiyonu "v1.0.1" olmalıdır
+    And belgenin statusu Draft olmalıdır
+    And belge geçmişinde "v1.0.0" versiyonunun Under review statusundayken yerini Draft olarak oluşturulan "v1.0.1" versiyonuna bıraktığı görülmelidir
 
   @documents @bughunt @batch7
-  Scenario: Under review belgeye Minor versiyonu eklendiÄŸinde status korunmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± belgenin status bilgisini deÄŸiÅŸtirir
-    And kullanÄ±cÄ± yeni versiyon sayfasÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± "Minor" versiyon tipini seÃ§er
-    And kullanÄ±cÄ± yeni versiyon dosyasÄ±nÄ± yÃ¼kler
-    And kullanÄ±cÄ± yeni versiyonu kaydeder
-    Then belgenin statusu Under review olmalÄ±dÄ±r
+  # ECM'de status belge seviyesindedir (document.status); versiyonlarda status yoktur.
+  # Yeni versiyon kaydı belgeyi Draft'a çeker ve önceki status'u audit geçmişine yazar
+  # (save.rs -> DocumentStatus::Draft, audit: document.new_version before/after).
+  Scenario: Under review belgeye eklenen yeni Minor versiyonu Draft olarak başlamalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı belgenin status bilgisini değiştirir
+    And kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Minor" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    Then belge versiyonu "v1.1.0" olmalıdır
+    And belgenin statusu Draft olmalıdır
+    And belge geçmişinde "v1.0.0" versiyonunun Under review statusundayken yerini Draft olarak oluşturulan "v1.1.0" versiyonuna bıraktığı görülmelidir
 
   @documents @bughunt @batch7
-  Scenario: Under review belgeye Major versiyonu eklendiÄŸinde status korunmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± belgenin status bilgisini deÄŸiÅŸtirir
-    And kullanÄ±cÄ± yeni versiyon sayfasÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± "Major" versiyon tipini seÃ§er
-    And kullanÄ±cÄ± yeni versiyon dosyasÄ±nÄ± yÃ¼kler
-    And kullanÄ±cÄ± yeni versiyonu kaydeder
-    Then belgenin statusu Under review olmalÄ±dÄ±r
+  # ECM'de status belge seviyesindedir (document.status); versiyonlarda status yoktur.
+  # Yeni versiyon kaydı belgeyi Draft'a çeker ve önceki status'u audit geçmişine yazar
+  # (save.rs -> DocumentStatus::Draft, audit: document.new_version before/after).
+  Scenario: Under review belgeye eklenen yeni Major versiyonu Draft olarak başlamalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı belgenin status bilgisini değiştirir
+    And kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Major" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    Then belge versiyonu "v2.0.0" olmalıdır
+    And belgenin statusu Draft olmalıdır
+    And belge geçmişinde "v1.0.0" versiyonunun Under review statusundayken yerini Draft olarak oluşturulan "v2.0.0" versiyonuna bıraktığı görülmelidir
 
   @documents @bughunt @batch7
-  Scenario: Patch versiyonlu belgenin baÅŸlÄ±ÄŸÄ± restore sonrasÄ±nda korunmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And yÃ¼klenen belgenin baÅŸlÄ±ÄŸÄ± kaydedilmiÅŸtir
-    When kullanÄ±cÄ± yeni versiyon sayfasÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± "Patch" versiyon tipini seÃ§er
-    And kullanÄ±cÄ± yeni versiyon dosyasÄ±nÄ± yÃ¼kler
-    And kullanÄ±cÄ± yeni versiyonu kaydeder
-    And kullanÄ±cÄ± belgeyi soft delete yapar
-    And kullanÄ±cÄ± belgeyi restore eder
-    Then yÃ¼klenen belgenin baÅŸlÄ±ÄŸÄ± deÄŸiÅŸmemelidir
+  Scenario: Patch versiyonlu belgenin başlığı restore sonrasında korunmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And yüklenen belgenin başlığı kaydedilmiştir
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Patch" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    And kullanıcı belgeyi soft delete yapar
+    And kullanıcı belgeyi restore eder
+    Then yüklenen belgenin başlığı değişmemelidir
 
   @documents @bughunt @batch7
-  Scenario: Minor versiyonlu belgenin baÅŸlÄ±ÄŸÄ± restore sonrasÄ±nda korunmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And yÃ¼klenen belgenin baÅŸlÄ±ÄŸÄ± kaydedilmiÅŸtir
-    When kullanÄ±cÄ± yeni versiyon sayfasÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± "Minor" versiyon tipini seÃ§er
-    And kullanÄ±cÄ± yeni versiyon dosyasÄ±nÄ± yÃ¼kler
-    And kullanÄ±cÄ± yeni versiyonu kaydeder
-    And kullanÄ±cÄ± belgeyi soft delete yapar
-    And kullanÄ±cÄ± belgeyi restore eder
-    Then yÃ¼klenen belgenin baÅŸlÄ±ÄŸÄ± deÄŸiÅŸmemelidir
+  Scenario: Minor versiyonlu belgenin başlığı restore sonrasında korunmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And yüklenen belgenin başlığı kaydedilmiştir
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Minor" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    And kullanıcı belgeyi soft delete yapar
+    And kullanıcı belgeyi restore eder
+    Then yüklenen belgenin başlığı değişmemelidir
 
   @documents @bughunt @batch7
-  Scenario: Major versiyonlu belgenin baÅŸlÄ±ÄŸÄ± restore sonrasÄ±nda korunmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And yÃ¼klenen belgenin baÅŸlÄ±ÄŸÄ± kaydedilmiÅŸtir
-    When kullanÄ±cÄ± yeni versiyon sayfasÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± "Major" versiyon tipini seÃ§er
-    And kullanÄ±cÄ± yeni versiyon dosyasÄ±nÄ± yÃ¼kler
-    And kullanÄ±cÄ± yeni versiyonu kaydeder
-    And kullanÄ±cÄ± belgeyi soft delete yapar
-    And kullanÄ±cÄ± belgeyi restore eder
-    Then yÃ¼klenen belgenin baÅŸlÄ±ÄŸÄ± deÄŸiÅŸmemelidir
+  Scenario: Major versiyonlu belgenin başlığı restore sonrasında korunmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And yüklenen belgenin başlığı kaydedilmiştir
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Major" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    And kullanıcı belgeyi soft delete yapar
+    And kullanıcı belgeyi restore eder
+    Then yüklenen belgenin başlığı değişmemelidir
 
   @documents @bughunt @batch7
-  Scenario: Restore edilen Ã§ok versiyonlu belgenin Preview Ã¶zelliÄŸi Ã§alÄ±ÅŸmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± yeni versiyon sayfasÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± "Patch" versiyon tipini seÃ§er
-    And kullanÄ±cÄ± yeni versiyon dosyasÄ±nÄ± yÃ¼kler
-    And kullanÄ±cÄ± yeni versiyonu kaydeder
-    And kullanÄ±cÄ± belgeyi soft delete yapar
-    And kullanÄ±cÄ± belgeyi restore eder
-    Then belge Ã¶nizlemesi gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: Restore edilen çok versiyonlu belgenin Preview özelliği çalışmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Patch" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    And kullanıcı belgeyi soft delete yapar
+    And kullanıcı belgeyi restore eder
+    Then belge önizlemesi görüntülenmelidir
 
   @documents @bughunt @batch7
-  Scenario: Restore edilen Ã§ok versiyonlu belge indirilebilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± yeni versiyon sayfasÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± "Patch" versiyon tipini seÃ§er
-    And kullanÄ±cÄ± yeni versiyon dosyasÄ±nÄ± yÃ¼kler
-    And kullanÄ±cÄ± yeni versiyonu kaydeder
-    And kullanÄ±cÄ± belgeyi soft delete yapar
-    And kullanÄ±cÄ± belgeyi restore eder
-    And kullanÄ±cÄ± belgeyi indirir
-    Then belge dosyasÄ± baÅŸarÄ±yla indirilmelidir
+  Scenario: Restore edilen çok versiyonlu belge indirilebilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Patch" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    And kullanıcı belgeyi soft delete yapar
+    And kullanıcı belgeyi restore eder
+    And kullanıcı belgeyi indirir
+    Then belge dosyası başarıyla indirilmelidir
 
   @documents @bughunt @batch7
-  Scenario: Check in yapÄ±lan belgenin versiyonu sayfa yenilendiÄŸinde korunmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± belgeyi checkout yapar
-    And kullanÄ±cÄ± belgeyi check in yapar
-    And kullanÄ±cÄ± belge detay sayfasÄ±nÄ± yeniler
-    Then belge versiyonu "v1.0.0" olmalÄ±dÄ±r
+  Scenario: Check in yapılan belgenin versiyonu sayfa yenilendiğinde korunmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı belgeyi checkout yapar
+    And kullanıcı belgeyi check in yapar
+    And kullanıcı belge detay sayfasını yeniler
+    Then belge versiyonu "v1.0.0" olmalıdır
 
   @documents @bughunt @batch7
-  Scenario: Restore edilen belge tekrar checkout yapÄ±labilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± belgeyi soft delete yapar
-    And kullanÄ±cÄ± belgeyi restore eder
-    And kullanÄ±cÄ± belgeyi checkout yapar
-    Then belge checkout durumda olmalÄ±dÄ±r
+  Scenario: Restore edilen belge tekrar checkout yapılabilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı belgeyi soft delete yapar
+    And kullanıcı belgeyi restore eder
+    And kullanıcı belgeyi checkout yapar
+    Then belge checkout durumda olmalıdır
       # =========================
   # Documents Batch 8
   # Negative / State Bug Hunt
   # =========================
 
-  @documents @bughunt @batch8
-  Scenario: Checkout edilen belgede New version iÅŸlemi kullanÄ±labilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± belgeyi checkout yapar
-    Then New version butonu gÃ¶rÃ¼ntÃ¼lenmelidir
+  @documents @bughunt @batch8 @batch34
+  Scenario: Checkout edilen belgede New version işlemi kullanılabilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı belgeyi checkout yapar
+    Then New version butonu görüntülenmelidir
+    And "New version" işlemi açık belgede gerçekten çalışmalı ve sonucu API ile doğrulanmalıdır
 
   @documents @bughunt @batch8
-  Scenario: Checkout ve check in sonrasÄ±nda belge statusu korunmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± belgenin status bilgisini deÄŸiÅŸtirir
-    And kullanÄ±cÄ± belgeyi checkout yapar
-    And kullanÄ±cÄ± belgeyi check in yapar
-    Then belgenin statusu Under review olmalÄ±dÄ±r
+  Scenario: Checkout ve check in sonrasında belge statusu korunmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı belgenin status bilgisini değiştirir
+    And kullanıcı belgeyi checkout yapar
+    And kullanıcı belgeyi check in yapar
+    Then belgenin statusu Under review olmalıdır
 
   @documents @bughunt @batch8
-  Scenario: Checkout ve check in sonrasÄ±nda Under review statusu refresh ile korunmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± belgenin status bilgisini deÄŸiÅŸtirir
-    And kullanÄ±cÄ± belgeyi checkout yapar
-    And kullanÄ±cÄ± belgeyi check in yapar
-    And kullanÄ±cÄ± belge detay sayfasÄ±nÄ± yeniler
-    Then belgenin statusu Under review olmalÄ±dÄ±r
+  Scenario: Checkout ve check in sonrasında Under review statusu refresh ile korunmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı belgenin status bilgisini değiştirir
+    And kullanıcı belgeyi checkout yapar
+    And kullanıcı belgeyi check in yapar
+    And kullanıcı belge detay sayfasını yeniler
+    Then belgenin statusu Under review olmalıdır
 
   @documents @bughunt @batch8
-  Scenario: Patch versiyonu oluÅŸturulduktan sonra checkout yapÄ±labilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± yeni versiyon sayfasÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± "Patch" versiyon tipini seÃ§er
-    And kullanÄ±cÄ± yeni versiyon dosyasÄ±nÄ± yÃ¼kler
-    And kullanÄ±cÄ± yeni versiyonu kaydeder
-    And kullanÄ±cÄ± belgeyi checkout yapar
-    Then belge checkout durumda olmalÄ±dÄ±r
+  Scenario: Patch versiyonu oluşturulduktan sonra checkout yapılabilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Patch" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    And kullanıcı belgeyi checkout yapar
+    Then belge checkout durumda olmalıdır
 
   @documents @bughunt @batch8
-  Scenario: Checkout ve check in Patch versiyonunu deÄŸiÅŸtirmemelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± yeni versiyon sayfasÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± "Patch" versiyon tipini seÃ§er
-    And kullanÄ±cÄ± yeni versiyon dosyasÄ±nÄ± yÃ¼kler
-    And kullanÄ±cÄ± yeni versiyonu kaydeder
-    And kullanÄ±cÄ± belgeyi checkout yapar
-    And kullanÄ±cÄ± belgeyi check in yapar
-    Then belge versiyonu "v1.0.1" olmalÄ±dÄ±r
+  Scenario: Checkout ve check in Patch versiyonunu değiştirmemelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Patch" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    And kullanıcı belgeyi checkout yapar
+    And kullanıcı belgeyi check in yapar
+    Then belge versiyonu "v1.0.1" olmalıdır
 
   @documents @bughunt @batch8
-  Scenario: Restore edilen Under review belge checkout yapÄ±labilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± belgenin status bilgisini deÄŸiÅŸtirir
-    And kullanÄ±cÄ± belgeyi soft delete yapar
-    And kullanÄ±cÄ± belgeyi restore eder
-    And kullanÄ±cÄ± belgeyi checkout yapar
-    Then belge checkout durumda olmalÄ±dÄ±r
-    And belgenin statusu Under review olmalÄ±dÄ±r
+  Scenario: Restore edilen Under review belge checkout yapılabilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı belgenin status bilgisini değiştirir
+    And kullanıcı belgeyi soft delete yapar
+    And kullanıcı belgeyi restore eder
+    And kullanıcı belgeyi checkout yapar
+    Then belge checkout durumda olmalıdır
+    And belgenin statusu Under review olmalıdır
 
   @documents @bughunt @batch8
-  Scenario: Restore edilen Patch versiyonlu belge checkout yapÄ±labilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± yeni versiyon sayfasÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± "Patch" versiyon tipini seÃ§er
-    And kullanÄ±cÄ± yeni versiyon dosyasÄ±nÄ± yÃ¼kler
-    And kullanÄ±cÄ± yeni versiyonu kaydeder
-    And kullanÄ±cÄ± belgeyi soft delete yapar
-    And kullanÄ±cÄ± belgeyi restore eder
-    And kullanÄ±cÄ± belgeyi checkout yapar
-    Then belge checkout durumda olmalÄ±dÄ±r
-    And belge versiyonu "v1.0.1" olmalÄ±dÄ±r
-
-
-  @documents @bughunt @batch8
-  Scenario: Soft delete edilen belgede Check out iÅŸlemi kullanÄ±lamamalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And belgenin detay adresi kaydedilmiÅŸtir
-    When kullanÄ±cÄ± belgeyi soft delete yapar
-    And kullanÄ±cÄ± silinen belgeyi tekrar aÃ§ar
-    Then Check out butonu gÃ¶rÃ¼ntÃ¼lenmemelidir
+  Scenario: Restore edilen Patch versiyonlu belge checkout yapılabilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Patch" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    And kullanıcı belgeyi soft delete yapar
+    And kullanıcı belgeyi restore eder
+    And kullanıcı belgeyi checkout yapar
+    Then belge checkout durumda olmalıdır
+    And belge versiyonu "v1.0.1" olmalıdır
 
 
   @documents @bughunt @batch8
-  Scenario: Soft delete edilen belge Deleted durumunu refresh sonrasÄ±nda korumalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And belgenin detay adresi kaydedilmiÅŸtir
-    When kullanÄ±cÄ± belgeyi soft delete yapar
-    And kullanÄ±cÄ± silinen belgeyi tekrar aÃ§ar
-    And kullanÄ±cÄ± belge detay sayfasÄ±nÄ± yeniler
-    Then belge eski detay adresinde Deleted olarak gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: Soft delete edilen belgede Check out işlemi kullanılamamalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And belgenin detay adresi kaydedilmiştir
+    When kullanıcı belgeyi soft delete yapar
+    And kullanıcı silinen belgeyi tekrar açar
+    Then Check out butonu görüntülenmemelidir
+
+
+  @documents @bughunt @batch8
+  Scenario: Soft delete edilen belge Deleted durumunu refresh sonrasında korumalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And belgenin detay adresi kaydedilmiştir
+    When kullanıcı belgeyi soft delete yapar
+    And kullanıcı silinen belgeyi tekrar açar
+    And kullanıcı belge detay sayfasını yeniler
+    Then belge eski detay adresinde Deleted olarak görüntülenmelidir
 
       # =========================
   # Documents Batch 9
@@ -665,269 +690,272 @@ Feature: ECM Documents iÅŸlemleri
   # =========================
 
   @documents @bughunt @batch9
-  Scenario: AynÄ± kullanÄ±cÄ± checkout yaptÄ±ktan sonra belge checkout durumunu korumalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± belgeyi checkout yapar
-    Then belge checkout durumda olmalÄ±dÄ±r
+  Scenario: Aynı kullanıcı checkout yaptıktan sonra belge checkout durumunu korumalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı belgeyi checkout yapar
+    Then belge checkout durumda olmalıdır
 
   @documents @bughunt @batch9
-  Scenario: BaÅŸka kullanÄ±cÄ± checkout edilmiÅŸ belgeyi checkout yapamamalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And manager kullanÄ±cÄ± ayrÄ± tarayÄ±cÄ± oturumunda giriÅŸ yapmÄ±ÅŸtÄ±r
-    When admin kullanÄ±cÄ± belgeyi checkout yapar
-    And manager kullanÄ±cÄ± aynÄ± belgeyi checkout yapmayÄ± dener
-    Then manager checkout iÅŸlemi engellenmelidir
+  Scenario: Başka kullanıcı checkout edilmiş belgeyi checkout yapamamalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And manager kullanıcı ayrı tarayıcı oturumunda giriş yapmıştır
+    When admin kullanıcı belgeyi checkout yapar
+    And manager kullanıcı aynı belgeyi checkout yapmayı dener
+    Then manager checkout işlemi engellenmelidir
 
   @documents @bughunt @batch9
-  Scenario: BaÅŸka kullanÄ±cÄ± checkout kilidi varken yeni versiyon oluÅŸturamamalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And manager kullanÄ±cÄ± ayrÄ± tarayÄ±cÄ± oturumunda giriÅŸ yapmÄ±ÅŸtÄ±r
-    When admin kullanÄ±cÄ± belgeyi checkout yapar
-    And manager kullanÄ±cÄ± aynÄ± belge iÃ§in New version iÅŸlemini dener
-    Then manager New version iÅŸlemi engellenmelidir
+  Scenario: Başka kullanıcı checkout kilidi varken yeni versiyon oluşturamamalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And manager kullanıcı ayrı tarayıcı oturumunda giriş yapmıştır
+    When admin kullanıcı belgeyi checkout yapar
+    And manager kullanıcı aynı belge için New version işlemini dener
+    Then manager New version işlemi engellenmelidir
 
   @documents @bughunt @batch9
-  Scenario: BaÅŸka kullanÄ±cÄ± checkout kilidi varken belgeyi yeniden adlandÄ±ramamalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And manager kullanÄ±cÄ± ayrÄ± tarayÄ±cÄ± oturumunda giriÅŸ yapmÄ±ÅŸtÄ±r
-    When admin kullanÄ±cÄ± belgeyi checkout yapar
-    And manager kullanÄ±cÄ± belgeyi yeniden adlandÄ±rmayÄ± dener
-    Then manager rename iÅŸlemi engellenmelidir
+  Scenario: Başka kullanıcı checkout kilidi varken belgeyi yeniden adlandıramamalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And manager kullanıcı ayrı tarayıcı oturumunda giriş yapmıştır
+    When admin kullanıcı belgeyi checkout yapar
+    And manager kullanıcı belgeyi yeniden adlandırmayı dener
+    Then manager rename işlemi engellenmelidir
 
   @documents @bughunt @batch9
-  Scenario: BaÅŸka kullanÄ±cÄ± checkout kilidi varken belge statusunu deÄŸiÅŸtirememelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And manager kullanÄ±cÄ± ayrÄ± tarayÄ±cÄ± oturumunda giriÅŸ yapmÄ±ÅŸtÄ±r
-    When admin kullanÄ±cÄ± belgeyi checkout yapar
-    And manager kullanÄ±cÄ± belge statusunu deÄŸiÅŸtirmeyi dener
-    Then manager status deÄŸiÅŸikliÄŸi engellenmelidir
+  Scenario: Başka kullanıcı checkout kilidi varken belge statusunu değiştirememelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And manager kullanıcı ayrı tarayıcı oturumunda giriş yapmıştır
+    When admin kullanıcı belgeyi checkout yapar
+    And manager kullanıcı belge statusunu değiştirmeyi dener
+    Then manager status değişikliği engellenmelidir
 
   @documents @bughunt @batch9
-  Scenario: BaÅŸka kullanÄ±cÄ± checkout kilidi varken belgeyi soft delete yapamamalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And manager kullanÄ±cÄ± ayrÄ± tarayÄ±cÄ± oturumunda giriÅŸ yapmÄ±ÅŸtÄ±r
-    When admin kullanÄ±cÄ± belgeyi checkout yapar
-    And manager kullanÄ±cÄ± belgeyi soft delete yapmayÄ± dener
-    Then manager soft delete iÅŸlemi engellenmelidir
+  Scenario: Başka kullanıcı checkout kilidi varken belgeyi soft delete yapamamalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And manager kullanıcı ayrı tarayıcı oturumunda giriş yapmıştır
+    When admin kullanıcı belgeyi checkout yapar
+    And manager kullanıcı belgeyi soft delete yapmayı dener
+    Then manager soft delete işlemi engellenmelidir
 
   @documents @bughunt @batch9
-  Scenario: Checkout kilidi check in sonrasÄ±nda kaldÄ±rÄ±lmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± belgeyi checkout yapar
-    And kullanÄ±cÄ± belgeyi check in yapar
-    Then belge checkout durumda olmamalÄ±dÄ±r
+  Scenario: Checkout kilidi check in sonrasında kaldırılmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı belgeyi checkout yapar
+    And kullanıcı belgeyi check in yapar
+    Then belge checkout durumda olmamalıdır
 
   @documents @bughunt @batch9
-  Scenario: Checkout ve check in belge baÅŸlÄ±ÄŸÄ±nÄ± deÄŸiÅŸtirmemelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And yÃ¼klenen belgenin baÅŸlÄ±ÄŸÄ± kaydedilmiÅŸtir
-    When kullanÄ±cÄ± belgeyi checkout yapar
-    And kullanÄ±cÄ± belgeyi check in yapar
-    Then yÃ¼klenen belgenin baÅŸlÄ±ÄŸÄ± deÄŸiÅŸmemelidir
+  Scenario: Checkout ve check in belge başlığını değiştirmemelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And yüklenen belgenin başlığı kaydedilmiştir
+    When kullanıcı belgeyi checkout yapar
+    And kullanıcı belgeyi check in yapar
+    Then yüklenen belgenin başlığı değişmemelidir
 
   @documents @bughunt @batch9
-  Scenario: Checkout ve check in belge versiyonunu deÄŸiÅŸtirmemelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± belgeyi checkout yapar
-    And kullanÄ±cÄ± belgeyi check in yapar
-    Then belge versiyonu "v1.0.0" olmalÄ±dÄ±r
+  Scenario: Checkout ve check in belge versiyonunu değiştirmemelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı belgeyi checkout yapar
+    And kullanıcı belgeyi check in yapar
+    Then belge versiyonu "v1.0.0" olmalıdır
 
   @documents @bughunt @batch9
-  Scenario: Checkout durumu refresh sonrasÄ±nda korunmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± belgeyi checkout yapar
-    And kullanÄ±cÄ± belge detay sayfasÄ±nÄ± yeniler
-    Then belge checkout durumda olmalÄ±dÄ±r
+  Scenario: Checkout durumu refresh sonrasında korunmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı belgeyi checkout yapar
+    And kullanıcı belge detay sayfasını yeniler
+    Then belge checkout durumda olmalıdır
 
   @documents @bughunt @batch9
-  Scenario: Check in durumu refresh sonrasÄ±nda korunmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± belgeyi checkout yapar
-    And kullanÄ±cÄ± belgeyi check in yapar
-    And kullanÄ±cÄ± belge detay sayfasÄ±nÄ± yeniler
-    Then belge checkout durumda olmamalÄ±dÄ±r
+  Scenario: Check in durumu refresh sonrasında korunmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı belgeyi checkout yapar
+    And kullanıcı belgeyi check in yapar
+    And kullanıcı belge detay sayfasını yeniler
+    Then belge checkout durumda olmamalıdır
 
   @documents @bughunt @batch9
-  Scenario: Patch versiyonlu belge checkout ve check in sonrasÄ±nda aynÄ± versiyonda kalmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± yeni versiyon sayfasÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± "Patch" versiyon tipini seÃ§er
-    And kullanÄ±cÄ± yeni versiyon dosyasÄ±nÄ± yÃ¼kler
-    And kullanÄ±cÄ± yeni versiyonu kaydeder
-    And kullanÄ±cÄ± belgeyi checkout yapar
-    And kullanÄ±cÄ± belgeyi check in yapar
-    Then belge versiyonu "v1.0.1" olmalÄ±dÄ±r
+  Scenario: Patch versiyonlu belge checkout ve check in sonrasında aynı versiyonda kalmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Patch" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    And kullanıcı belgeyi checkout yapar
+    And kullanıcı belgeyi check in yapar
+    Then belge versiyonu "v1.0.1" olmalıdır
 
   @documents @bughunt @batch9
-  Scenario: Under review belge checkout ve check in sonrasÄ±nda aynÄ± statÃ¼de kalmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± belgenin status bilgisini deÄŸiÅŸtirir
-    And kullanÄ±cÄ± belgeyi checkout yapar
-    And kullanÄ±cÄ± belgeyi check in yapar
-    Then belgenin statusu Under review olmalÄ±dÄ±r
+  Scenario: Under review belge checkout ve check in sonrasında aynı statüde kalmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı belgenin status bilgisini değiştirir
+    And kullanıcı belgeyi checkout yapar
+    And kullanıcı belgeyi check in yapar
+    Then belgenin statusu Under review olmalıdır
 
-  @documents @bughunt @batch9
-  Scenario: Checkout kilidi kaldÄ±rÄ±ldÄ±ktan sonra New version kullanÄ±labilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± belgeyi checkout yapar
-    And kullanÄ±cÄ± belgeyi check in yapar
-    Then New version butonu gÃ¶rÃ¼ntÃ¼lenmelidir
+  @documents @bughunt @batch9 @batch34
+  Scenario: Checkout kilidi kaldırıldıktan sonra New version kullanılabilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı belgeyi checkout yapar
+    And kullanıcı belgeyi check in yapar
+    Then New version butonu görüntülenmelidir
+    And "New version" işlemi açık belgede gerçekten çalışmalı ve sonucu API ile doğrulanmalıdır
     # =====================================================
 # BATCH 10 - VERSION / STATUS / DELETE-RESTORE INTEGRITY
 # =====================================================
 
   @documents @regression @batch10
-  Scenario: Patch versiyon oluÅŸturulduktan sonra status Draft olarak korunmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± yeni versiyon sayfasÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± "Patch" versiyon tipini seÃ§er
-    And kullanÄ±cÄ± yeni versiyon dosyasÄ±nÄ± yÃ¼kler
-    And kullanÄ±cÄ± yeni versiyonu kaydeder
-    Then belge versiyonu "v1.0.1" olmalÄ±dÄ±r
-    And belgenin statusu Draft olmalÄ±dÄ±r
+  Scenario: Patch versiyon oluşturulduktan sonra status Draft olarak korunmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Patch" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    Then belge versiyonu "v1.0.1" olmalıdır
+    And belgenin statusu Draft olmalıdır
 
   @documents @regression @batch10
-  Scenario: Minor versiyon oluÅŸturulduktan sonra status Draft olarak korunmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± yeni versiyon sayfasÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± "Minor" versiyon tipini seÃ§er
-    And kullanÄ±cÄ± yeni versiyon dosyasÄ±nÄ± yÃ¼kler
-    And kullanÄ±cÄ± yeni versiyonu kaydeder
-    Then belge versiyonu "v1.1.0" olmalÄ±dÄ±r
-    And belgenin statusu Draft olmalÄ±dÄ±r
+  Scenario: Minor versiyon oluşturulduktan sonra status Draft olarak korunmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Minor" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    Then belge versiyonu "v1.1.0" olmalıdır
+    And belgenin statusu Draft olmalıdır
 
   @documents @regression @batch10
-  Scenario: Major versiyon oluÅŸturulduktan sonra status Draft olarak korunmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± yeni versiyon sayfasÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± "Major" versiyon tipini seÃ§er
-    And kullanÄ±cÄ± yeni versiyon dosyasÄ±nÄ± yÃ¼kler
-    And kullanÄ±cÄ± yeni versiyonu kaydeder
-    Then belge versiyonu "v2.0.0" olmalÄ±dÄ±r
-    And belgenin statusu Draft olmalÄ±dÄ±r
+  Scenario: Major versiyon oluşturulduktan sonra status Draft olarak korunmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Major" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    Then belge versiyonu "v2.0.0" olmalıdır
+    And belgenin statusu Draft olmalıdır
 
   @documents @regression @batch10
-  Scenario: Under review statusu soft delete ve restore sonrasÄ±nda refresh ile korunmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± belgenin status bilgisini deÄŸiÅŸtirir
-    And kullanÄ±cÄ± belgeyi soft delete yapar
-    And kullanÄ±cÄ± belgeyi restore eder
-    And kullanÄ±cÄ± belge detay sayfasÄ±nÄ± yeniler
-    Then belgenin statusu Under review olmalÄ±dÄ±r
+  Scenario: Under review statusu soft delete ve restore sonrasında refresh ile korunmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı belgenin status bilgisini değiştirir
+    And kullanıcı belgeyi soft delete yapar
+    And kullanıcı belgeyi restore eder
+    And kullanıcı belge detay sayfasını yeniler
+    Then belgenin statusu Under review olmalıdır
 
   @documents @regression @batch10
-  Scenario: Patch versiyon soft delete ve restore sonrasÄ±nda refresh ile korunmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± yeni versiyon sayfasÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± "Patch" versiyon tipini seÃ§er
-    And kullanÄ±cÄ± yeni versiyon dosyasÄ±nÄ± yÃ¼kler
-    And kullanÄ±cÄ± yeni versiyonu kaydeder
-    And kullanÄ±cÄ± belgeyi soft delete yapar
-    And kullanÄ±cÄ± belgeyi restore eder
-    And kullanÄ±cÄ± belge detay sayfasÄ±nÄ± yeniler
-    Then belge versiyonu "v1.0.1" olmalÄ±dÄ±r
+  Scenario: Patch versiyon soft delete ve restore sonrasında refresh ile korunmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Patch" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    And kullanıcı belgeyi soft delete yapar
+    And kullanıcı belgeyi restore eder
+    And kullanıcı belge detay sayfasını yeniler
+    Then belge versiyonu "v1.0.1" olmalıdır
 
   @documents @regression @batch10
-  Scenario: Minor versiyon soft delete ve restore sonrasÄ±nda refresh ile korunmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± yeni versiyon sayfasÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± "Minor" versiyon tipini seÃ§er
-    And kullanÄ±cÄ± yeni versiyon dosyasÄ±nÄ± yÃ¼kler
-    And kullanÄ±cÄ± yeni versiyonu kaydeder
-    And kullanÄ±cÄ± belgeyi soft delete yapar
-    And kullanÄ±cÄ± belgeyi restore eder
-    And kullanÄ±cÄ± belge detay sayfasÄ±nÄ± yeniler
-    Then belge versiyonu "v1.1.0" olmalÄ±dÄ±r
+  Scenario: Minor versiyon soft delete ve restore sonrasında refresh ile korunmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Minor" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    And kullanıcı belgeyi soft delete yapar
+    And kullanıcı belgeyi restore eder
+    And kullanıcı belge detay sayfasını yeniler
+    Then belge versiyonu "v1.1.0" olmalıdır
 
   @documents @regression @batch10
-  Scenario: Major versiyon soft delete ve restore sonrasÄ±nda refresh ile korunmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± yeni versiyon sayfasÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± "Major" versiyon tipini seÃ§er
-    And kullanÄ±cÄ± yeni versiyon dosyasÄ±nÄ± yÃ¼kler
-    And kullanÄ±cÄ± yeni versiyonu kaydeder
-    And kullanÄ±cÄ± belgeyi soft delete yapar
-    And kullanÄ±cÄ± belgeyi restore eder
-    And kullanÄ±cÄ± belge detay sayfasÄ±nÄ± yeniler
-    Then belge versiyonu "v2.0.0" olmalÄ±dÄ±r
+  Scenario: Major versiyon soft delete ve restore sonrasında refresh ile korunmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Major" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    And kullanıcı belgeyi soft delete yapar
+    And kullanıcı belgeyi restore eder
+    And kullanıcı belge detay sayfasını yeniler
+    Then belge versiyonu "v2.0.0" olmalıdır
 
   @documents @regression @batch10
-  Scenario: Birden fazla Patch sonrasÄ±nda soft delete ve restore en son versiyonu korumalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± yeni versiyon sayfasÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± "Patch" versiyon tipini seÃ§er
-    And kullanÄ±cÄ± yeni versiyon dosyasÄ±nÄ± yÃ¼kler
-    And kullanÄ±cÄ± yeni versiyonu kaydeder
-    And kullanÄ±cÄ± yeni versiyon sayfasÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± "Patch" versiyon tipini seÃ§er
-    And kullanÄ±cÄ± yeni versiyon dosyasÄ±nÄ± yÃ¼kler
-    And kullanÄ±cÄ± yeni versiyonu kaydeder
-    And kullanÄ±cÄ± belgeyi soft delete yapar
-    And kullanÄ±cÄ± belgeyi restore eder
-    Then belge versiyonu "v1.0.2" olmalÄ±dÄ±r
+  Scenario: Birden fazla Patch sonrasında soft delete ve restore en son versiyonu korumalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Patch" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    And kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Patch" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    And kullanıcı belgeyi soft delete yapar
+    And kullanıcı belgeyi restore eder
+    Then belge versiyonu "v1.0.2" olmalıdır
 
   @documents @regression @batch10
-  Scenario: Under review ve Patch kombinasyonu restore sonrasÄ±nda korunmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± belgenin status bilgisini deÄŸiÅŸtirir
-    And kullanÄ±cÄ± yeni versiyon sayfasÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± "Patch" versiyon tipini seÃ§er
-    And kullanÄ±cÄ± yeni versiyon dosyasÄ±nÄ± yÃ¼kler
-    And kullanÄ±cÄ± yeni versiyonu kaydeder
-    And kullanÄ±cÄ± belgeyi soft delete yapar
-    And kullanÄ±cÄ± belgeyi restore eder
-    Then belgenin statusu Under review olmalÄ±dÄ±r
-    And belge versiyonu "v1.0.1" olmalÄ±dÄ±r
+  Scenario: Under review belgeye eklenen Patch versiyonunun Draft statusu restore sonrasında korunmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı belgenin status bilgisini değiştirir
+    And kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Patch" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    And kullanıcı belgeyi soft delete yapar
+    And kullanıcı belgeyi restore eder
+    Then belgenin statusu Draft olmalıdır
+    And belge versiyonu "v1.0.1" olmalıdır
+    And belge geçmişinde "v1.0.0" versiyonunun Under review statusundayken yerini Draft olarak oluşturulan "v1.0.1" versiyonuna bıraktığı görülmelidir
 
   @documents @regression @batch10
-  Scenario: Restore edilen Ã§ok versiyonlu belge checkout ve check in yapÄ±labilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± yeni versiyon sayfasÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± "Patch" versiyon tipini seÃ§er
-    And kullanÄ±cÄ± yeni versiyon dosyasÄ±nÄ± yÃ¼kler
-    And kullanÄ±cÄ± yeni versiyonu kaydeder
-    And kullanÄ±cÄ± belgeyi soft delete yapar
-    And kullanÄ±cÄ± belgeyi restore eder
-    And kullanÄ±cÄ± belgeyi checkout yapar
-    Then belge checkout durumda olmalÄ±dÄ±r
-    When kullanÄ±cÄ± belgeyi check in yapar
-    Then belge checkout durumda olmamalÄ±dÄ±r
-    And belge versiyonu "v1.0.1" olmalÄ±dÄ±r
+  Scenario: Restore edilen çok versiyonlu belge checkout ve check in yapılabilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Patch" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    And kullanıcı belgeyi soft delete yapar
+    And kullanıcı belgeyi restore eder
+    And kullanıcı belgeyi checkout yapar
+    Then belge checkout durumda olmalıdır
+    When kullanıcı belgeyi check in yapar
+    Then belge checkout durumda olmamalıdır
+    And belge versiyonu "v1.0.1" olmalıdır
 
 # =========================================================
 # BATCH 11 - DOCUMENT CLASSIFICATION / MOVE / TAGS
 # =========================================================
 
-  @documents @regression @batch11
-  Scenario: Unclassified belge Classify iÅŸlemini gÃ¶stermelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    Then Classify butonu gÃ¶rÃ¼ntÃ¼lenmelidir
+  @documents @regression @batch11 @batch34
+  Scenario: Unclassified belge Classify işlemini göstermelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    Then Classify butonu görüntülenmelidir
+    And "Classify" işlemi açık belgede gerçekten çalışmalı ve sonucu API ile doğrulanmalıdır
 
   @documents @regression @batch11
-  Scenario: Unclassified belge sÄ±nÄ±flandÄ±rma ekranÄ±nÄ± aÃ§abilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± Classify butonuna tÄ±klar
-    Then belge sÄ±nÄ±flandÄ±rma ekranÄ± gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: Unclassified belge sınıflandırma ekranını açabilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı Classify butonuna tıklar
+    Then belge sınıflandırma ekranı görüntülenmelidir
 
   @documents @regression @batch11
-  Scenario: Classify ekranÄ±ndan vazgeÃ§ilebilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± Classify butonuna tÄ±klar
-    And kullanÄ±cÄ± sÄ±nÄ±flandÄ±rma iÅŸlemini iptal eder
-    Then belge detay sayfasÄ±nda kalÄ±nmalÄ±dÄ±r
+  Scenario: Classify ekranından vazgeçilebilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı Classify butonuna tıklar
+    And kullanıcı sınıflandırma işlemini iptal eder
+    Then belge detay sayfasında kalınmalıdır
 
   @documents @regression @batch11
-  Scenario: Classify iptal edildiÄŸinde belge unclassified kalmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± Classify butonuna tÄ±klar
-    And kullanÄ±cÄ± sÄ±nÄ±flandÄ±rma iÅŸlemini iptal eder
-    Then belge unclassified durumda olmalÄ±dÄ±r
+  Scenario: Classify iptal edildiğinde belge unclassified kalmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı Classify butonuna tıklar
+    And kullanıcı sınıflandırma işlemini iptal eder
+    Then belge unclassified durumda olmalıdır
 
   @documents @regression @batch11
-  Scenario: Unclassified belge refresh sonrasÄ±nda unclassified kalmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± belge detay sayfasÄ±nÄ± yeniler
-    Then belge unclassified durumda olmalÄ±dÄ±r
+  Scenario: Unclassified belge refresh sonrasında unclassified kalmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı belge detay sayfasını yeniler
+    Then belge unclassified durumda olmalıdır
 
 
 # -------------------------
@@ -935,38 +963,39 @@ Feature: ECM Documents iÅŸlemleri
 # -------------------------
 
   @documents @regression @batch11
-  Scenario: Aktif belge Move iÅŸlemini gÃ¶stermelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    Then Move iÅŸlemi gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: Aktif belge Move işlemini göstermelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    Then Move işlemi görüntülenmelidir
+
+  @documents @regression @batch11 @batch34
+  Scenario: Move penceresi açılabilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı Move to folder bağlantısına tıklar
+    Then Move penceresi görüntülenmelidir
+    And "Move onay" işlemi açık belgede gerçekten çalışmalı ve sonucu API ile doğrulanmalıdır
 
   @documents @regression @batch11
-  Scenario: Move penceresi aÃ§Ä±labilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± Move to folder baÄŸlantÄ±sÄ±na tÄ±klar
-    Then Move penceresi gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: Move işlemi iptal edilebilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı Move to folder bağlantısına tıklar
+    And kullanıcı Move işlemini iptal eder
+    Then belge detay sayfasında kalınmalıdır
 
   @documents @regression @batch11
-  Scenario: Move iÅŸlemi iptal edilebilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± Move to folder baÄŸlantÄ±sÄ±na tÄ±klar
-    And kullanÄ±cÄ± Move iÅŸlemini iptal eder
-    Then belge detay sayfasÄ±nda kalÄ±nmalÄ±dÄ±r
+  Scenario: Move iptalinden sonra belge başlığı korunmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And yüklenen belgenin başlığı kaydedilmiştir
+    When kullanıcı Move to folder bağlantısına tıklar
+    And kullanıcı Move işlemini iptal eder
+    Then belge başlığı değişmemelidir
 
   @documents @regression @batch11
-  Scenario: Move iptalinden sonra belge baÅŸlÄ±ÄŸÄ± korunmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And yÃ¼klenen belgenin baÅŸlÄ±ÄŸÄ± kaydedilmiÅŸtir
-    When kullanÄ±cÄ± Move to folder baÄŸlantÄ±sÄ±na tÄ±klar
-    And kullanÄ±cÄ± Move iÅŸlemini iptal eder
-    Then belge baÅŸlÄ±ÄŸÄ± deÄŸiÅŸmemelidir
-
-  @documents @regression @batch11
-  Scenario: Move iptalinden sonra belge versiyonu korunmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And belgenin mevcut versiyonu kaydedilmiÅŸtir
-    When kullanÄ±cÄ± Move to folder baÄŸlantÄ±sÄ±na tÄ±klar
-    And kullanÄ±cÄ± Move iÅŸlemini iptal eder
-    Then belge versiyonu deÄŸiÅŸmemelidir
+  Scenario: Move iptalinden sonra belge versiyonu korunmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And belgenin mevcut versiyonu kaydedilmiştir
+    When kullanıcı Move to folder bağlantısına tıklar
+    And kullanıcı Move işlemini iptal eder
+    Then belge versiyonu değişmemelidir
 
 
 # -------------------------
@@ -974,14 +1003,14 @@ Feature: ECM Documents iÅŸlemleri
 # -------------------------
 
   @documents @regression @batch11
-  Scenario Outline: Versiyonlu belgede Classify kullanÄ±labilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± yeni versiyon sayfasÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± "<tip>" versiyon tipini seÃ§er
-    And kullanÄ±cÄ± yeni versiyon dosyasÄ±nÄ± yÃ¼kler
-    And kullanÄ±cÄ± yeni versiyonu kaydeder
-    Then belge versiyonu "<versiyon>" olmalÄ±dÄ±r
-    And Classify butonu gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario Outline: Versiyonlu belgede Classify kullanılabilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "<tip>" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    Then belge versiyonu "<versiyon>" olmalıdır
+    And Classify butonu görüntülenmelidir
 
     Examples:
       | tip   | versiyon |
@@ -991,14 +1020,14 @@ Feature: ECM Documents iÅŸlemleri
 
 
   @documents @regression @batch11
-  Scenario Outline: Versiyonlu belgede Move kullanÄ±labilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± yeni versiyon sayfasÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± "<tip>" versiyon tipini seÃ§er
-    And kullanÄ±cÄ± yeni versiyon dosyasÄ±nÄ± yÃ¼kler
-    And kullanÄ±cÄ± yeni versiyonu kaydeder
-    Then belge versiyonu "<versiyon>" olmalÄ±dÄ±r
-    And Move iÅŸlemi gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario Outline: Versiyonlu belgede Move kullanılabilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "<tip>" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    Then belge versiyonu "<versiyon>" olmalıdır
+    And Move işlemi görüntülenmelidir
 
     Examples:
       | tip   | versiyon |
@@ -1008,14 +1037,14 @@ Feature: ECM Documents iÅŸlemleri
 
 
   @documents @regression @batch11
-  Scenario Outline: Versiyonlu belgede tag giriÅŸ alanÄ± kullanÄ±labilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± yeni versiyon sayfasÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± "<tip>" versiyon tipini seÃ§er
-    And kullanÄ±cÄ± yeni versiyon dosyasÄ±nÄ± yÃ¼kler
-    And kullanÄ±cÄ± yeni versiyonu kaydeder
-    Then belge versiyonu "<versiyon>" olmalÄ±dÄ±r
-    And Tag giriÅŸ alanÄ± gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario Outline: Versiyonlu belgede tag giriş alanı kullanılabilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "<tip>" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    Then belge versiyonu "<versiyon>" olmalıdır
+    And Tag giriş alanı görüntülenmelidir
 
     Examples:
       | tip   | versiyon |
@@ -1029,48 +1058,50 @@ Feature: ECM Documents iÅŸlemleri
 # -------------------------
 
   @documents @regression @batch11
-  Scenario: Under review belgede Classify kullanÄ±labilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± belgenin status bilgisini deÄŸiÅŸtirir
-    Then belgenin statusu Under review olmalÄ±dÄ±r
-    And Classify butonu gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: Under review belgede Classify kullanılabilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı belgenin status bilgisini değiştirir
+    Then belgenin statusu Under review olmalıdır
+    And Classify butonu görüntülenmelidir
 
   @documents @regression @batch11
-  Scenario: Under review belgede Move kullanÄ±labilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± belgenin status bilgisini deÄŸiÅŸtirir
-    Then belgenin statusu Under review olmalÄ±dÄ±r
-    And Move iÅŸlemi gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: Under review belgede Move kullanılabilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı belgenin status bilgisini değiştirir
+    Then belgenin statusu Under review olmalıdır
+    And Move işlemi görüntülenmelidir
 
   @documents @regression @batch11
-  Scenario: Under review belgede tag giriÅŸ alanÄ± kullanÄ±labilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± belgenin status bilgisini deÄŸiÅŸtirir
-    Then belgenin statusu Under review olmalÄ±dÄ±r
-    And Tag giriÅŸ alanÄ± gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: Under review belgede tag giriş alanı kullanılabilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı belgenin status bilgisini değiştirir
+    Then belgenin statusu Under review olmalıdır
+    And Tag giriş alanı görüntülenmelidir
 
 
 # -------------------------
 # REFRESH INTEGRITY
 # -------------------------
 
-  @documents @regression @batch11
-  Scenario: Refresh sonrasÄ±nda Classify kullanÄ±labilir kalmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± belge detay sayfasÄ±nÄ± yeniler
-    Then Classify butonu gÃ¶rÃ¼ntÃ¼lenmelidir
+  @documents @regression @batch11 @batch34
+  Scenario: Refresh sonrasında Classify kullanılabilir kalmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı belge detay sayfasını yeniler
+    Then Classify butonu görüntülenmelidir
+    And "Classify" işlemi açık belgede gerçekten çalışmalı ve sonucu API ile doğrulanmalıdır
 
   @documents @regression @batch11
-  Scenario: Refresh sonrasÄ±nda Move kullanÄ±labilir kalmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± belge detay sayfasÄ±nÄ± yeniler
-    Then Move iÅŸlemi gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: Refresh sonrasında Move kullanılabilir kalmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı belge detay sayfasını yeniler
+    Then Move işlemi görüntülenmelidir
 
-  @documents @regression @batch11
-  Scenario: Refresh sonrasÄ±nda tag giriÅŸ alanÄ± kullanÄ±labilir kalmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± belge detay sayfasÄ±nÄ± yeniler
-    Then Tag giriÅŸ alanÄ± gÃ¶rÃ¼ntÃ¼lenmelidir
+  @documents @regression @batch11 @batch34
+  Scenario: Refresh sonrasında tag giriş alanı kullanılabilir kalmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı belge detay sayfasını yeniler
+    Then Tag giriş alanı görüntülenmelidir
+    And "Tag" işlemi açık belgede gerçekten çalışmalı ve sonucu API ile doğrulanmalıdır
 
 
 # -------------------------
@@ -1078,28 +1109,28 @@ Feature: ECM Documents iÅŸlemleri
 # -------------------------
 
   @documents @regression @batch11
-  Scenario: Soft delete edilmiÅŸ belgede Move kullanÄ±lamamalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And belgenin detay adresi kaydedilmiÅŸtir
-    When kullanÄ±cÄ± belgeyi soft delete yapar
-    And kullanÄ±cÄ± eski belge detay adresini aÃ§ar
-    Then Move butonu gÃ¶rÃ¼ntÃ¼lenmemelidir
+  Scenario: Soft delete edilmiş belgede Move kullanılamamalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And belgenin detay adresi kaydedilmiştir
+    When kullanıcı belgeyi soft delete yapar
+    And kullanıcı eski belge detay adresini açar
+    Then Move butonu görüntülenmemelidir
 
   @documents @regression @batch11
-  Scenario: Soft delete edilmiÅŸ belgede Classify kullanÄ±lamamalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And belgenin detay adresi kaydedilmiÅŸtir
-    When kullanÄ±cÄ± belgeyi soft delete yapar
-    And kullanÄ±cÄ± eski belge detay adresini aÃ§ar
-    Then Classify butonu gÃ¶rÃ¼ntÃ¼lenmemelidir
+  Scenario: Soft delete edilmiş belgede Classify kullanılamamalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And belgenin detay adresi kaydedilmiştir
+    When kullanıcı belgeyi soft delete yapar
+    And kullanıcı eski belge detay adresini açar
+    Then Classify butonu görüntülenmemelidir
 
   @documents @regression @batch11
-  Scenario: Soft delete edilmiÅŸ belgede Add tag kullanÄ±lamamalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And belgenin detay adresi kaydedilmiÅŸtir
-    When kullanÄ±cÄ± belgeyi soft delete yapar
-    And kullanÄ±cÄ± eski belge detay adresini aÃ§ar
-    Then Tag giriÅŸ alanÄ± gÃ¶rÃ¼ntÃ¼lenmemelidir
+  Scenario: Soft delete edilmiş belgede Add tag kullanılamamalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And belgenin detay adresi kaydedilmiştir
+    When kullanıcı belgeyi soft delete yapar
+    And kullanıcı eski belge detay adresini açar
+    Then Tag giriş alanı görüntülenmemelidir
 
 
 # -------------------------
@@ -1107,25 +1138,27 @@ Feature: ECM Documents iÅŸlemleri
 # -------------------------
 
   @documents @regression @batch11
-  Scenario: Restore sonrasÄ±nda Move tekrar kullanÄ±labilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± belgeyi soft delete yapar
-    And kullanÄ±cÄ± belgeyi restore eder
-    Then Move iÅŸlemi gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: Restore sonrasında Move tekrar kullanılabilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı belgeyi soft delete yapar
+    And kullanıcı belgeyi restore eder
+    Then Move işlemi görüntülenmelidir
 
-  @documents @regression @batch11
-  Scenario: Restore sonrasÄ±nda Classify tekrar kullanÄ±labilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± belgeyi soft delete yapar
-    And kullanÄ±cÄ± belgeyi restore eder
-    Then Classify butonu gÃ¶rÃ¼ntÃ¼lenmelidir
+  @documents @regression @batch11 @batch34
+  Scenario: Restore sonrasında Classify tekrar kullanılabilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı belgeyi soft delete yapar
+    And kullanıcı belgeyi restore eder
+    Then Classify butonu görüntülenmelidir
+    And "Classify" işlemi açık belgede gerçekten çalışmalı ve sonucu API ile doğrulanmalıdır
 
-  @documents @regression @batch11
-  Scenario: Restore sonrasÄ±nda tag giriÅŸ alanÄ± tekrar kullanÄ±labilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± belgeyi soft delete yapar
-    And kullanÄ±cÄ± belgeyi restore eder
-    Then Tag giriÅŸ alanÄ± gÃ¶rÃ¼ntÃ¼lenmelidir
+  @documents @regression @batch11 @batch34
+  Scenario: Restore sonrasında tag giriş alanı tekrar kullanılabilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı belgeyi soft delete yapar
+    And kullanıcı belgeyi restore eder
+    Then Tag giriş alanı görüntülenmelidir
+    And "Tag" işlemi açık belgede gerçekten çalışmalı ve sonucu API ile doğrulanmalıdır
 
 
 # -------------------------
@@ -1133,22 +1166,24 @@ Feature: ECM Documents iÅŸlemleri
 # -------------------------
 
   @documents @regression @batch11
-  Scenario: Checkout sahibi belgede Move iÅŸlemini gÃ¶rmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± belgeyi checkout yapar
-    Then Move iÅŸlemi gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: Checkout sahibi belgede Move işlemini görmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı belgeyi checkout yapar
+    Then Move işlemi görüntülenmelidir
 
-  @documents @regression @batch11
-  Scenario: Checkout sahibi belgede Classify iÅŸlemini gÃ¶rmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± belgeyi checkout yapar
-    Then Classify butonu gÃ¶rÃ¼ntÃ¼lenmelidir
+  @documents @regression @batch11 @batch34
+  Scenario: Checkout sahibi belgede Classify işlemini görmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı belgeyi checkout yapar
+    Then Classify butonu görüntülenmelidir
+    And "Classify" işlemi açık belgede gerçekten çalışmalı ve sonucu API ile doğrulanmalıdır
 
-  @documents @regression @batch11
-  Scenario: Checkout sahibi belgede tag giriÅŸ alanÄ±nÄ± gÃ¶rmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± belgeyi checkout yapar
-    Then Tag giriÅŸ alanÄ± gÃ¶rÃ¼ntÃ¼lenmelidir
+  @documents @regression @batch11 @batch34
+  Scenario: Checkout sahibi belgede tag giriş alanını görmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı belgeyi checkout yapar
+    Then Tag giriş alanı görüntülenmelidir
+    And "Tag" işlemi açık belgede gerçekten çalışmalı ve sonucu API ile doğrulanmalıdır
 
 
 # -------------------------
@@ -1156,25 +1191,27 @@ Feature: ECM Documents iÅŸlemleri
 # -------------------------
 
   @documents @regression @batch11
-  Scenario: Check in sonrasÄ±nda Move kullanÄ±labilir kalmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± belgeyi checkout yapar
-    And kullanÄ±cÄ± belgeyi check in yapar
-    Then Move iÅŸlemi gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: Check in sonrasında Move kullanılabilir kalmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı belgeyi checkout yapar
+    And kullanıcı belgeyi check in yapar
+    Then Move işlemi görüntülenmelidir
 
-  @documents @regression @batch11
-  Scenario: Check in sonrasÄ±nda Classify kullanÄ±labilir kalmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± belgeyi checkout yapar
-    And kullanÄ±cÄ± belgeyi check in yapar
-    Then Classify butonu gÃ¶rÃ¼ntÃ¼lenmelidir
+  @documents @regression @batch11 @batch34
+  Scenario: Check in sonrasında Classify kullanılabilir kalmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı belgeyi checkout yapar
+    And kullanıcı belgeyi check in yapar
+    Then Classify butonu görüntülenmelidir
+    And "Classify" işlemi açık belgede gerçekten çalışmalı ve sonucu API ile doğrulanmalıdır
 
-  @documents @regression @batch11
-  Scenario: Check in sonrasÄ±nda tag giriÅŸ alanÄ± kullanÄ±labilir kalmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± belgeyi checkout yapar
-    And kullanÄ±cÄ± belgeyi check in yapar
-    Then Tag giriÅŸ alanÄ± gÃ¶rÃ¼ntÃ¼lenmelidir
+  @documents @regression @batch11 @batch34
+  Scenario: Check in sonrasında tag giriş alanı kullanılabilir kalmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı belgeyi checkout yapar
+    And kullanıcı belgeyi check in yapar
+    Then Tag giriş alanı görüntülenmelidir
+    And "Tag" işlemi açık belgede gerçekten çalışmalı ve sonucu API ile doğrulanmalıdır
 
 
 # -------------------------
@@ -1182,17 +1219,17 @@ Feature: ECM Documents iÅŸlemleri
 # -------------------------
 
   @documents @regression @batch11
-  Scenario Outline: Yeni versiyon refresh sonrasÄ±nda belge iÅŸlemlerini korumalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± yeni versiyon sayfasÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± "<tip>" versiyon tipini seÃ§er
-    And kullanÄ±cÄ± yeni versiyon dosyasÄ±nÄ± yÃ¼kler
-    And kullanÄ±cÄ± yeni versiyonu kaydeder
-    And kullanÄ±cÄ± belge detay sayfasÄ±nÄ± yeniler
-    Then belge versiyonu "<versiyon>" olmalÄ±dÄ±r
-    And Move iÅŸlemi gÃ¶rÃ¼ntÃ¼lenmelidir
-    And Classify butonu gÃ¶rÃ¼ntÃ¼lenmelidir
-    And Tag giriÅŸ alanÄ± gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario Outline: Yeni versiyon refresh sonrasında belge işlemlerini korumalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "<tip>" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    And kullanıcı belge detay sayfasını yeniler
+    Then belge versiyonu "<versiyon>" olmalıdır
+    And Move işlemi görüntülenmelidir
+    And Classify butonu görüntülenmelidir
+    And Tag giriş alanı görüntülenmelidir
 
     Examples:
       | tip   | versiyon |
@@ -1206,243 +1243,277 @@ Feature: ECM Documents iÅŸlemleri
 # -------------------------
 
   @documents @regression @batch11
-  Scenario: Under review refresh sonrasÄ±nda belge iÅŸlemlerini korumalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± belgenin status bilgisini deÄŸiÅŸtirir
-    And kullanÄ±cÄ± belge detay sayfasÄ±nÄ± yeniler
-    Then belgenin statusu Under review olmalÄ±dÄ±r
-    And Move iÅŸlemi gÃ¶rÃ¼ntÃ¼lenmelidir
-    And Classify butonu gÃ¶rÃ¼ntÃ¼lenmelidir
-    And Tag giriÅŸ alanÄ± gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: Under review refresh sonrasında belge işlemlerini korumalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı belgenin status bilgisini değiştirir
+    And kullanıcı belge detay sayfasını yeniler
+    Then belgenin statusu Under review olmalıdır
+    And Move işlemi görüntülenmelidir
+    And Classify butonu görüntülenmelidir
+    And Tag giriş alanı görüntülenmelidir
 
 
 # -------------------------
 # RESTORE + REFRESH
 # -------------------------
 
-  @documents @regression @batch11
-  Scenario: Restore ve refresh sonrasÄ±nda belge iÅŸlemleri kullanÄ±labilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± belgeyi soft delete yapar
-    And kullanÄ±cÄ± belgeyi restore eder
-    And kullanÄ±cÄ± belge detay sayfasÄ±nÄ± yeniler
-    Then Move iÅŸlemi gÃ¶rÃ¼ntÃ¼lenmelidir
-    And Classify butonu gÃ¶rÃ¼ntÃ¼lenmelidir
-    And Tag giriÅŸ alanÄ± gÃ¶rÃ¼ntÃ¼lenmelidir
+  @documents @regression @batch11 @batch34
+  Scenario: Restore ve refresh sonrasında belge işlemleri kullanılabilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı belgeyi soft delete yapar
+    And kullanıcı belgeyi restore eder
+    And kullanıcı belge detay sayfasını yeniler
+    Then Move işlemi görüntülenmelidir
+    And Classify butonu görüntülenmelidir
+    And Tag giriş alanı görüntülenmelidir
+    And "Tag" işlemi açık belgede gerçekten çalışmalı ve sonucu API ile doğrulanmalıdır
+    And "Classify" işlemi açık belgede gerçekten çalışmalı ve sonucu API ile doğrulanmalıdır
+    And "Move" işlemi açık belgede gerçekten çalışmalı ve sonucu API ile doğrulanmalıdır
 
 # ============================================================
 # BATCH 12 - MOVE / DESTINATION / STATE COMBINATIONS
 # ============================================================
 
   @documents @regression @batch12
-  Scenario: Move penceresinde hedef klasÃ¶r seÃ§ilebilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And benzersiz bir Move hedef klasÃ¶rÃ¼ oluÅŸturulmuÅŸtur
-    When kullanÄ±cÄ± Move baÄŸlantÄ±sÄ±na tÄ±klar
-    And kullanÄ±cÄ± Move penceresinde hedef klasÃ¶rÃ¼ seÃ§er
-    Then Move penceresinde hedef klasÃ¶r seÃ§ili olmalÄ±dÄ±r
-    And kullanÄ±cÄ± Move iÅŸlemini iptal eder
+  Scenario: Move penceresinde hedef klasör seçilebilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And benzersiz bir Move hedef klasörü oluşturulmuştur
+    When kullanıcı Move bağlantısına tıklar
+    And kullanıcı Move penceresinde hedef klasörü seçer
+    Then Move penceresinde hedef klasör seçili olmalıdır
+    And kullanıcı Move işlemini iptal eder
 
   @documents @regression @batch12
-  Scenario: SeÃ§ilen Move iÅŸlemi iptal edilebilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And benzersiz bir Move hedef klasÃ¶rÃ¼ oluÅŸturulmuÅŸtur
-    When kullanÄ±cÄ± Move baÄŸlantÄ±sÄ±na tÄ±klar
-    And kullanÄ±cÄ± Move penceresinde hedef klasÃ¶rÃ¼ seÃ§er
-    And kullanÄ±cÄ± Move iÅŸlemini iptal eder
-    Then belge detay sayfasÄ±nda kalÄ±nmalÄ±dÄ±r
-    And Move iÅŸlemi gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: Seçilen Move işlemi iptal edilebilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And benzersiz bir Move hedef klasörü oluşturulmuştur
+    When kullanıcı Move bağlantısına tıklar
+    And kullanıcı Move penceresinde hedef klasörü seçer
+    And kullanıcı Move işlemini iptal eder
+    Then belge detay sayfasında kalınmalıdır
+    And Move işlemi görüntülenmelidir
 
   @documents @regression @batch12
-  Scenario: Belge baÅŸka klasÃ¶re taÅŸÄ±nabilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And benzersiz bir Move hedef klasÃ¶rÃ¼ oluÅŸturulmuÅŸtur
-    When kullanÄ±cÄ± Move baÄŸlantÄ±sÄ±na tÄ±klar
-    And kullanÄ±cÄ± Move penceresinde hedef klasÃ¶rÃ¼ seÃ§er
-    And kullanÄ±cÄ± Move iÅŸlemini onaylar
-    Then Move penceresi kapanmalÄ±dÄ±r
-    And belge hedef klasÃ¶rde olmalÄ±dÄ±r
+  Scenario: Belge başka klasöre taşınabilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And benzersiz bir Move hedef klasörü oluşturulmuştur
+    When kullanıcı Move bağlantısına tıklar
+    And kullanıcı Move penceresinde hedef klasörü seçer
+    And kullanıcı Move işlemini onaylar
+    Then Move penceresi kapanmalıdır
+    And belge hedef klasörde olmalıdır
 
   @documents @regression @batch12
-  Scenario: Move sonrasÄ±nda hedef klasÃ¶r belge detayÄ±nda gÃ¶rÃ¼ntÃ¼lenmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And benzersiz bir Move hedef klasÃ¶rÃ¼ oluÅŸturulmuÅŸtur
-    When kullanÄ±cÄ± Move baÄŸlantÄ±sÄ±na tÄ±klar
-    And kullanÄ±cÄ± Move penceresinde hedef klasÃ¶rÃ¼ seÃ§er
-    And kullanÄ±cÄ± Move iÅŸlemini onaylar
-    Then hedef klasÃ¶r adÄ± belge detayÄ±nda gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: Move sonrasında hedef klasör belge detayında görüntülenmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And benzersiz bir Move hedef klasörü oluşturulmuştur
+    When kullanıcı Move bağlantısına tıklar
+    And kullanıcı Move penceresinde hedef klasörü seçer
+    And kullanıcı Move işlemini onaylar
+    Then hedef klasör adı belge detayında görüntülenmelidir
 
   @documents @regression @batch12
-  Scenario: Move sonrasÄ±nda belge detay adresi korunmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And belgenin detay adresi kaydedilmiÅŸtir
-    And benzersiz bir Move hedef klasÃ¶rÃ¼ oluÅŸturulmuÅŸtur
-    When kullanÄ±cÄ± Move baÄŸlantÄ±sÄ±na tÄ±klar
-    And kullanÄ±cÄ± Move penceresinde hedef klasÃ¶rÃ¼ seÃ§er
-    And kullanÄ±cÄ± Move iÅŸlemini onaylar
-    Then belge detay adresi Move sonrasÄ±nda deÄŸiÅŸmemelidir
+  Scenario: Move sonrasında belge detay adresi korunmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And belgenin detay adresi kaydedilmiştir
+    And benzersiz bir Move hedef klasörü oluşturulmuştur
+    When kullanıcı Move bağlantısına tıklar
+    And kullanıcı Move penceresinde hedef klasörü seçer
+    And kullanıcı Move işlemini onaylar
+    Then belge detay adresi Move sonrasında değişmemelidir
 
   @documents @regression @batch12
-  Scenario: Move sonrasÄ±nda belge baÅŸlÄ±ÄŸÄ± korunmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And yÃ¼klenen belgenin baÅŸlÄ±ÄŸÄ± kaydedilmiÅŸtir
-    And benzersiz bir Move hedef klasÃ¶rÃ¼ oluÅŸturulmuÅŸtur
-    When kullanÄ±cÄ± Move baÄŸlantÄ±sÄ±na tÄ±klar
-    And kullanÄ±cÄ± Move penceresinde hedef klasÃ¶rÃ¼ seÃ§er
-    And kullanÄ±cÄ± Move iÅŸlemini onaylar
-    Then belge baÅŸlÄ±ÄŸÄ± deÄŸiÅŸmemelidir
+  Scenario: Move sonrasında belge başlığı korunmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And yüklenen belgenin başlığı kaydedilmiştir
+    And benzersiz bir Move hedef klasörü oluşturulmuştur
+    When kullanıcı Move bağlantısına tıklar
+    And kullanıcı Move penceresinde hedef klasörü seçer
+    And kullanıcı Move işlemini onaylar
+    Then belge başlığı değişmemelidir
 
   @documents @regression @batch12
-  Scenario: Move sonrasÄ±nda belge versiyonu korunmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And belgenin mevcut versiyonu kaydedilmiÅŸtir
-    And benzersiz bir Move hedef klasÃ¶rÃ¼ oluÅŸturulmuÅŸtur
-    When kullanÄ±cÄ± Move baÄŸlantÄ±sÄ±na tÄ±klar
-    And kullanÄ±cÄ± Move penceresinde hedef klasÃ¶rÃ¼ seÃ§er
-    And kullanÄ±cÄ± Move iÅŸlemini onaylar
-    Then belge versiyonu deÄŸiÅŸmemelidir
+  Scenario: Move sonrasında belge versiyonu korunmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And belgenin mevcut versiyonu kaydedilmiştir
+    And benzersiz bir Move hedef klasörü oluşturulmuştur
+    When kullanıcı Move bağlantısına tıklar
+    And kullanıcı Move penceresinde hedef klasörü seçer
+    And kullanıcı Move işlemini onaylar
+    Then belge versiyonu değişmemelidir
+
+  @documents @regression @batch12 @batch34
+  Scenario: Move sonrasında Download kullanılabilir kalmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And benzersiz bir Move hedef klasörü oluşturulmuştur
+    When kullanıcı Move bağlantısına tıklar
+    And kullanıcı Move penceresinde hedef klasörü seçer
+    And kullanıcı Move işlemini onaylar
+    Then Download butonu görüntülenmelidir
+    And "Download" işlemi açık belgede gerçekten çalışmalı ve sonucu API ile doğrulanmalıdır
+
+  @documents @regression @batch12 @batch34
+  Scenario: Move sonrasında Classify kullanılabilir kalmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And benzersiz bir Move hedef klasörü oluşturulmuştur
+    When kullanıcı Move bağlantısına tıklar
+    And kullanıcı Move penceresinde hedef klasörü seçer
+    And kullanıcı Move işlemini onaylar
+    Then Classify butonu görüntülenmelidir
+    And "Classify" işlemi açık belgede gerçekten çalışmalı ve sonucu API ile doğrulanmalıdır
+
+  @documents @regression @batch12 @batch34
+  Scenario: Move sonrasında Tag girişi kullanılabilir kalmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And benzersiz bir Move hedef klasörü oluşturulmuştur
+    When kullanıcı Move bağlantısına tıklar
+    And kullanıcı Move penceresinde hedef klasörü seçer
+    And kullanıcı Move işlemini onaylar
+    Then Tag giriş alanı görüntülenmelidir
+    And "Tag" işlemi açık belgede gerçekten çalışmalı ve sonucu API ile doğrulanmalıdır
+
+  @documents @regression @batch12 @batch34
+  Scenario: Move sonrasında New version kullanılabilir kalmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And benzersiz bir Move hedef klasörü oluşturulmuştur
+    When kullanıcı Move bağlantısına tıklar
+    And kullanıcı Move penceresinde hedef klasörü seçer
+    And kullanıcı Move işlemini onaylar
+    Then New version butonu görüntülenmelidir
+    And "New version" işlemi açık belgede gerçekten çalışmalı ve sonucu API ile doğrulanmalıdır
+
+  @documents @regression @batch12 @batch34
+  Scenario: Move sonrasında Check out kullanılabilir kalmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And benzersiz bir Move hedef klasörü oluşturulmuştur
+    When kullanıcı Move bağlantısına tıklar
+    And kullanıcı Move penceresinde hedef klasörü seçer
+    And kullanıcı Move işlemini onaylar
+    Then Check out butonu görüntülenmelidir
+    And "Check out" işlemi açık belgede gerçekten çalışmalı ve sonucu API ile doğrulanmalıdır
 
   @documents @regression @batch12
-  Scenario: Move sonrasÄ±nda Download kullanÄ±labilir kalmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And benzersiz bir Move hedef klasÃ¶rÃ¼ oluÅŸturulmuÅŸtur
-    When kullanÄ±cÄ± Move baÄŸlantÄ±sÄ±na tÄ±klar
-    And kullanÄ±cÄ± Move penceresinde hedef klasÃ¶rÃ¼ seÃ§er
-    And kullanÄ±cÄ± Move iÅŸlemini onaylar
-    Then Download butonu gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: Move ve refresh sonrasında hedef klasör korunmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And benzersiz bir Move hedef klasörü oluşturulmuştur
+    When kullanıcı Move bağlantısına tıklar
+    And kullanıcı Move penceresinde hedef klasörü seçer
+    And kullanıcı Move işlemini onaylar
+    And kullanıcı belge detay sayfasını yeniler
+    Then hedef klasör adı belge detayında görüntülenmelidir
 
   @documents @regression @batch12
-  Scenario: Move sonrasÄ±nda Classify kullanÄ±labilir kalmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And benzersiz bir Move hedef klasÃ¶rÃ¼ oluÅŸturulmuÅŸtur
-    When kullanÄ±cÄ± Move baÄŸlantÄ±sÄ±na tÄ±klar
-    And kullanÄ±cÄ± Move penceresinde hedef klasÃ¶rÃ¼ seÃ§er
-    And kullanÄ±cÄ± Move iÅŸlemini onaylar
-    Then Classify butonu gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: Move ve refresh sonrasında belge başlığı korunmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And yüklenen belgenin başlığı kaydedilmiştir
+    And benzersiz bir Move hedef klasörü oluşturulmuştur
+    When kullanıcı Move bağlantısına tıklar
+    And kullanıcı Move penceresinde hedef klasörü seçer
+    And kullanıcı Move işlemini onaylar
+    And kullanıcı belge detay sayfasını yeniler
+    Then belge başlığı değişmemelidir
 
   @documents @regression @batch12
-  Scenario: Move sonrasÄ±nda Tag giriÅŸi kullanÄ±labilir kalmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And benzersiz bir Move hedef klasÃ¶rÃ¼ oluÅŸturulmuÅŸtur
-    When kullanÄ±cÄ± Move baÄŸlantÄ±sÄ±na tÄ±klar
-    And kullanÄ±cÄ± Move penceresinde hedef klasÃ¶rÃ¼ seÃ§er
-    And kullanÄ±cÄ± Move iÅŸlemini onaylar
-    Then Tag giriÅŸ alanÄ± gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: Move ve refresh sonrasında belge versiyonu korunmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And belgenin mevcut versiyonu kaydedilmiştir
+    And benzersiz bir Move hedef klasörü oluşturulmuştur
+    When kullanıcı Move bağlantısına tıklar
+    And kullanıcı Move penceresinde hedef klasörü seçer
+    And kullanıcı Move işlemini onaylar
+    And kullanıcı belge detay sayfasını yeniler
+    Then belge versiyonu değişmemelidir
 
   @documents @regression @batch12
-  Scenario: Move sonrasÄ±nda New version kullanÄ±labilir kalmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And benzersiz bir Move hedef klasÃ¶rÃ¼ oluÅŸturulmuÅŸtur
-    When kullanÄ±cÄ± Move baÄŸlantÄ±sÄ±na tÄ±klar
-    And kullanÄ±cÄ± Move penceresinde hedef klasÃ¶rÃ¼ seÃ§er
-    And kullanÄ±cÄ± Move iÅŸlemini onaylar
-    Then New version butonu gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: Move ve refresh sonrasında Move kullanılabilir kalmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And benzersiz bir Move hedef klasörü oluşturulmuştur
+    When kullanıcı Move bağlantısına tıklar
+    And kullanıcı Move penceresinde hedef klasörü seçer
+    And kullanıcı Move işlemini onaylar
+    And kullanıcı belge detay sayfasını yeniler
+    Then Move işlemi görüntülenmelidir
+
+  @documents @regression @batch12 @batch34
+  Scenario: Move ve refresh sonrasında Classify kullanılabilir kalmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And benzersiz bir Move hedef klasörü oluşturulmuştur
+    When kullanıcı Move bağlantısına tıklar
+    And kullanıcı Move penceresinde hedef klasörü seçer
+    And kullanıcı Move işlemini onaylar
+    And kullanıcı belge detay sayfasını yeniler
+    Then Classify butonu görüntülenmelidir
+    And "Classify" işlemi açık belgede gerçekten çalışmalı ve sonucu API ile doğrulanmalıdır
+
+  @documents @regression @batch12 @batch34
+  Scenario: Move ve refresh sonrasında Tag girişi kullanılabilir kalmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And benzersiz bir Move hedef klasörü oluşturulmuştur
+    When kullanıcı Move bağlantısına tıklar
+    And kullanıcı Move penceresinde hedef klasörü seçer
+    And kullanıcı Move işlemini onaylar
+    And kullanıcı belge detay sayfasını yeniler
+    Then Tag giriş alanı görüntülenmelidir
+    And "Tag" işlemi açık belgede gerçekten çalışmalı ve sonucu API ile doğrulanmalıdır
+
+  @documents @regression @batch12 @batch34
+  Scenario: Move ve refresh sonrasında Download kullanılabilir kalmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And benzersiz bir Move hedef klasörü oluşturulmuştur
+    When kullanıcı Move bağlantısına tıklar
+    And kullanıcı Move penceresinde hedef klasörü seçer
+    And kullanıcı Move işlemini onaylar
+    And kullanıcı belge detay sayfasını yeniler
+    Then Download butonu görüntülenmelidir
+    And "Download" işlemi açık belgede gerçekten çalışmalı ve sonucu API ile doğrulanmalıdır
+
+  @documents @regression @batch12 @batch34
+  Scenario: Move ve refresh sonrasında New version kullanılabilir kalmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And benzersiz bir Move hedef klasörü oluşturulmuştur
+    When kullanıcı Move bağlantısına tıklar
+    And kullanıcı Move penceresinde hedef klasörü seçer
+    And kullanıcı Move işlemini onaylar
+    And kullanıcı belge detay sayfasını yeniler
+    Then New version butonu görüntülenmelidir
+    And "New version" işlemi açık belgede gerçekten çalışmalı ve sonucu API ile doğrulanmalıdır
 
   @documents @regression @batch12
-  Scenario: Move sonrasÄ±nda Check out kullanÄ±labilir kalmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And benzersiz bir Move hedef klasÃ¶rÃ¼ oluÅŸturulmuÅŸtur
-    When kullanÄ±cÄ± Move baÄŸlantÄ±sÄ±na tÄ±klar
-    And kullanÄ±cÄ± Move penceresinde hedef klasÃ¶rÃ¼ seÃ§er
-    And kullanÄ±cÄ± Move iÅŸlemini onaylar
-    Then Check out butonu gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario Outline: Yeni versiyonlu belge Move sonrasında versiyonunu korumalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "<tip>" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    And belgenin mevcut versiyonu kaydedilmiştir
+    And benzersiz bir Move hedef klasörü oluşturulmuştur
+    And kullanıcı Move bağlantısına tıklar
+    And kullanıcı Move penceresinde hedef klasörü seçer
+    And kullanıcı Move işlemini onaylar
+    Then belge versiyonu değişmemelidir
+    And hedef klasör adı belge detayında görüntülenmelidir
+    Examples:
+      | tip   |
+      | Patch |
+      | Minor |
+      | Major |
 
-  @documents @regression @batch12
-  Scenario: Move ve refresh sonrasÄ±nda hedef klasÃ¶r korunmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And benzersiz bir Move hedef klasÃ¶rÃ¼ oluÅŸturulmuÅŸtur
-    When kullanÄ±cÄ± Move baÄŸlantÄ±sÄ±na tÄ±klar
-    And kullanÄ±cÄ± Move penceresinde hedef klasÃ¶rÃ¼ seÃ§er
-    And kullanÄ±cÄ± Move iÅŸlemini onaylar
-    And kullanÄ±cÄ± belge detay sayfasÄ±nÄ± yeniler
-    Then hedef klasÃ¶r adÄ± belge detayÄ±nda gÃ¶rÃ¼ntÃ¼lenmelidir
-
-  @documents @regression @batch12
-  Scenario: Move ve refresh sonrasÄ±nda belge baÅŸlÄ±ÄŸÄ± korunmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And yÃ¼klenen belgenin baÅŸlÄ±ÄŸÄ± kaydedilmiÅŸtir
-    And benzersiz bir Move hedef klasÃ¶rÃ¼ oluÅŸturulmuÅŸtur
-    When kullanÄ±cÄ± Move baÄŸlantÄ±sÄ±na tÄ±klar
-    And kullanÄ±cÄ± Move penceresinde hedef klasÃ¶rÃ¼ seÃ§er
-    And kullanÄ±cÄ± Move iÅŸlemini onaylar
-    And kullanÄ±cÄ± belge detay sayfasÄ±nÄ± yeniler
-    Then belge baÅŸlÄ±ÄŸÄ± deÄŸiÅŸmemelidir
-
-  @documents @regression @batch12
-  Scenario: Move ve refresh sonrasÄ±nda belge versiyonu korunmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And belgenin mevcut versiyonu kaydedilmiÅŸtir
-    And benzersiz bir Move hedef klasÃ¶rÃ¼ oluÅŸturulmuÅŸtur
-    When kullanÄ±cÄ± Move baÄŸlantÄ±sÄ±na tÄ±klar
-    And kullanÄ±cÄ± Move penceresinde hedef klasÃ¶rÃ¼ seÃ§er
-    And kullanÄ±cÄ± Move iÅŸlemini onaylar
-    And kullanÄ±cÄ± belge detay sayfasÄ±nÄ± yeniler
-    Then belge versiyonu deÄŸiÅŸmemelidir
-
-  @documents @regression @batch12
-  Scenario: Move ve refresh sonrasÄ±nda Move kullanÄ±labilir kalmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And benzersiz bir Move hedef klasÃ¶rÃ¼ oluÅŸturulmuÅŸtur
-    When kullanÄ±cÄ± Move baÄŸlantÄ±sÄ±na tÄ±klar
-    And kullanÄ±cÄ± Move penceresinde hedef klasÃ¶rÃ¼ seÃ§er
-    And kullanÄ±cÄ± Move iÅŸlemini onaylar
-    And kullanÄ±cÄ± belge detay sayfasÄ±nÄ± yeniler
-    Then Move iÅŸlemi gÃ¶rÃ¼ntÃ¼lenmelidir
-
-  @documents @regression @batch12
-  Scenario: Move ve refresh sonrasÄ±nda Classify kullanÄ±labilir kalmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And benzersiz bir Move hedef klasÃ¶rÃ¼ oluÅŸturulmuÅŸtur
-    When kullanÄ±cÄ± Move baÄŸlantÄ±sÄ±na tÄ±klar
-    And kullanÄ±cÄ± Move penceresinde hedef klasÃ¶rÃ¼ seÃ§er
-    And kullanÄ±cÄ± Move iÅŸlemini onaylar
-    And kullanÄ±cÄ± belge detay sayfasÄ±nÄ± yeniler
-    Then Classify butonu gÃ¶rÃ¼ntÃ¼lenmelidir
-
-  @documents @regression @batch12
-  Scenario: Move ve refresh sonrasÄ±nda Tag giriÅŸi kullanÄ±labilir kalmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And benzersiz bir Move hedef klasÃ¶rÃ¼ oluÅŸturulmuÅŸtur
-    When kullanÄ±cÄ± Move baÄŸlantÄ±sÄ±na tÄ±klar
-    And kullanÄ±cÄ± Move penceresinde hedef klasÃ¶rÃ¼ seÃ§er
-    And kullanÄ±cÄ± Move iÅŸlemini onaylar
-    And kullanÄ±cÄ± belge detay sayfasÄ±nÄ± yeniler
-    Then Tag giriÅŸ alanÄ± gÃ¶rÃ¼ntÃ¼lenmelidir
-
-  @documents @regression @batch12
-  Scenario: Move ve refresh sonrasÄ±nda Download kullanÄ±labilir kalmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And benzersiz bir Move hedef klasÃ¶rÃ¼ oluÅŸturulmuÅŸtur
-    When kullanÄ±cÄ± Move baÄŸlantÄ±sÄ±na tÄ±klar
-    And kullanÄ±cÄ± Move penceresinde hedef klasÃ¶rÃ¼ seÃ§er
-    And kullanÄ±cÄ± Move iÅŸlemini onaylar
-    And kullanÄ±cÄ± belge detay sayfasÄ±nÄ± yeniler
-    Then Download butonu gÃ¶rÃ¼ntÃ¼lenmelidir
-
-  @documents @regression @batch12
-  Scenario: Move ve refresh sonrasÄ±nda New version kullanÄ±labilir kalmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And benzersiz bir Move hedef klasÃ¶rÃ¼ oluÅŸturulmuÅŸtur
-    When kullanÄ±cÄ± Move baÄŸlantÄ±sÄ±na tÄ±klar
-    And kullanÄ±cÄ± Move penceresinde hedef klasÃ¶rÃ¼ seÃ§er
-    And kullanÄ±cÄ± Move iÅŸlemini onaylar
-    And kullanÄ±cÄ± belge detay sayfasÄ±nÄ± yeniler
-    Then New version butonu gÃ¶rÃ¼ntÃ¼lenmelidir
-
-  @documents @regression @batch12
-  Scenario Outline: Yeni versiyonlu belge Move sonrasÄ±nda versiyonunu korumalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± yeni versiyon sayfasÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± "<tip>" versiyon tipini seÃ§er
-    And kullanÄ±cÄ± yeni versiyon dosyasÄ±nÄ± yÃ¼kler
-    And kullanÄ±cÄ± yeni versiyonu kaydeder
-    And belgenin mevcut versiyonu kaydedilmiÅŸtir
-    And benzersiz bir Move hedef klasÃ¶rÃ¼ oluÅŸturulmuÅŸtur
-    And kullanÄ±cÄ± Move baÄŸlantÄ±sÄ±na tÄ±klar
-    And kullanÄ±cÄ± Move penceresinde hedef klasÃ¶rÃ¼ seÃ§er
-    And kullanÄ±cÄ± Move iÅŸlemini onaylar
-    Then belge versiyonu deÄŸiÅŸmemelidir
-    And hedef klasÃ¶r adÄ± belge detayÄ±nda gÃ¶rÃ¼ntÃ¼lenmelidir
+  @documents @regression @batch12 @batch34
+  Scenario Outline: Yeni versiyonlu belge Move sonrasında işlemlerini korumalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "<tip>" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    And benzersiz bir Move hedef klasörü oluşturulmuştur
+    And kullanıcı Move bağlantısına tıklar
+    And kullanıcı Move penceresinde hedef klasörü seçer
+    And kullanıcı Move işlemini onaylar
+    Then Move işlemi görüntülenmelidir
+    And Classify butonu görüntülenmelidir
+    And Tag giriş alanı görüntülenmelidir
+    And "Tag" işlemi açık belgede gerçekten çalışmalı ve sonucu API ile doğrulanmalıdır
+    And "Classify" işlemi açık belgede gerçekten çalışmalı ve sonucu API ile doğrulanmalıdır
     Examples:
       | tip   |
       | Patch |
@@ -1450,522 +1521,512 @@ Feature: ECM Documents iÅŸlemleri
       | Major |
 
   @documents @regression @batch12
-  Scenario Outline: Yeni versiyonlu belge Move sonrasÄ±nda iÅŸlemlerini korumalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± yeni versiyon sayfasÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± "<tip>" versiyon tipini seÃ§er
-    And kullanÄ±cÄ± yeni versiyon dosyasÄ±nÄ± yÃ¼kler
-    And kullanÄ±cÄ± yeni versiyonu kaydeder
-    And benzersiz bir Move hedef klasÃ¶rÃ¼ oluÅŸturulmuÅŸtur
-    And kullanÄ±cÄ± Move baÄŸlantÄ±sÄ±na tÄ±klar
-    And kullanÄ±cÄ± Move penceresinde hedef klasÃ¶rÃ¼ seÃ§er
-    And kullanÄ±cÄ± Move iÅŸlemini onaylar
-    Then Move iÅŸlemi gÃ¶rÃ¼ntÃ¼lenmelidir
-    And Classify butonu gÃ¶rÃ¼ntÃ¼lenmelidir
-    And Tag giriÅŸ alanÄ± gÃ¶rÃ¼ntÃ¼lenmelidir
-    Examples:
-      | tip   |
-      | Patch |
-      | Minor |
-      | Major |
+  Scenario: Under review belge başka klasöre taşınabilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı belgenin status bilgisini değiştirir
+    And benzersiz bir Move hedef klasörü oluşturulmuştur
+    And kullanıcı Move bağlantısına tıklar
+    And kullanıcı Move penceresinde hedef klasörü seçer
+    And kullanıcı Move işlemini onaylar
+    Then hedef klasör adı belge detayında görüntülenmelidir
+    And belgenin statusu Under review olmalıdır
 
   @documents @regression @batch12
-  Scenario: Under review belge baÅŸka klasÃ¶re taÅŸÄ±nabilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± belgenin status bilgisini deÄŸiÅŸtirir
-    And benzersiz bir Move hedef klasÃ¶rÃ¼ oluÅŸturulmuÅŸtur
-    And kullanÄ±cÄ± Move baÄŸlantÄ±sÄ±na tÄ±klar
-    And kullanÄ±cÄ± Move penceresinde hedef klasÃ¶rÃ¼ seÃ§er
-    And kullanÄ±cÄ± Move iÅŸlemini onaylar
-    Then hedef klasÃ¶r adÄ± belge detayÄ±nda gÃ¶rÃ¼ntÃ¼lenmelidir
-    And belgenin statusu Under review olmalÄ±dÄ±r
+  Scenario: Under review belge Move ve refresh sonrasında statusunu korumalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı belgenin status bilgisini değiştirir
+    And benzersiz bir Move hedef klasörü oluşturulmuştur
+    And kullanıcı Move bağlantısına tıklar
+    And kullanıcı Move penceresinde hedef klasörü seçer
+    And kullanıcı Move işlemini onaylar
+    And kullanıcı belge detay sayfasını yeniler
+    Then belgenin statusu Under review olmalıdır
+    And hedef klasör adı belge detayında görüntülenmelidir
 
   @documents @regression @batch12
-  Scenario: Under review belge Move ve refresh sonrasÄ±nda statusunu korumalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± belgenin status bilgisini deÄŸiÅŸtirir
-    And benzersiz bir Move hedef klasÃ¶rÃ¼ oluÅŸturulmuÅŸtur
-    And kullanÄ±cÄ± Move baÄŸlantÄ±sÄ±na tÄ±klar
-    And kullanÄ±cÄ± Move penceresinde hedef klasÃ¶rÃ¼ seÃ§er
-    And kullanÄ±cÄ± Move iÅŸlemini onaylar
-    And kullanÄ±cÄ± belge detay sayfasÄ±nÄ± yeniler
-    Then belgenin statusu Under review olmalÄ±dÄ±r
-    And hedef klasÃ¶r adÄ± belge detayÄ±nda gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: Checkout sahibi belgeyi başka klasöre taşıyabilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı belgeyi checkout yapar
+    And benzersiz bir Move hedef klasörü oluşturulmuştur
+    And kullanıcı Move bağlantısına tıklar
+    And kullanıcı Move penceresinde hedef klasörü seçer
+    And kullanıcı Move işlemini onaylar
+    Then hedef klasör adı belge detayında görüntülenmelidir
+    And belge checkout durumunda olmalıdır
 
   @documents @regression @batch12
-  Scenario: Checkout sahibi belgeyi baÅŸka klasÃ¶re taÅŸÄ±yabilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± belgeyi checkout yapar
-    And benzersiz bir Move hedef klasÃ¶rÃ¼ oluÅŸturulmuÅŸtur
-    And kullanÄ±cÄ± Move baÄŸlantÄ±sÄ±na tÄ±klar
-    And kullanÄ±cÄ± Move penceresinde hedef klasÃ¶rÃ¼ seÃ§er
-    And kullanÄ±cÄ± Move iÅŸlemini onaylar
-    Then hedef klasÃ¶r adÄ± belge detayÄ±nda gÃ¶rÃ¼ntÃ¼lenmelidir
-    And belge checkout durumunda olmalÄ±dÄ±r
+  Scenario: Checkout sahibi Move sonrasında Check in yapabilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı belgeyi checkout yapar
+    And benzersiz bir Move hedef klasörü oluşturulmuştur
+    And kullanıcı Move bağlantısına tıklar
+    And kullanıcı Move penceresinde hedef klasörü seçer
+    And kullanıcı Move işlemini onaylar
+    And kullanıcı belgeyi check in yapar
+    Then belge checkout durumunda olmamalıdır
+    And hedef klasör adı belge detayında görüntülenmelidir
 
   @documents @regression @batch12
-  Scenario: Checkout sahibi Move sonrasÄ±nda Check in yapabilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± belgeyi checkout yapar
-    And benzersiz bir Move hedef klasÃ¶rÃ¼ oluÅŸturulmuÅŸtur
-    And kullanÄ±cÄ± Move baÄŸlantÄ±sÄ±na tÄ±klar
-    And kullanÄ±cÄ± Move penceresinde hedef klasÃ¶rÃ¼ seÃ§er
-    And kullanÄ±cÄ± Move iÅŸlemini onaylar
-    And kullanÄ±cÄ± belgeyi check in yapar
-    Then belge checkout durumunda olmamalÄ±dÄ±r
-    And hedef klasÃ¶r adÄ± belge detayÄ±nda gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: Restore edilen belge başka klasöre taşınabilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı belgeyi soft delete yapar
+    And kullanıcı belgeyi restore eder
+    And benzersiz bir Move hedef klasörü oluşturulmuştur
+    And kullanıcı Move bağlantısına tıklar
+    And kullanıcı Move penceresinde hedef klasörü seçer
+    And kullanıcı Move işlemini onaylar
+    Then hedef klasör adı belge detayında görüntülenmelidir
 
   @documents @regression @batch12
-  Scenario: Restore edilen belge baÅŸka klasÃ¶re taÅŸÄ±nabilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± belgeyi soft delete yapar
-    And kullanÄ±cÄ± belgeyi restore eder
-    And benzersiz bir Move hedef klasÃ¶rÃ¼ oluÅŸturulmuÅŸtur
-    And kullanÄ±cÄ± Move baÄŸlantÄ±sÄ±na tÄ±klar
-    And kullanÄ±cÄ± Move penceresinde hedef klasÃ¶rÃ¼ seÃ§er
-    And kullanÄ±cÄ± Move iÅŸlemini onaylar
-    Then hedef klasÃ¶r adÄ± belge detayÄ±nda gÃ¶rÃ¼ntÃ¼lenmelidir
-
-  @documents @regression @batch12
-  Scenario: Restore edilen belge Move ve refresh sonrasÄ±nda aktif kalmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± belgeyi soft delete yapar
-    And kullanÄ±cÄ± belgeyi restore eder
-    And benzersiz bir Move hedef klasÃ¶rÃ¼ oluÅŸturulmuÅŸtur
-    And kullanÄ±cÄ± Move baÄŸlantÄ±sÄ±na tÄ±klar
-    And kullanÄ±cÄ± Move penceresinde hedef klasÃ¶rÃ¼ seÃ§er
-    And kullanÄ±cÄ± Move iÅŸlemini onaylar
-    And kullanÄ±cÄ± belge detay sayfasÄ±nÄ± yeniler
-    Then belge detay sayfasÄ± aktif olarak gÃ¶rÃ¼ntÃ¼lenmelidir
-    And hedef klasÃ¶r adÄ± belge detayÄ±nda gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: Restore edilen belge Move ve refresh sonrasında aktif kalmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı belgeyi soft delete yapar
+    And kullanıcı belgeyi restore eder
+    And benzersiz bir Move hedef klasörü oluşturulmuştur
+    And kullanıcı Move bağlantısına tıklar
+    And kullanıcı Move penceresinde hedef klasörü seçer
+    And kullanıcı Move işlemini onaylar
+    And kullanıcı belge detay sayfasını yeniler
+    Then belge detay sayfası aktif olarak görüntülenmelidir
+    And hedef klasör adı belge detayında görüntülenmelidir
 
 # ============================================================
   # BATCH 13 - COPY / DESTINATION / INDEPENDENCE
   # ============================================================
 
-  @documents @regression @batch13
-  Scenario: Copy penceresi aÃ§Ä±labilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± Copy penceresini aÃ§ar
-    Then Copy penceresi gÃ¶rÃ¼ntÃ¼lenmelidir
+  @documents @regression @batch13 @batch34
+  Scenario: Copy penceresi açılabilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı Copy penceresini açar
+    Then Copy penceresi görüntülenmelidir
+    And "Copy onay" işlemi açık belgede gerçekten çalışmalı ve sonucu API ile doğrulanmalıdır
 
   @documents @regression @batch13
-  Scenario: Copy penceresinde aÃ§Ä±klama gÃ¶rÃ¼ntÃ¼lenmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± Copy penceresini aÃ§ar
-    Then Copy aÃ§Ä±klamasÄ± gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: Copy penceresinde açıklama görüntülenmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı Copy penceresini açar
+    Then Copy açıklaması görüntülenmelidir
 
   @documents @regression @batch13
-  Scenario: Copy penceresinde varsayÄ±lan baÅŸlÄ±k doÄŸru oluÅŸturulmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And Batch 13 kaynak belge bilgileri kaydedilmiÅŸtir
-    When kullanÄ±cÄ± Copy penceresini aÃ§ar
-    Then Copy varsayÄ±lan baÅŸlÄ±ÄŸÄ± kaynak belge baÅŸlÄ±ÄŸÄ± ve copy eki olmalÄ±dÄ±r
+  Scenario: Copy penceresinde varsayılan başlık doğru oluşturulmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And Batch 13 kaynak belge bilgileri kaydedilmiştir
+    When kullanıcı Copy penceresini açar
+    Then Copy varsayılan başlığı kaynak belge başlığı ve copy eki olmalıdır
 
   @documents @regression @batch13
-  Scenario: Copy penceresinde varsayÄ±lan hedef Root olmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± Copy penceresini aÃ§ar
-    Then Copy varsayÄ±lan hedef klasÃ¶rÃ¼ Root olmalÄ±dÄ±r
+  Scenario: Copy penceresinde varsayılan hedef Root olmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı Copy penceresini açar
+    Then Copy varsayılan hedef klasörü Root olmalıdır
 
   @documents @regression @batch13
-  Scenario: Copy baÅŸlÄ±ÄŸÄ± deÄŸiÅŸtirilebilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± Copy penceresini aÃ§ar
-    And kullanÄ±cÄ± Copy baÅŸlÄ±ÄŸÄ±na benzersiz bir deÄŸer girer
-    Then Copy baÅŸlÄ±ÄŸÄ± girilen deÄŸer olmalÄ±dÄ±r
+  Scenario: Copy başlığı değiştirilebilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı Copy penceresini açar
+    And kullanıcı Copy başlığına benzersiz bir değer girer
+    Then Copy başlığı girilen değer olmalıdır
 
   @documents @regression @batch13
-  Scenario: Copy baÅŸlÄ±ÄŸÄ± boÅŸ bÄ±rakÄ±ldÄ±ÄŸÄ±nda varsayÄ±lan baÅŸlÄ±k kullanÄ±lmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And Batch 13 kaynak belge bilgileri kaydedilmiÅŸtir
-    When kullanÄ±cÄ± Copy penceresini aÃ§ar
-    And kullanÄ±cÄ± Copy baÅŸlÄ±ÄŸÄ±nÄ± boÅŸ bÄ±rakÄ±r
-    And kullanÄ±cÄ± Copy iÅŸlemini onaylar
-    Then Copy penceresi kapanmalÄ±dÄ±r
-    And kopyalanan belge varsayÄ±lan copy baÅŸlÄ±ÄŸÄ±yla gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: Copy başlığı boş bırakıldığında varsayılan başlık kullanılmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And Batch 13 kaynak belge bilgileri kaydedilmiştir
+    When kullanıcı Copy penceresini açar
+    And kullanıcı Copy başlığını boş bırakır
+    And kullanıcı Copy işlemini onaylar
+    Then Copy penceresi kapanmalıdır
+    And kopyalanan belge varsayılan copy başlığıyla görüntülenmelidir
 
   @documents @regression @batch13
-  Scenario: Copy iÅŸlemi Cancel ile iptal edilebilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± Copy penceresini aÃ§ar
-    And kullanÄ±cÄ± Copy iÅŸlemini iptal eder
-    Then Copy penceresi kapanmalÄ±dÄ±r
-    And belge detay sayfasÄ±nda kalÄ±nmalÄ±dÄ±r
+  Scenario: Copy işlemi Cancel ile iptal edilebilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı Copy penceresini açar
+    And kullanıcı Copy işlemini iptal eder
+    Then Copy penceresi kapanmalıdır
+    And belge detay sayfasında kalınmalıdır
 
   @documents @regression @batch13
-  Scenario: Copy penceresi X ile kapatÄ±labilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± Copy penceresini aÃ§ar
-    And kullanÄ±cÄ± Copy penceresini X ile kapatÄ±r
-    Then Copy penceresi kapanmalÄ±dÄ±r
-    And belge detay sayfasÄ±nda kalÄ±nmalÄ±dÄ±r
+  Scenario: Copy penceresi X ile kapatılabilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı Copy penceresini açar
+    And kullanıcı Copy penceresini X ile kapatır
+    Then Copy penceresi kapanmalıdır
+    And belge detay sayfasında kalınmalıdır
+
+  @documents @regression @batch13 @batch34
+  Scenario: Cancel sonrasında Copy tekrar açılabilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı Copy penceresini açar
+    And kullanıcı Copy işlemini iptal eder
+    And kullanıcı Copy penceresini açar
+    Then Copy penceresi görüntülenmelidir
+    And "Copy onay" işlemi açık belgede gerçekten çalışmalı ve sonucu API ile doğrulanmalıdır
+
+  @documents @regression @batch13 @batch34
+  Scenario: X ile kapatma sonrasında Copy tekrar açılabilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı Copy penceresini açar
+    And kullanıcı Copy penceresini X ile kapatır
+    And kullanıcı Copy penceresini açar
+    Then Copy penceresi görüntülenmelidir
+    And "Copy onay" işlemi açık belgede gerçekten çalışmalı ve sonucu API ile doğrulanmalıdır
 
   @documents @regression @batch13
-  Scenario: Cancel sonrasÄ±nda Copy tekrar aÃ§Ä±labilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± Copy penceresini aÃ§ar
-    And kullanÄ±cÄ± Copy iÅŸlemini iptal eder
-    And kullanÄ±cÄ± Copy penceresini aÃ§ar
-    Then Copy penceresi gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: Copy hedef klasörü seçilebilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And Batch 13 kaynak belge bilgileri kaydedilmiştir
+    And benzersiz bir Copy hedef klasörü oluşturulmuştur
+    When kullanıcı Copy penceresini açar
+    And kullanıcı Copy hedef klasörünü seçer
+    Then Copy hedef klasörü seçili olmalıdır
 
   @documents @regression @batch13
-  Scenario: X ile kapatma sonrasÄ±nda Copy tekrar aÃ§Ä±labilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± Copy penceresini aÃ§ar
-    And kullanÄ±cÄ± Copy penceresini X ile kapatÄ±r
-    And kullanÄ±cÄ± Copy penceresini aÃ§ar
-    Then Copy penceresi gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: Hedef klasör seçildikten sonra Copy iptal edilebilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And Batch 13 kaynak belge bilgileri kaydedilmiştir
+    And benzersiz bir Copy hedef klasörü oluşturulmuştur
+    When kullanıcı Copy penceresini açar
+    And kullanıcı Copy hedef klasörünü seçer
+    And kullanıcı Copy işlemini iptal eder
+    Then Copy penceresi kapanmalıdır
+    And belge detay sayfasında kalınmalıdır
 
   @documents @regression @batch13
-  Scenario: Copy hedef klasÃ¶rÃ¼ seÃ§ilebilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And Batch 13 kaynak belge bilgileri kaydedilmiÅŸtir
-    And benzersiz bir Copy hedef klasÃ¶rÃ¼ oluÅŸturulmuÅŸtur
-    When kullanÄ±cÄ± Copy penceresini aÃ§ar
-    And kullanÄ±cÄ± Copy hedef klasÃ¶rÃ¼nÃ¼ seÃ§er
-    Then Copy hedef klasÃ¶rÃ¼ seÃ§ili olmalÄ±dÄ±r
+  Scenario: Özel başlıkla Root klasörüne Copy oluşturulabilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And Batch 13 kaynak belge bilgileri kaydedilmiştir
+    When kullanıcı Copy penceresini açar
+    And kullanıcı Copy başlığına benzersiz bir değer girer
+    And kullanıcı Copy işlemini onaylar
+    Then Copy penceresi kapanmalıdır
+    And kopyalanan belge başlığı görüntülenmelidir
+    And kopyalanan belge kaynak belgeden farklı detay adresine sahip olmalıdır
 
   @documents @regression @batch13
-  Scenario: Hedef klasÃ¶r seÃ§ildikten sonra Copy iptal edilebilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And Batch 13 kaynak belge bilgileri kaydedilmiÅŸtir
-    And benzersiz bir Copy hedef klasÃ¶rÃ¼ oluÅŸturulmuÅŸtur
-    When kullanÄ±cÄ± Copy penceresini aÃ§ar
-    And kullanÄ±cÄ± Copy hedef klasÃ¶rÃ¼nÃ¼ seÃ§er
-    And kullanÄ±cÄ± Copy iÅŸlemini iptal eder
-    Then Copy penceresi kapanmalÄ±dÄ±r
-    And belge detay sayfasÄ±nda kalÄ±nmalÄ±dÄ±r
+  Scenario: Özel başlıkla farklı klasöre Copy oluşturulabilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And Batch 13 kaynak belge bilgileri kaydedilmiştir
+    And benzersiz bir Copy hedef klasörü oluşturulmuştur
+    When kullanıcı Copy penceresini açar
+    And kullanıcı Copy başlığına benzersiz bir değer girer
+    And kullanıcı Copy hedef klasörünü seçer
+    And kullanıcı Copy işlemini onaylar
+    Then kopyalanan belge başlığı görüntülenmelidir
+    And kopyalanan belge kaynak belgeden farklı detay adresine sahip olmalıdır
 
   @documents @regression @batch13
-  Scenario: Ã–zel baÅŸlÄ±kla Root klasÃ¶rÃ¼ne Copy oluÅŸturulabilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And Batch 13 kaynak belge bilgileri kaydedilmiÅŸtir
-    When kullanÄ±cÄ± Copy penceresini aÃ§ar
-    And kullanÄ±cÄ± Copy baÅŸlÄ±ÄŸÄ±na benzersiz bir deÄŸer girer
-    And kullanÄ±cÄ± Copy iÅŸlemini onaylar
-    Then Copy penceresi kapanmalÄ±dÄ±r
-    And kopyalanan belge baÅŸlÄ±ÄŸÄ± gÃ¶rÃ¼ntÃ¼lenmelidir
-    And kopyalanan belge kaynak belgeden farklÄ± detay adresine sahip olmalÄ±dÄ±r
+  Scenario: Varsayılan başlıkla Copy oluşturulabilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And Batch 13 kaynak belge bilgileri kaydedilmiştir
+    When kullanıcı Copy penceresini açar
+    And kullanıcı Copy işlemini onaylar
+    Then kopyalanan belge başlığı görüntülenmelidir
+    And kopyalanan belge kaynak belgeden farklı detay adresine sahip olmalıdır
 
   @documents @regression @batch13
-  Scenario: Ã–zel baÅŸlÄ±kla farklÄ± klasÃ¶re Copy oluÅŸturulabilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And Batch 13 kaynak belge bilgileri kaydedilmiÅŸtir
-    And benzersiz bir Copy hedef klasÃ¶rÃ¼ oluÅŸturulmuÅŸtur
-    When kullanÄ±cÄ± Copy penceresini aÃ§ar
-    And kullanÄ±cÄ± Copy baÅŸlÄ±ÄŸÄ±na benzersiz bir deÄŸer girer
-    And kullanÄ±cÄ± Copy hedef klasÃ¶rÃ¼nÃ¼ seÃ§er
-    And kullanÄ±cÄ± Copy iÅŸlemini onaylar
-    Then kopyalanan belge baÅŸlÄ±ÄŸÄ± gÃ¶rÃ¼ntÃ¼lenmelidir
-    And kopyalanan belge kaynak belgeden farklÄ± detay adresine sahip olmalÄ±dÄ±r
+  Scenario: Copy oluşturulduktan sonra kaynak belge erişilebilir kalmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And Batch 13 kaynak belge bilgileri kaydedilmiştir
+    When kullanıcı Copy penceresini açar
+    And kullanıcı Copy başlığına benzersiz bir değer girer
+    And kullanıcı Copy işlemini onaylar
+    And kullanıcı kaynak belge detayına döner
+    Then kaynak belge başlığı korunmalıdır
 
   @documents @regression @batch13
-  Scenario: VarsayÄ±lan baÅŸlÄ±kla Copy oluÅŸturulabilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And Batch 13 kaynak belge bilgileri kaydedilmiÅŸtir
-    When kullanÄ±cÄ± Copy penceresini aÃ§ar
-    And kullanÄ±cÄ± Copy iÅŸlemini onaylar
-    Then kopyalanan belge baÅŸlÄ±ÄŸÄ± gÃ¶rÃ¼ntÃ¼lenmelidir
-    And kopyalanan belge kaynak belgeden farklÄ± detay adresine sahip olmalÄ±dÄ±r
+  Scenario: Copy oluşturulduktan sonra kopya belge tekrar açılabilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And Batch 13 kaynak belge bilgileri kaydedilmiştir
+    When kullanıcı Copy penceresini açar
+    And kullanıcı Copy başlığına benzersiz bir değer girer
+    And kullanıcı Copy işlemini onaylar
+    And kopyalanan belge kaynak belgeden farklı detay adresine sahip olmalıdır
+    And kullanıcı kaynak belge detayına döner
+    And kullanıcı kopya belge detayına döner
+    Then kopyalanan belge başlığı görüntülenmelidir
 
   @documents @regression @batch13
-  Scenario: Copy oluÅŸturulduktan sonra kaynak belge eriÅŸilebilir kalmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And Batch 13 kaynak belge bilgileri kaydedilmiÅŸtir
-    When kullanÄ±cÄ± Copy penceresini aÃ§ar
-    And kullanÄ±cÄ± Copy baÅŸlÄ±ÄŸÄ±na benzersiz bir deÄŸer girer
-    And kullanÄ±cÄ± Copy iÅŸlemini onaylar
-    And kullanÄ±cÄ± kaynak belge detayÄ±na dÃ¶ner
-    Then kaynak belge baÅŸlÄ±ÄŸÄ± korunmalÄ±dÄ±r
+  Scenario: Copy belge refresh sonrasında başlığını korumalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And Batch 13 kaynak belge bilgileri kaydedilmiştir
+    When kullanıcı Copy penceresini açar
+    And kullanıcı Copy başlığına benzersiz bir değer girer
+    And kullanıcı Copy işlemini onaylar
+    And kullanıcı belge detay sayfasını yeniler
+    Then kopyalanan belge başlığı görüntülenmelidir
 
   @documents @regression @batch13
-  Scenario: Copy oluÅŸturulduktan sonra kopya belge tekrar aÃ§Ä±labilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And Batch 13 kaynak belge bilgileri kaydedilmiÅŸtir
-    When kullanÄ±cÄ± Copy penceresini aÃ§ar
-    And kullanÄ±cÄ± Copy baÅŸlÄ±ÄŸÄ±na benzersiz bir deÄŸer girer
-    And kullanÄ±cÄ± Copy iÅŸlemini onaylar
-    And kopyalanan belge kaynak belgeden farklÄ± detay adresine sahip olmalÄ±dÄ±r
-    And kullanÄ±cÄ± kaynak belge detayÄ±na dÃ¶ner
-    And kullanÄ±cÄ± kopya belge detayÄ±na dÃ¶ner
-    Then kopyalanan belge baÅŸlÄ±ÄŸÄ± gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: Copy belge Download işlemini desteklemelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And Batch 13 kaynak belge bilgileri kaydedilmiştir
+    When kullanıcı Copy penceresini açar
+    And kullanıcı Copy başlığına benzersiz bir değer girer
+    And kullanıcı Copy işlemini onaylar
+    And kullanıcı belgeyi indirir
+    Then belge dosyası başarıyla indirilmelidir
 
   @documents @regression @batch13
-  Scenario: Copy belge refresh sonrasÄ±nda baÅŸlÄ±ÄŸÄ±nÄ± korumalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And Batch 13 kaynak belge bilgileri kaydedilmiÅŸtir
-    When kullanÄ±cÄ± Copy penceresini aÃ§ar
-    And kullanÄ±cÄ± Copy baÅŸlÄ±ÄŸÄ±na benzersiz bir deÄŸer girer
-    And kullanÄ±cÄ± Copy iÅŸlemini onaylar
-    And kullanÄ±cÄ± belge detay sayfasÄ±nÄ± yeniler
-    Then kopyalanan belge baÅŸlÄ±ÄŸÄ± gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: Copy belge Preview işlemini desteklemelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And Batch 13 kaynak belge bilgileri kaydedilmiştir
+    When kullanıcı Copy penceresini açar
+    And kullanıcı Copy başlığına benzersiz bir değer girer
+    And kullanıcı Copy işlemini onaylar
+    Then belge önizlemesi görüntülenmelidir
+
+  @documents @regression @batch13 @batch34
+  Scenario: Copy belgede New version kullanılabilir olmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And Batch 13 kaynak belge bilgileri kaydedilmiştir
+    When kullanıcı Copy penceresini açar
+    And kullanıcı Copy başlığına benzersiz bir değer girer
+    And kullanıcı Copy işlemini onaylar
+    Then New version butonu görüntülenmelidir
+    And "New version" işlemi açık belgede gerçekten çalışmalı ve sonucu API ile doğrulanmalıdır
 
   @documents @regression @batch13
-  Scenario: Copy belge Download iÅŸlemini desteklemelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And Batch 13 kaynak belge bilgileri kaydedilmiÅŸtir
-    When kullanÄ±cÄ± Copy penceresini aÃ§ar
-    And kullanÄ±cÄ± Copy baÅŸlÄ±ÄŸÄ±na benzersiz bir deÄŸer girer
-    And kullanÄ±cÄ± Copy iÅŸlemini onaylar
-    And kullanÄ±cÄ± belgeyi indirir
-    Then belge dosyasÄ± baÅŸarÄ±yla indirilmelidir
+  Scenario: Copy belgede Move kullanılabilir olmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And Batch 13 kaynak belge bilgileri kaydedilmiştir
+    When kullanıcı Copy penceresini açar
+    And kullanıcı Copy başlığına benzersiz bir değer girer
+    And kullanıcı Copy işlemini onaylar
+    Then Move işlemi görüntülenmelidir
+
+  @documents @regression @batch13 @batch34
+  Scenario: Copy belgede Classify kullanılabilir olmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And Batch 13 kaynak belge bilgileri kaydedilmiştir
+    When kullanıcı Copy penceresini açar
+    And kullanıcı Copy başlığına benzersiz bir değer girer
+    And kullanıcı Copy işlemini onaylar
+    Then Classify butonu görüntülenmelidir
+    And "Classify" işlemi açık belgede gerçekten çalışmalı ve sonucu API ile doğrulanmalıdır
+
+  @documents @regression @batch13 @batch34
+  Scenario: Copy belgede Tag girişi kullanılabilir olmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And Batch 13 kaynak belge bilgileri kaydedilmiştir
+    When kullanıcı Copy penceresini açar
+    And kullanıcı Copy başlığına benzersiz bir değer girer
+    And kullanıcı Copy işlemini onaylar
+    Then Tag giriş alanı görüntülenmelidir
+    And "Tag" işlemi açık belgede gerçekten çalışmalı ve sonucu API ile doğrulanmalıdır
+
+  @documents @regression @batch13 @batch34
+  Scenario: Copy belgede Check out kullanılabilir olmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And Batch 13 kaynak belge bilgileri kaydedilmiştir
+    When kullanıcı Copy penceresini açar
+    And kullanıcı Copy başlığına benzersiz bir değer girer
+    And kullanıcı Copy işlemini onaylar
+    Then Check out butonu görüntülenmelidir
+    And "Check out" işlemi açık belgede gerçekten çalışmalı ve sonucu API ile doğrulanmalıdır
+
+  @documents @regression @batch13 @batch34
+  Scenario: Copy belgede tekrar Copy kullanılabilir olmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And Batch 13 kaynak belge bilgileri kaydedilmiştir
+    When kullanıcı Copy penceresini açar
+    And kullanıcı Copy başlığına benzersiz bir değer girer
+    And kullanıcı Copy işlemini onaylar
+    Then Copy butonu görüntülenmelidir
+    And "Copy" işlemi açık belgede gerçekten çalışmalı ve sonucu API ile doğrulanmalıdır
+
+  @documents @regression @batch13 @batch34
+  Scenario: Copy belge soft delete yapılabilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And Batch 13 kaynak belge bilgileri kaydedilmiştir
+    When kullanıcı Copy penceresini açar
+    And kullanıcı Copy başlığına benzersiz bir değer girer
+    And kullanıcı Copy işlemini onaylar
+    And kullanıcı belgeyi soft delete yapar
+    Then belge Deleted durumunda görüntülenmelidir
 
   @documents @regression @batch13
-  Scenario: Copy belge Preview iÅŸlemini desteklemelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And Batch 13 kaynak belge bilgileri kaydedilmiÅŸtir
-    When kullanÄ±cÄ± Copy penceresini aÃ§ar
-    And kullanÄ±cÄ± Copy baÅŸlÄ±ÄŸÄ±na benzersiz bir deÄŸer girer
-    And kullanÄ±cÄ± Copy iÅŸlemini onaylar
-    Then belge Ã¶nizlemesi gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: Copy belge soft delete sonrası restore edilebilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And Batch 13 kaynak belge bilgileri kaydedilmiştir
+    When kullanıcı Copy penceresini açar
+    And kullanıcı Copy başlığına benzersiz bir değer girer
+    And kullanıcı Copy işlemini onaylar
+    And kullanıcı belgeyi soft delete yapar
+    And kullanıcı belgeyi restore eder
+    Then belge artık Deleted durumunda olmamalıdır
 
   @documents @regression @batch13
-  Scenario: Copy belgede New version kullanÄ±labilir olmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And Batch 13 kaynak belge bilgileri kaydedilmiÅŸtir
-    When kullanÄ±cÄ± Copy penceresini aÃ§ar
-    And kullanÄ±cÄ± Copy baÅŸlÄ±ÄŸÄ±na benzersiz bir deÄŸer girer
-    And kullanÄ±cÄ± Copy iÅŸlemini onaylar
-    Then New version butonu gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: Restore edilen Copy belge aktif kalmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And Batch 13 kaynak belge bilgileri kaydedilmiştir
+    When kullanıcı Copy penceresini açar
+    And kullanıcı Copy başlığına benzersiz bir değer girer
+    And kullanıcı Copy işlemini onaylar
+    And kullanıcı belgeyi soft delete yapar
+    And kullanıcı belgeyi restore eder
+    Then belge detay sayfası aktif olarak görüntülenmelidir
 
   @documents @regression @batch13
-  Scenario: Copy belgede Move kullanÄ±labilir olmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And Batch 13 kaynak belge bilgileri kaydedilmiÅŸtir
-    When kullanÄ±cÄ± Copy penceresini aÃ§ar
-    And kullanÄ±cÄ± Copy baÅŸlÄ±ÄŸÄ±na benzersiz bir deÄŸer girer
-    And kullanÄ±cÄ± Copy iÅŸlemini onaylar
-    Then Move iÅŸlemi gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: Copy belge checkout yapılabilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And Batch 13 kaynak belge bilgileri kaydedilmiştir
+    When kullanıcı Copy penceresini açar
+    And kullanıcı Copy başlığına benzersiz bir değer girer
+    And kullanıcı Copy işlemini onaylar
+    And kullanıcı belgeyi checkout yapar
+    Then belge checkout durumunda olmalıdır
 
   @documents @regression @batch13
-  Scenario: Copy belgede Classify kullanÄ±labilir olmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And Batch 13 kaynak belge bilgileri kaydedilmiÅŸtir
-    When kullanÄ±cÄ± Copy penceresini aÃ§ar
-    And kullanÄ±cÄ± Copy baÅŸlÄ±ÄŸÄ±na benzersiz bir deÄŸer girer
-    And kullanÄ±cÄ± Copy iÅŸlemini onaylar
-    Then Classify butonu gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: Copy belge checkout ve check in döngüsünü desteklemelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And Batch 13 kaynak belge bilgileri kaydedilmiştir
+    When kullanıcı Copy penceresini açar
+    And kullanıcı Copy başlığına benzersiz bir değer girer
+    And kullanıcı Copy işlemini onaylar
+    And kullanıcı belgeyi checkout yapar
+    And kullanıcı belgeyi check in yapar
+    Then belge checkout durumunda olmamalıdır
 
   @documents @regression @batch13
-  Scenario: Copy belgede Tag giriÅŸi kullanÄ±labilir olmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And Batch 13 kaynak belge bilgileri kaydedilmiÅŸtir
-    When kullanÄ±cÄ± Copy penceresini aÃ§ar
-    And kullanÄ±cÄ± Copy baÅŸlÄ±ÄŸÄ±na benzersiz bir deÄŸer girer
-    And kullanÄ±cÄ± Copy iÅŸlemini onaylar
-    Then Tag giriÅŸ alanÄ± gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: Checkout sahibi kaynak belgeden Copy oluşturabilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And Batch 13 kaynak belge bilgileri kaydedilmiştir
+    When kullanıcı belgeyi checkout yapar
+    And kullanıcı Copy penceresini açar
+    And kullanıcı Copy başlığına benzersiz bir değer girer
+    And kullanıcı Copy işlemini onaylar
+    Then kopyalanan belge başlığı görüntülenmelidir
 
   @documents @regression @batch13
-  Scenario: Copy belgede Check out kullanÄ±labilir olmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And Batch 13 kaynak belge bilgileri kaydedilmiÅŸtir
-    When kullanÄ±cÄ± Copy penceresini aÃ§ar
-    And kullanÄ±cÄ± Copy baÅŸlÄ±ÄŸÄ±na benzersiz bir deÄŸer girer
-    And kullanÄ±cÄ± Copy iÅŸlemini onaylar
-    Then Check out butonu gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: Checkout sahibi kaynak belgeden farklı klasöre Copy oluşturabilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And Batch 13 kaynak belge bilgileri kaydedilmiştir
+    And benzersiz bir Copy hedef klasörü oluşturulmuştur
+    When kullanıcı belgeyi checkout yapar
+    And kullanıcı Copy penceresini açar
+    And kullanıcı Copy başlığına benzersiz bir değer girer
+    And kullanıcı Copy hedef klasörünü seçer
+    And kullanıcı Copy işlemini onaylar
+    Then kopyalanan belge başlığı görüntülenmelidir
 
   @documents @regression @batch13
-  Scenario: Copy belgede tekrar Copy kullanÄ±labilir olmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And Batch 13 kaynak belge bilgileri kaydedilmiÅŸtir
-    When kullanÄ±cÄ± Copy penceresini aÃ§ar
-    And kullanÄ±cÄ± Copy baÅŸlÄ±ÄŸÄ±na benzersiz bir deÄŸer girer
-    And kullanÄ±cÄ± Copy iÅŸlemini onaylar
-    Then Copy butonu gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: Under review kaynak belgeden Copy oluşturulabilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And Batch 13 kaynak belge bilgileri kaydedilmiştir
+    When kullanıcı belgenin status bilgisini değiştirir
+    And kullanıcı Copy penceresini açar
+    And kullanıcı Copy başlığına benzersiz bir değer girer
+    And kullanıcı Copy işlemini onaylar
+    Then kopyalanan belge başlığı görüntülenmelidir
 
   @documents @regression @batch13
-  Scenario: Copy belge soft delete yapÄ±labilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And Batch 13 kaynak belge bilgileri kaydedilmiÅŸtir
-    When kullanÄ±cÄ± Copy penceresini aÃ§ar
-    And kullanÄ±cÄ± Copy baÅŸlÄ±ÄŸÄ±na benzersiz bir deÄŸer girer
-    And kullanÄ±cÄ± Copy iÅŸlemini onaylar
-    And kullanÄ±cÄ± belgeyi soft delete yapar
-    Then belge Deleted durumunda gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: Patch versiyonlu kaynak belgeden Copy oluşturulabilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And Batch 13 kaynak belge bilgileri kaydedilmiştir
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Patch" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    And kullanıcı Copy penceresini açar
+    And kullanıcı Copy başlığına benzersiz bir değer girer
+    And kullanıcı Copy işlemini onaylar
+    Then kopyalanan belge başlığı görüntülenmelidir
 
   @documents @regression @batch13
-  Scenario: Copy belge soft delete sonrasÄ± restore edilebilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And Batch 13 kaynak belge bilgileri kaydedilmiÅŸtir
-    When kullanÄ±cÄ± Copy penceresini aÃ§ar
-    And kullanÄ±cÄ± Copy baÅŸlÄ±ÄŸÄ±na benzersiz bir deÄŸer girer
-    And kullanÄ±cÄ± Copy iÅŸlemini onaylar
-    And kullanÄ±cÄ± belgeyi soft delete yapar
-    And kullanÄ±cÄ± belgeyi restore eder
-    Then belge artÄ±k Deleted durumunda olmamalÄ±dÄ±r
+  Scenario: Minor versiyonlu kaynak belgeden Copy oluşturulabilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And Batch 13 kaynak belge bilgileri kaydedilmiştir
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Minor" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    And kullanıcı Copy penceresini açar
+    And kullanıcı Copy başlığına benzersiz bir değer girer
+    And kullanıcı Copy işlemini onaylar
+    Then kopyalanan belge başlığı görüntülenmelidir
 
   @documents @regression @batch13
-  Scenario: Restore edilen Copy belge aktif kalmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And Batch 13 kaynak belge bilgileri kaydedilmiÅŸtir
-    When kullanÄ±cÄ± Copy penceresini aÃ§ar
-    And kullanÄ±cÄ± Copy baÅŸlÄ±ÄŸÄ±na benzersiz bir deÄŸer girer
-    And kullanÄ±cÄ± Copy iÅŸlemini onaylar
-    And kullanÄ±cÄ± belgeyi soft delete yapar
-    And kullanÄ±cÄ± belgeyi restore eder
-    Then belge detay sayfasÄ± aktif olarak gÃ¶rÃ¼ntÃ¼lenmelidir
-
-  @documents @regression @batch13
-  Scenario: Copy belge checkout yapÄ±labilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And Batch 13 kaynak belge bilgileri kaydedilmiÅŸtir
-    When kullanÄ±cÄ± Copy penceresini aÃ§ar
-    And kullanÄ±cÄ± Copy baÅŸlÄ±ÄŸÄ±na benzersiz bir deÄŸer girer
-    And kullanÄ±cÄ± Copy iÅŸlemini onaylar
-    And kullanÄ±cÄ± belgeyi checkout yapar
-    Then belge checkout durumunda olmalÄ±dÄ±r
-
-  @documents @regression @batch13
-  Scenario: Copy belge checkout ve check in dÃ¶ngÃ¼sÃ¼nÃ¼ desteklemelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And Batch 13 kaynak belge bilgileri kaydedilmiÅŸtir
-    When kullanÄ±cÄ± Copy penceresini aÃ§ar
-    And kullanÄ±cÄ± Copy baÅŸlÄ±ÄŸÄ±na benzersiz bir deÄŸer girer
-    And kullanÄ±cÄ± Copy iÅŸlemini onaylar
-    And kullanÄ±cÄ± belgeyi checkout yapar
-    And kullanÄ±cÄ± belgeyi check in yapar
-    Then belge checkout durumunda olmamalÄ±dÄ±r
-
-  @documents @regression @batch13
-  Scenario: Checkout sahibi kaynak belgeden Copy oluÅŸturabilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And Batch 13 kaynak belge bilgileri kaydedilmiÅŸtir
-    When kullanÄ±cÄ± belgeyi checkout yapar
-    And kullanÄ±cÄ± Copy penceresini aÃ§ar
-    And kullanÄ±cÄ± Copy baÅŸlÄ±ÄŸÄ±na benzersiz bir deÄŸer girer
-    And kullanÄ±cÄ± Copy iÅŸlemini onaylar
-    Then kopyalanan belge baÅŸlÄ±ÄŸÄ± gÃ¶rÃ¼ntÃ¼lenmelidir
-
-  @documents @regression @batch13
-  Scenario: Checkout sahibi kaynak belgeden farklÄ± klasÃ¶re Copy oluÅŸturabilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And Batch 13 kaynak belge bilgileri kaydedilmiÅŸtir
-    And benzersiz bir Copy hedef klasÃ¶rÃ¼ oluÅŸturulmuÅŸtur
-    When kullanÄ±cÄ± belgeyi checkout yapar
-    And kullanÄ±cÄ± Copy penceresini aÃ§ar
-    And kullanÄ±cÄ± Copy baÅŸlÄ±ÄŸÄ±na benzersiz bir deÄŸer girer
-    And kullanÄ±cÄ± Copy hedef klasÃ¶rÃ¼nÃ¼ seÃ§er
-    And kullanÄ±cÄ± Copy iÅŸlemini onaylar
-    Then kopyalanan belge baÅŸlÄ±ÄŸÄ± gÃ¶rÃ¼ntÃ¼lenmelidir
-
-  @documents @regression @batch13
-  Scenario: Under review kaynak belgeden Copy oluÅŸturulabilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And Batch 13 kaynak belge bilgileri kaydedilmiÅŸtir
-    When kullanÄ±cÄ± belgenin status bilgisini deÄŸiÅŸtirir
-    And kullanÄ±cÄ± Copy penceresini aÃ§ar
-    And kullanÄ±cÄ± Copy baÅŸlÄ±ÄŸÄ±na benzersiz bir deÄŸer girer
-    And kullanÄ±cÄ± Copy iÅŸlemini onaylar
-    Then kopyalanan belge baÅŸlÄ±ÄŸÄ± gÃ¶rÃ¼ntÃ¼lenmelidir
-
-  @documents @regression @batch13
-  Scenario: Patch versiyonlu kaynak belgeden Copy oluÅŸturulabilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And Batch 13 kaynak belge bilgileri kaydedilmiÅŸtir
-    When kullanÄ±cÄ± yeni versiyon sayfasÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± "Patch" versiyon tipini seÃ§er
-    And kullanÄ±cÄ± yeni versiyon dosyasÄ±nÄ± yÃ¼kler
-    And kullanÄ±cÄ± yeni versiyonu kaydeder
-    And kullanÄ±cÄ± Copy penceresini aÃ§ar
-    And kullanÄ±cÄ± Copy baÅŸlÄ±ÄŸÄ±na benzersiz bir deÄŸer girer
-    And kullanÄ±cÄ± Copy iÅŸlemini onaylar
-    Then kopyalanan belge baÅŸlÄ±ÄŸÄ± gÃ¶rÃ¼ntÃ¼lenmelidir
-
-  @documents @regression @batch13
-  Scenario: Minor versiyonlu kaynak belgeden Copy oluÅŸturulabilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And Batch 13 kaynak belge bilgileri kaydedilmiÅŸtir
-    When kullanÄ±cÄ± yeni versiyon sayfasÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± "Minor" versiyon tipini seÃ§er
-    And kullanÄ±cÄ± yeni versiyon dosyasÄ±nÄ± yÃ¼kler
-    And kullanÄ±cÄ± yeni versiyonu kaydeder
-    And kullanÄ±cÄ± Copy penceresini aÃ§ar
-    And kullanÄ±cÄ± Copy baÅŸlÄ±ÄŸÄ±na benzersiz bir deÄŸer girer
-    And kullanÄ±cÄ± Copy iÅŸlemini onaylar
-    Then kopyalanan belge baÅŸlÄ±ÄŸÄ± gÃ¶rÃ¼ntÃ¼lenmelidir
-
-  @documents @regression @batch13
-  Scenario: Major versiyonlu kaynak belgeden Copy oluÅŸturulabilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And Batch 13 kaynak belge bilgileri kaydedilmiÅŸtir
-    When kullanÄ±cÄ± yeni versiyon sayfasÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± "Major" versiyon tipini seÃ§er
-    And kullanÄ±cÄ± yeni versiyon dosyasÄ±nÄ± yÃ¼kler
-    And kullanÄ±cÄ± yeni versiyonu kaydeder
-    And kullanÄ±cÄ± Copy penceresini aÃ§ar
-    And kullanÄ±cÄ± Copy baÅŸlÄ±ÄŸÄ±na benzersiz bir deÄŸer girer
-    And kullanÄ±cÄ± Copy iÅŸlemini onaylar
-    Then kopyalanan belge baÅŸlÄ±ÄŸÄ± gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: Major versiyonlu kaynak belgeden Copy oluşturulabilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And Batch 13 kaynak belge bilgileri kaydedilmiştir
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Major" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    And kullanıcı Copy penceresini açar
+    And kullanıcı Copy başlığına benzersiz bir değer girer
+    And kullanıcı Copy işlemini onaylar
+    Then kopyalanan belge başlığı görüntülenmelidir
 
   @documents @regression @batch13
   Scenario: Copy belgeye Patch versiyonu eklenebilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And Batch 13 kaynak belge bilgileri kaydedilmiÅŸtir
-    When kullanÄ±cÄ± Copy penceresini aÃ§ar
-    And kullanÄ±cÄ± Copy baÅŸlÄ±ÄŸÄ±na benzersiz bir deÄŸer girer
-    And kullanÄ±cÄ± Copy iÅŸlemini onaylar
-    And kullanÄ±cÄ± yeni versiyon sayfasÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± "Patch" versiyon tipini seÃ§er
-    And kullanÄ±cÄ± yeni versiyon dosyasÄ±nÄ± yÃ¼kler
-    And kullanÄ±cÄ± yeni versiyonu kaydeder
-    Then belge versiyonu "v1.0.1" olmalÄ±dÄ±r
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And Batch 13 kaynak belge bilgileri kaydedilmiştir
+    When kullanıcı Copy penceresini açar
+    And kullanıcı Copy başlığına benzersiz bir değer girer
+    And kullanıcı Copy işlemini onaylar
+    And kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Patch" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    Then belge versiyonu "v1.0.1" olmalıdır
 
   @documents @regression @batch13
   Scenario: Copy belgeye Minor versiyonu eklenebilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And Batch 13 kaynak belge bilgileri kaydedilmiÅŸtir
-    When kullanÄ±cÄ± Copy penceresini aÃ§ar
-    And kullanÄ±cÄ± Copy baÅŸlÄ±ÄŸÄ±na benzersiz bir deÄŸer girer
-    And kullanÄ±cÄ± Copy iÅŸlemini onaylar
-    And kullanÄ±cÄ± yeni versiyon sayfasÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± "Minor" versiyon tipini seÃ§er
-    And kullanÄ±cÄ± yeni versiyon dosyasÄ±nÄ± yÃ¼kler
-    And kullanÄ±cÄ± yeni versiyonu kaydeder
-    Then belge versiyonu "v1.1.0" olmalÄ±dÄ±r
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And Batch 13 kaynak belge bilgileri kaydedilmiştir
+    When kullanıcı Copy penceresini açar
+    And kullanıcı Copy başlığına benzersiz bir değer girer
+    And kullanıcı Copy işlemini onaylar
+    And kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Minor" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    Then belge versiyonu "v1.1.0" olmalıdır
 
   @documents @regression @batch13
   Scenario: Copy belgeye Major versiyonu eklenebilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And Batch 13 kaynak belge bilgileri kaydedilmiÅŸtir
-    When kullanÄ±cÄ± Copy penceresini aÃ§ar
-    And kullanÄ±cÄ± Copy baÅŸlÄ±ÄŸÄ±na benzersiz bir deÄŸer girer
-    And kullanÄ±cÄ± Copy iÅŸlemini onaylar
-    And kullanÄ±cÄ± yeni versiyon sayfasÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± "Major" versiyon tipini seÃ§er
-    And kullanÄ±cÄ± yeni versiyon dosyasÄ±nÄ± yÃ¼kler
-    And kullanÄ±cÄ± yeni versiyonu kaydeder
-    Then belge versiyonu "v2.0.0" olmalÄ±dÄ±r
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And Batch 13 kaynak belge bilgileri kaydedilmiştir
+    When kullanıcı Copy penceresini açar
+    And kullanıcı Copy başlığına benzersiz bir değer girer
+    And kullanıcı Copy işlemini onaylar
+    And kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Major" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    Then belge versiyonu "v2.0.0" olmalıdır
+
+  @documents @regression @batch13 @batch34
+  Scenario: Copy belge refresh sonrasında Download kullanılabilir kalmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And Batch 13 kaynak belge bilgileri kaydedilmiştir
+    When kullanıcı Copy penceresini açar
+    And kullanıcı Copy başlığına benzersiz bir değer girer
+    And kullanıcı Copy işlemini onaylar
+    And kullanıcı belge detay sayfasını yeniler
+    Then Download butonu görüntülenmelidir
+    And "Download" işlemi açık belgede gerçekten çalışmalı ve sonucu API ile doğrulanmalıdır
 
   @documents @regression @batch13
-  Scenario: Copy belge refresh sonrasÄ±nda Download kullanÄ±labilir kalmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And Batch 13 kaynak belge bilgileri kaydedilmiÅŸtir
-    When kullanÄ±cÄ± Copy penceresini aÃ§ar
-    And kullanÄ±cÄ± Copy baÅŸlÄ±ÄŸÄ±na benzersiz bir deÄŸer girer
-    And kullanÄ±cÄ± Copy iÅŸlemini onaylar
-    And kullanÄ±cÄ± belge detay sayfasÄ±nÄ± yeniler
-    Then Download butonu gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: Copy belge refresh sonrasında Move kullanılabilir kalmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And Batch 13 kaynak belge bilgileri kaydedilmiştir
+    When kullanıcı Copy penceresini açar
+    And kullanıcı Copy başlığına benzersiz bir değer girer
+    And kullanıcı Copy işlemini onaylar
+    And kullanıcı belge detay sayfasını yeniler
+    Then Move işlemi görüntülenmelidir
 
-  @documents @regression @batch13
-  Scenario: Copy belge refresh sonrasÄ±nda Move kullanÄ±labilir kalmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And Batch 13 kaynak belge bilgileri kaydedilmiÅŸtir
-    When kullanÄ±cÄ± Copy penceresini aÃ§ar
-    And kullanÄ±cÄ± Copy baÅŸlÄ±ÄŸÄ±na benzersiz bir deÄŸer girer
-    And kullanÄ±cÄ± Copy iÅŸlemini onaylar
-    And kullanÄ±cÄ± belge detay sayfasÄ±nÄ± yeniler
-    Then Move iÅŸlemi gÃ¶rÃ¼ntÃ¼lenmelidir
-
-  @documents @regression @batch13
-  Scenario: Copy belge refresh sonrasÄ±nda Classify kullanÄ±labilir kalmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    And Batch 13 kaynak belge bilgileri kaydedilmiÅŸtir
-    When kullanÄ±cÄ± Copy penceresini aÃ§ar
-    And kullanÄ±cÄ± Copy baÅŸlÄ±ÄŸÄ±na benzersiz bir deÄŸer girer
-    And kullanÄ±cÄ± Copy iÅŸlemini onaylar
-    And kullanÄ±cÄ± belge detay sayfasÄ±nÄ± yeniler
-    Then Classify butonu gÃ¶rÃ¼ntÃ¼lenmelidir
+  @documents @regression @batch13 @batch34
+  Scenario: Copy belge refresh sonrasında Classify kullanılabilir kalmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    And Batch 13 kaynak belge bilgileri kaydedilmiştir
+    When kullanıcı Copy penceresini açar
+    And kullanıcı Copy başlığına benzersiz bir değer girer
+    And kullanıcı Copy işlemini onaylar
+    And kullanıcı belge detay sayfasını yeniler
+    Then Classify butonu görüntülenmelidir
+    And "Classify" işlemi açık belgede gerçekten çalışmalı ve sonucu API ile doğrulanmalıdır
 
 
   # ============================================================
@@ -1973,433 +2034,444 @@ Feature: ECM Documents iÅŸlemleri
   # ============================================================
 
   @documents @regression @batch14
-  Scenario: Version history yeni belgede gÃ¶rÃ¼ntÃ¼lenmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    Then Version history gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: Version history yeni belgede görüntülenmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    Then Version history görüntülenmelidir
+
+  @documents @regression @batch14 @batch34
+  Scenario: Yeni belgede v1.0.0 version history satırı görüntülenmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    Then "v1.0.0" version history satırı görüntülenmelidir
+    And "Sürüm geçmişi v1.0.0" işlemi açık belgede gerçekten çalışmalı ve sonucu API ile doğrulanmalıdır
 
   @documents @regression @batch14
-  Scenario: Yeni belgede v1.0.0 version history satÄ±rÄ± gÃ¶rÃ¼ntÃ¼lenmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    Then "v1.0.0" version history satÄ±rÄ± gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: v1.0.0 için label ekleme alanı açılabilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı "v1.0.0" versiyonu için label ekleme alanını açar
+    Then version label ekleme alanı açık olmalıdır
 
   @documents @regression @batch14
-  Scenario: v1.0.0 iÃ§in label ekleme alanÄ± aÃ§Ä±labilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± "v1.0.0" versiyonu iÃ§in label ekleme alanÄ±nÄ± aÃ§ar
-    Then version label ekleme alanÄ± aÃ§Ä±k olmalÄ±dÄ±r
-
-  @documents @regression @batch14
-  Scenario: Version label input girilen deÄŸeri gÃ¶stermelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± "v1.0.0" versiyonu iÃ§in label ekleme alanÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± benzersiz bir version label girer
-    Then version label input deÄŸeri girilen deÄŸer olmalÄ±dÄ±r
+  Scenario: Version label input girilen değeri göstermelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı "v1.0.0" versiyonu için label ekleme alanını açar
+    And kullanıcı benzersiz bir version label girer
+    Then version label input değeri girilen değer olmalıdır
 
   @documents @regression @batch14
   Scenario: v1.0.0 versiyonuna label eklenebilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± "v1.0.0" versiyonu iÃ§in label ekleme alanÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± benzersiz bir version label girer
-    And kullanÄ±cÄ± version label Add baÄŸlantÄ±sÄ±na tÄ±klar
-    Then eklenen version label gÃ¶rÃ¼ntÃ¼lenmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı "v1.0.0" versiyonu için label ekleme alanını açar
+    And kullanıcı benzersiz bir version label girer
+    And kullanıcı version label Add bağlantısına tıklar
+    Then eklenen version label görüntülenmelidir
 
   @documents @regression @batch14
-  Scenario: Eklenen version label refresh sonrasÄ±nda korunmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± "v1.0.0" versiyonu iÃ§in label ekleme alanÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± benzersiz bir version label girer
-    And kullanÄ±cÄ± version label Add baÄŸlantÄ±sÄ±na tÄ±klar
-    And kullanÄ±cÄ± belge detay sayfasÄ±nÄ± yeniler
-    Then eklenen version label gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: Eklenen version label refresh sonrasında korunmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı "v1.0.0" versiyonu için label ekleme alanını açar
+    And kullanıcı benzersiz bir version label girer
+    And kullanıcı version label Add bağlantısına tıklar
+    And kullanıcı belge detay sayfasını yeniler
+    Then eklenen version label görüntülenmelidir
 
   @documents @regression @batch14
-  Scenario: Version label ekleme iÅŸlemi iptal edilebilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± "v1.0.0" versiyonu iÃ§in label ekleme alanÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± benzersiz bir version label girer
-    And kullanÄ±cÄ± version label iÅŸlemini iptal eder
-    Then iptal edilen version label gÃ¶rÃ¼ntÃ¼lenmemelidir
+  Scenario: Version label ekleme işlemi iptal edilebilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı "v1.0.0" versiyonu için label ekleme alanını açar
+    And kullanıcı benzersiz bir version label girer
+    And kullanıcı version label işlemini iptal eder
+    Then iptal edilen version label görüntülenmemelidir
 
   @documents @regression @batch14
   Scenario: Eklenen version label silinebilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± "v1.0.0" versiyonu iÃ§in label ekleme alanÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± benzersiz bir version label girer
-    And kullanÄ±cÄ± version label Add baÄŸlantÄ±sÄ±na tÄ±klar
-    When kullanÄ±cÄ± eklenen version labelÄ± siler
-    Then eklenen version label gÃ¶rÃ¼ntÃ¼lenmemelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı "v1.0.0" versiyonu için label ekleme alanını açar
+    And kullanıcı benzersiz bir version label girer
+    And kullanıcı version label Add bağlantısına tıklar
+    When kullanıcı eklenen version labelı siler
+    Then eklenen version label görüntülenmemelidir
 
   @documents @regression @batch14
-  Scenario: Silinen version label refresh sonrasÄ±nda geri gelmemelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± "v1.0.0" versiyonu iÃ§in label ekleme alanÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± benzersiz bir version label girer
-    And kullanÄ±cÄ± version label Add baÄŸlantÄ±sÄ±na tÄ±klar
-    When kullanÄ±cÄ± eklenen version labelÄ± siler
-    And kullanÄ±cÄ± belge detay sayfasÄ±nÄ± yeniler
-    Then eklenen version label gÃ¶rÃ¼ntÃ¼lenmemelidir
+  Scenario: Silinen version label refresh sonrasında geri gelmemelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı "v1.0.0" versiyonu için label ekleme alanını açar
+    And kullanıcı benzersiz bir version label girer
+    And kullanıcı version label Add bağlantısına tıklar
+    When kullanıcı eklenen version labelı siler
+    And kullanıcı belge detay sayfasını yeniler
+    Then eklenen version label görüntülenmemelidir
 
   @documents @regression @batch14
-  Scenario: AynÄ± versiyona iki farklÄ± label eklenebilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± "v1.0.0" versiyonu iÃ§in label ekleme alanÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± benzersiz bir version label girer
-    And kullanÄ±cÄ± version label Add baÄŸlantÄ±sÄ±na tÄ±klar
-    When kullanÄ±cÄ± ikinci version labelÄ± ekler
-    Then eklenen version label gÃ¶rÃ¼ntÃ¼lenmelidir
-    And ikinci version label gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: Aynı versiyona iki farklı label eklenebilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı "v1.0.0" versiyonu için label ekleme alanını açar
+    And kullanıcı benzersiz bir version label girer
+    And kullanıcı version label Add bağlantısına tıklar
+    When kullanıcı ikinci version labelı ekler
+    Then eklenen version label görüntülenmelidir
+    And ikinci version label görüntülenmelidir
 
   @documents @regression @batch14
-  Scenario: Ä°ki labeldan biri silindiÄŸinde diÄŸeri korunmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± "v1.0.0" versiyonu iÃ§in label ekleme alanÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± benzersiz bir version label girer
-    And kullanÄ±cÄ± version label Add baÄŸlantÄ±sÄ±na tÄ±klar
-    When kullanÄ±cÄ± ikinci version labelÄ± ekler
-    And kullanÄ±cÄ± eklenen version labelÄ± siler
-    Then eklenen version label gÃ¶rÃ¼ntÃ¼lenmemelidir
-    And ikinci version label gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: İki labeldan biri silindiğinde diğeri korunmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı "v1.0.0" versiyonu için label ekleme alanını açar
+    And kullanıcı benzersiz bir version label girer
+    And kullanıcı version label Add bağlantısına tıklar
+    When kullanıcı ikinci version labelı ekler
+    And kullanıcı eklenen version labelı siler
+    Then eklenen version label görüntülenmemelidir
+    And ikinci version label görüntülenmelidir
 
   @documents @regression @batch14
-  Scenario: Tire iÃ§eren version label eklenebilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± "v1.0.0" versiyonu iÃ§in label ekleme alanÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± version label olarak "release-candidate" girer
-    And kullanÄ±cÄ± version label Add baÄŸlantÄ±sÄ±na tÄ±klar
-    Then eklenen version label gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: Tire içeren version label eklenebilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı "v1.0.0" versiyonu için label ekleme alanını açar
+    And kullanıcı version label olarak "release-candidate" girer
+    And kullanıcı version label Add bağlantısına tıklar
+    Then eklenen version label görüntülenmelidir
 
   @documents @regression @batch14
-  Scenario: Alt Ã§izgi iÃ§eren version label eklenebilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± "v1.0.0" versiyonu iÃ§in label ekleme alanÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± version label olarak "release_candidate" girer
-    And kullanÄ±cÄ± version label Add baÄŸlantÄ±sÄ±na tÄ±klar
-    Then eklenen version label gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: Alt çizgi içeren version label eklenebilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı "v1.0.0" versiyonu için label ekleme alanını açar
+    And kullanıcı version label olarak "release_candidate" girer
+    And kullanıcı version label Add bağlantısına tıklar
+    Then eklenen version label görüntülenmelidir
 
   @documents @regression @batch14
-  Scenario: SayÄ±sal version label eklenebilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± "v1.0.0" versiyonu iÃ§in label ekleme alanÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± version label olarak "2026" girer
-    And kullanÄ±cÄ± version label Add baÄŸlantÄ±sÄ±na tÄ±klar
-    Then eklenen version label gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: Sayısal version label eklenebilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı "v1.0.0" versiyonu için label ekleme alanını açar
+    And kullanıcı version label olarak "2026" girer
+    And kullanıcı version label Add bağlantısına tıklar
+    Then eklenen version label görüntülenmelidir
 
   @documents @regression @batch14
-  Scenario: BÃ¼yÃ¼k kÃ¼Ã§Ã¼k harf iÃ§eren version label eklenebilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± "v1.0.0" versiyonu iÃ§in label ekleme alanÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± version label olarak "ReleaseCandidate" girer
-    And kullanÄ±cÄ± version label Add baÄŸlantÄ±sÄ±na tÄ±klar
-    Then eklenen version label gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: Büyük küçük harf içeren version label eklenebilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı "v1.0.0" versiyonu için label ekleme alanını açar
+    And kullanıcı version label olarak "ReleaseCandidate" girer
+    And kullanıcı version label Add bağlantısına tıklar
+    Then eklenen version label görüntülenmelidir
 
   @documents @regression @batch14
-  Scenario: Nokta iÃ§eren version label eklenebilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± "v1.0.0" versiyonu iÃ§in label ekleme alanÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± version label olarak "release.1" girer
-    And kullanÄ±cÄ± version label Add baÄŸlantÄ±sÄ±na tÄ±klar
-    Then eklenen version label gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: Nokta içeren version label eklenebilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı "v1.0.0" versiyonu için label ekleme alanını açar
+    And kullanıcı version label olarak "release.1" girer
+    And kullanıcı version label Add bağlantısına tıklar
+    Then eklenen version label görüntülenmelidir
 
-  @documents @regression @batch14
-  Scenario: Patch sonrasÄ± v1.0.1 history satÄ±rÄ± oluÅŸmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± yeni versiyon sayfasÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± "Patch" versiyon tipini seÃ§er
-    And kullanÄ±cÄ± yeni versiyon dosyasÄ±nÄ± yÃ¼kler
-    And kullanÄ±cÄ± yeni versiyonu kaydeder
-    Then "v1.0.1" version history satÄ±rÄ± gÃ¶rÃ¼ntÃ¼lenmelidir
+  @documents @regression @batch14 @batch34
+  Scenario: Patch sonrası v1.0.1 history satırı oluşmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Patch" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    Then "v1.0.1" version history satırı görüntülenmelidir
+    And "Sürüm geçmişi v1.0.1" işlemi açık belgede gerçekten çalışmalı ve sonucu API ile doğrulanmalıdır
 
   @documents @regression @batch14
   Scenario: Patch versiyonuna label eklenebilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± yeni versiyon sayfasÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± "Patch" versiyon tipini seÃ§er
-    And kullanÄ±cÄ± yeni versiyon dosyasÄ±nÄ± yÃ¼kler
-    And kullanÄ±cÄ± yeni versiyonu kaydeder
-    When kullanÄ±cÄ± "v1.0.1" versiyonuna benzersiz label ekler
-    Then eklenen label "v1.0.1" versiyonunda gÃ¶rÃ¼ntÃ¼lenmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Patch" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    When kullanıcı "v1.0.1" versiyonuna benzersiz label ekler
+    Then eklenen label "v1.0.1" versiyonunda görüntülenmelidir
 
   @documents @regression @batch14
-  Scenario: Patch label refresh sonrasÄ±nda korunmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± yeni versiyon sayfasÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± "Patch" versiyon tipini seÃ§er
-    And kullanÄ±cÄ± yeni versiyon dosyasÄ±nÄ± yÃ¼kler
-    And kullanÄ±cÄ± yeni versiyonu kaydeder
-    When kullanÄ±cÄ± "v1.0.1" versiyonuna benzersiz label ekler
-    And kullanÄ±cÄ± belge detay sayfasÄ±nÄ± yeniler
-    Then eklenen label "v1.0.1" versiyonunda gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: Patch label refresh sonrasında korunmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Patch" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    When kullanıcı "v1.0.1" versiyonuna benzersiz label ekler
+    And kullanıcı belge detay sayfasını yeniler
+    Then eklenen label "v1.0.1" versiyonunda görüntülenmelidir
 
   @documents @regression @batch14
-  Scenario: Patch label eski v1.0.0 satÄ±rÄ±nda gÃ¶rÃ¼nmemelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± yeni versiyon sayfasÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± "Patch" versiyon tipini seÃ§er
-    And kullanÄ±cÄ± yeni versiyon dosyasÄ±nÄ± yÃ¼kler
-    And kullanÄ±cÄ± yeni versiyonu kaydeder
-    When kullanÄ±cÄ± "v1.0.1" versiyonuna benzersiz label ekler
-    Then eklenen label "v1.0.0" versiyonunda gÃ¶rÃ¼ntÃ¼lenmemelidir
+  Scenario: Patch label eski v1.0.0 satırında görünmemelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Patch" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    When kullanıcı "v1.0.1" versiyonuna benzersiz label ekler
+    Then eklenen label "v1.0.0" versiyonunda görüntülenmemelidir
 
   @documents @regression @batch14
-  Scenario: Eski v1.0.0 versiyonuna Patch sonrasÄ±nda label eklenebilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± yeni versiyon sayfasÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± "Patch" versiyon tipini seÃ§er
-    And kullanÄ±cÄ± yeni versiyon dosyasÄ±nÄ± yÃ¼kler
-    And kullanÄ±cÄ± yeni versiyonu kaydeder
-    When kullanÄ±cÄ± "v1.0.0" versiyonuna benzersiz label ekler
-    Then eklenen label "v1.0.0" versiyonunda gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: Eski v1.0.0 versiyonuna Patch sonrasında label eklenebilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Patch" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    When kullanıcı "v1.0.0" versiyonuna benzersiz label ekler
+    Then eklenen label "v1.0.0" versiyonunda görüntülenmelidir
 
   @documents @regression @batch14
-  Scenario: Eski version label yeni Patch satÄ±rÄ±nda gÃ¶rÃ¼nmemelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± yeni versiyon sayfasÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± "Patch" versiyon tipini seÃ§er
-    And kullanÄ±cÄ± yeni versiyon dosyasÄ±nÄ± yÃ¼kler
-    And kullanÄ±cÄ± yeni versiyonu kaydeder
-    When kullanÄ±cÄ± "v1.0.0" versiyonuna benzersiz label ekler
-    Then eklenen label "v1.0.1" versiyonunda gÃ¶rÃ¼ntÃ¼lenmemelidir
+  Scenario: Eski version label yeni Patch satırında görünmemelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Patch" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    When kullanıcı "v1.0.0" versiyonuna benzersiz label ekler
+    Then eklenen label "v1.0.1" versiyonunda görüntülenmemelidir
 
-  @documents @regression @batch14
-  Scenario: Minor sonrasÄ± v1.1.0 history satÄ±rÄ± oluÅŸmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± yeni versiyon sayfasÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± "Minor" versiyon tipini seÃ§er
-    And kullanÄ±cÄ± yeni versiyon dosyasÄ±nÄ± yÃ¼kler
-    And kullanÄ±cÄ± yeni versiyonu kaydeder
-    Then "v1.1.0" version history satÄ±rÄ± gÃ¶rÃ¼ntÃ¼lenmelidir
+  @documents @regression @batch14 @batch34
+  Scenario: Minor sonrası v1.1.0 history satırı oluşmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Minor" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    Then "v1.1.0" version history satırı görüntülenmelidir
+    And "Sürüm geçmişi v1.1.0" işlemi açık belgede gerçekten çalışmalı ve sonucu API ile doğrulanmalıdır
 
   @documents @regression @batch14
   Scenario: Minor versiyonuna label eklenebilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± yeni versiyon sayfasÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± "Minor" versiyon tipini seÃ§er
-    And kullanÄ±cÄ± yeni versiyon dosyasÄ±nÄ± yÃ¼kler
-    And kullanÄ±cÄ± yeni versiyonu kaydeder
-    When kullanÄ±cÄ± "v1.1.0" versiyonuna benzersiz label ekler
-    Then eklenen label "v1.1.0" versiyonunda gÃ¶rÃ¼ntÃ¼lenmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Minor" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    When kullanıcı "v1.1.0" versiyonuna benzersiz label ekler
+    Then eklenen label "v1.1.0" versiyonunda görüntülenmelidir
 
   @documents @regression @batch14
-  Scenario: Minor label refresh sonrasÄ±nda korunmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± yeni versiyon sayfasÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± "Minor" versiyon tipini seÃ§er
-    And kullanÄ±cÄ± yeni versiyon dosyasÄ±nÄ± yÃ¼kler
-    And kullanÄ±cÄ± yeni versiyonu kaydeder
-    When kullanÄ±cÄ± "v1.1.0" versiyonuna benzersiz label ekler
-    And kullanÄ±cÄ± belge detay sayfasÄ±nÄ± yeniler
-    Then eklenen label "v1.1.0" versiyonunda gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: Minor label refresh sonrasında korunmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Minor" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    When kullanıcı "v1.1.0" versiyonuna benzersiz label ekler
+    And kullanıcı belge detay sayfasını yeniler
+    Then eklenen label "v1.1.0" versiyonunda görüntülenmelidir
 
   @documents @regression @batch14
-  Scenario: Minor label eski v1.0.0 satÄ±rÄ±nda gÃ¶rÃ¼nmemelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± yeni versiyon sayfasÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± "Minor" versiyon tipini seÃ§er
-    And kullanÄ±cÄ± yeni versiyon dosyasÄ±nÄ± yÃ¼kler
-    And kullanÄ±cÄ± yeni versiyonu kaydeder
-    When kullanÄ±cÄ± "v1.1.0" versiyonuna benzersiz label ekler
-    Then eklenen label "v1.0.0" versiyonunda gÃ¶rÃ¼ntÃ¼lenmemelidir
+  Scenario: Minor label eski v1.0.0 satırında görünmemelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Minor" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    When kullanıcı "v1.1.0" versiyonuna benzersiz label ekler
+    Then eklenen label "v1.0.0" versiyonunda görüntülenmemelidir
 
-  @documents @regression @batch14
-  Scenario: Major sonrasÄ± v2.0.0 history satÄ±rÄ± oluÅŸmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± yeni versiyon sayfasÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± "Major" versiyon tipini seÃ§er
-    And kullanÄ±cÄ± yeni versiyon dosyasÄ±nÄ± yÃ¼kler
-    And kullanÄ±cÄ± yeni versiyonu kaydeder
-    Then "v2.0.0" version history satÄ±rÄ± gÃ¶rÃ¼ntÃ¼lenmelidir
+  @documents @regression @batch14 @batch34
+  Scenario: Major sonrası v2.0.0 history satırı oluşmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Major" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    Then "v2.0.0" version history satırı görüntülenmelidir
+    And "Sürüm geçmişi v2.0.0" işlemi açık belgede gerçekten çalışmalı ve sonucu API ile doğrulanmalıdır
 
   @documents @regression @batch14
   Scenario: Major versiyonuna label eklenebilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± yeni versiyon sayfasÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± "Major" versiyon tipini seÃ§er
-    And kullanÄ±cÄ± yeni versiyon dosyasÄ±nÄ± yÃ¼kler
-    And kullanÄ±cÄ± yeni versiyonu kaydeder
-    When kullanÄ±cÄ± "v2.0.0" versiyonuna benzersiz label ekler
-    Then eklenen label "v2.0.0" versiyonunda gÃ¶rÃ¼ntÃ¼lenmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Major" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    When kullanıcı "v2.0.0" versiyonuna benzersiz label ekler
+    Then eklenen label "v2.0.0" versiyonunda görüntülenmelidir
 
   @documents @regression @batch14
-  Scenario: Major label refresh sonrasÄ±nda korunmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± yeni versiyon sayfasÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± "Major" versiyon tipini seÃ§er
-    And kullanÄ±cÄ± yeni versiyon dosyasÄ±nÄ± yÃ¼kler
-    And kullanÄ±cÄ± yeni versiyonu kaydeder
-    When kullanÄ±cÄ± "v2.0.0" versiyonuna benzersiz label ekler
-    And kullanÄ±cÄ± belge detay sayfasÄ±nÄ± yeniler
-    Then eklenen label "v2.0.0" versiyonunda gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: Major label refresh sonrasında korunmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Major" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    When kullanıcı "v2.0.0" versiyonuna benzersiz label ekler
+    And kullanıcı belge detay sayfasını yeniler
+    Then eklenen label "v2.0.0" versiyonunda görüntülenmelidir
 
   @documents @regression @batch14
-  Scenario: Major label eski v1.0.0 satÄ±rÄ±nda gÃ¶rÃ¼nmemelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± yeni versiyon sayfasÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± "Major" versiyon tipini seÃ§er
-    And kullanÄ±cÄ± yeni versiyon dosyasÄ±nÄ± yÃ¼kler
-    And kullanÄ±cÄ± yeni versiyonu kaydeder
-    When kullanÄ±cÄ± "v2.0.0" versiyonuna benzersiz label ekler
-    Then eklenen label "v1.0.0" versiyonunda gÃ¶rÃ¼ntÃ¼lenmemelidir
+  Scenario: Major label eski v1.0.0 satırında görünmemelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Major" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    When kullanıcı "v2.0.0" versiyonuna benzersiz label ekler
+    Then eklenen label "v1.0.0" versiyonunda görüntülenmemelidir
 
   @documents @regression @batch14
-  Scenario: v1.0.0 label Patch oluÅŸturulduktan sonra korunmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± "v1.0.0" versiyonu iÃ§in label ekleme alanÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± benzersiz bir version label girer
-    And kullanÄ±cÄ± version label Add baÄŸlantÄ±sÄ±na tÄ±klar
-    When kullanÄ±cÄ± yeni versiyon sayfasÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± "Patch" versiyon tipini seÃ§er
-    And kullanÄ±cÄ± yeni versiyon dosyasÄ±nÄ± yÃ¼kler
-    And kullanÄ±cÄ± yeni versiyonu kaydeder
-    Then eklenen label "v1.0.0" versiyonunda gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: v1.0.0 label Patch oluşturulduktan sonra korunmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı "v1.0.0" versiyonu için label ekleme alanını açar
+    And kullanıcı benzersiz bir version label girer
+    And kullanıcı version label Add bağlantısına tıklar
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Patch" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    Then eklenen label "v1.0.0" versiyonunda görüntülenmelidir
 
   @documents @regression @batch14
-  Scenario: v1.0.0 label Minor oluÅŸturulduktan sonra korunmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± "v1.0.0" versiyonu iÃ§in label ekleme alanÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± benzersiz bir version label girer
-    And kullanÄ±cÄ± version label Add baÄŸlantÄ±sÄ±na tÄ±klar
-    When kullanÄ±cÄ± yeni versiyon sayfasÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± "Minor" versiyon tipini seÃ§er
-    And kullanÄ±cÄ± yeni versiyon dosyasÄ±nÄ± yÃ¼kler
-    And kullanÄ±cÄ± yeni versiyonu kaydeder
-    Then eklenen label "v1.0.0" versiyonunda gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: v1.0.0 label Minor oluşturulduktan sonra korunmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı "v1.0.0" versiyonu için label ekleme alanını açar
+    And kullanıcı benzersiz bir version label girer
+    And kullanıcı version label Add bağlantısına tıklar
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Minor" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    Then eklenen label "v1.0.0" versiyonunda görüntülenmelidir
 
   @documents @regression @batch14
-  Scenario: v1.0.0 label Major oluÅŸturulduktan sonra korunmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± "v1.0.0" versiyonu iÃ§in label ekleme alanÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± benzersiz bir version label girer
-    And kullanÄ±cÄ± version label Add baÄŸlantÄ±sÄ±na tÄ±klar
-    When kullanÄ±cÄ± yeni versiyon sayfasÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± "Major" versiyon tipini seÃ§er
-    And kullanÄ±cÄ± yeni versiyon dosyasÄ±nÄ± yÃ¼kler
-    And kullanÄ±cÄ± yeni versiyonu kaydeder
-    Then eklenen label "v1.0.0" versiyonunda gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: v1.0.0 label Major oluşturulduktan sonra korunmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı "v1.0.0" versiyonu için label ekleme alanını açar
+    And kullanıcı benzersiz bir version label girer
+    And kullanıcı version label Add bağlantısına tıklar
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Major" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    Then eklenen label "v1.0.0" versiyonunda görüntülenmelidir
 
   @documents @regression @batch14
-  Scenario: Label eklemek mevcut document version deÄŸerini deÄŸiÅŸtirmemelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± "v1.0.0" versiyonu iÃ§in label ekleme alanÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± benzersiz bir version label girer
-    And kullanÄ±cÄ± version label Add baÄŸlantÄ±sÄ±na tÄ±klar
-    Then belge versiyonu "v1.0.0" olmalÄ±dÄ±r
+  Scenario: Label eklemek mevcut document version değerini değiştirmemelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı "v1.0.0" versiyonu için label ekleme alanını açar
+    And kullanıcı benzersiz bir version label girer
+    And kullanıcı version label Add bağlantısına tıklar
+    Then belge versiyonu "v1.0.0" olmalıdır
 
   @documents @regression @batch14
-  Scenario: Label silmek mevcut document version deÄŸerini deÄŸiÅŸtirmemelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± "v1.0.0" versiyonu iÃ§in label ekleme alanÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± benzersiz bir version label girer
-    And kullanÄ±cÄ± version label Add baÄŸlantÄ±sÄ±na tÄ±klar
-    When kullanÄ±cÄ± eklenen version labelÄ± siler
-    Then belge versiyonu "v1.0.0" olmalÄ±dÄ±r
+  Scenario: Label silmek mevcut document version değerini değiştirmemelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı "v1.0.0" versiyonu için label ekleme alanını açar
+    And kullanıcı benzersiz bir version label girer
+    And kullanıcı version label Add bağlantısına tıklar
+    When kullanıcı eklenen version labelı siler
+    Then belge versiyonu "v1.0.0" olmalıdır
 
   @documents @regression @batch14
-  Scenario: Label ekleme iptali mevcut version deÄŸerini deÄŸiÅŸtirmemelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± "v1.0.0" versiyonu iÃ§in label ekleme alanÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± benzersiz bir version label girer
-    And kullanÄ±cÄ± version label iÅŸlemini iptal eder
-    Then belge versiyonu "v1.0.0" olmalÄ±dÄ±r
+  Scenario: Label ekleme iptali mevcut version değerini değiştirmemelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı "v1.0.0" versiyonu için label ekleme alanını açar
+    And kullanıcı benzersiz bir version label girer
+    And kullanıcı version label işlemini iptal eder
+    Then belge versiyonu "v1.0.0" olmalıdır
+
+  @documents @regression @batch14 @batch34
+  Scenario: Label eklendikten sonra Download kullanılabilir kalmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı "v1.0.0" versiyonu için label ekleme alanını açar
+    And kullanıcı benzersiz bir version label girer
+    And kullanıcı version label Add bağlantısına tıklar
+    Then Download butonu görüntülenmelidir
+    And "Download" işlemi açık belgede gerçekten çalışmalı ve sonucu API ile doğrulanmalıdır
+
+  @documents @regression @batch14 @batch34
+  Scenario: Label eklendikten sonra Preview kullanılabilir kalmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı "v1.0.0" versiyonu için label ekleme alanını açar
+    And kullanıcı benzersiz bir version label girer
+    And kullanıcı version label Add bağlantısına tıklar
+    Then admin için Preview butonu görüntülenmelidir
+    And "Preview" işlemi açık belgede gerçekten çalışmalı ve sonucu API ile doğrulanmalıdır
 
   @documents @regression @batch14
-  Scenario: Label eklendikten sonra Download kullanÄ±labilir kalmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± "v1.0.0" versiyonu iÃ§in label ekleme alanÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± benzersiz bir version label girer
-    And kullanÄ±cÄ± version label Add baÄŸlantÄ±sÄ±na tÄ±klar
-    Then Download butonu gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: Label eklendikten sonra Move kullanılabilir kalmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı "v1.0.0" versiyonu için label ekleme alanını açar
+    And kullanıcı benzersiz bir version label girer
+    And kullanıcı version label Add bağlantısına tıklar
+    Then Move işlemi görüntülenmelidir
+
+  @documents @regression @batch14 @batch34
+  Scenario: Label eklendikten sonra Copy kullanılabilir kalmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı "v1.0.0" versiyonu için label ekleme alanını açar
+    And kullanıcı benzersiz bir version label girer
+    And kullanıcı version label Add bağlantısına tıklar
+    Then Copy butonu görüntülenmelidir
+    And "Copy" işlemi açık belgede gerçekten çalışmalı ve sonucu API ile doğrulanmalıdır
+
+  @documents @regression @batch14 @batch34
+  Scenario: Label eklendikten sonra New version kullanılabilir kalmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı "v1.0.0" versiyonu için label ekleme alanını açar
+    And kullanıcı benzersiz bir version label girer
+    And kullanıcı version label Add bağlantısına tıklar
+    Then New version butonu görüntülenmelidir
+    And "New version" işlemi açık belgede gerçekten çalışmalı ve sonucu API ile doğrulanmalıdır
+
+  @documents @regression @batch14 @batch34
+  Scenario: Label eklendikten sonra Classify kullanılabilir kalmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı "v1.0.0" versiyonu için label ekleme alanını açar
+    And kullanıcı benzersiz bir version label girer
+    And kullanıcı version label Add bağlantısına tıklar
+    Then Classify butonu görüntülenmelidir
+    And "Classify" işlemi açık belgede gerçekten çalışmalı ve sonucu API ile doğrulanmalıdır
 
   @documents @regression @batch14
-  Scenario: Label eklendikten sonra Preview kullanÄ±labilir kalmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± "v1.0.0" versiyonu iÃ§in label ekleme alanÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± benzersiz bir version label girer
-    And kullanÄ±cÄ± version label Add baÄŸlantÄ±sÄ±na tÄ±klar
-    Then admin iÃ§in Preview butonu gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: İki label refresh sonrasında birlikte korunmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı "v1.0.0" versiyonu için label ekleme alanını açar
+    And kullanıcı benzersiz bir version label girer
+    And kullanıcı version label Add bağlantısına tıklar
+    When kullanıcı ikinci version labelı ekler
+    And kullanıcı belge detay sayfasını yeniler
+    Then eklenen version label görüntülenmelidir
+    And ikinci version label görüntülenmelidir
 
   @documents @regression @batch14
-  Scenario: Label eklendikten sonra Move kullanÄ±labilir kalmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± "v1.0.0" versiyonu iÃ§in label ekleme alanÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± benzersiz bir version label girer
-    And kullanÄ±cÄ± version label Add baÄŸlantÄ±sÄ±na tÄ±klar
-    Then Move iÅŸlemi gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: İlk label silinip refresh yapıldığında ikinci label korunmalıdır
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı "v1.0.0" versiyonu için label ekleme alanını açar
+    And kullanıcı benzersiz bir version label girer
+    And kullanıcı version label Add bağlantısına tıklar
+    When kullanıcı ikinci version labelı ekler
+    And kullanıcı eklenen version labelı siler
+    And kullanıcı belge detay sayfasını yeniler
+    Then eklenen version label görüntülenmemelidir
+    And ikinci version label görüntülenmelidir
 
   @documents @regression @batch14
-  Scenario: Label eklendikten sonra Copy kullanÄ±labilir kalmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± "v1.0.0" versiyonu iÃ§in label ekleme alanÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± benzersiz bir version label girer
-    And kullanÄ±cÄ± version label Add baÄŸlantÄ±sÄ±na tÄ±klar
-    Then Copy butonu gÃ¶rÃ¼ntÃ¼lenmelidir
-
-  @documents @regression @batch14
-  Scenario: Label eklendikten sonra New version kullanÄ±labilir kalmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± "v1.0.0" versiyonu iÃ§in label ekleme alanÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± benzersiz bir version label girer
-    And kullanÄ±cÄ± version label Add baÄŸlantÄ±sÄ±na tÄ±klar
-    Then New version butonu gÃ¶rÃ¼ntÃ¼lenmelidir
-
-  @documents @regression @batch14
-  Scenario: Label eklendikten sonra Classify kullanÄ±labilir kalmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± "v1.0.0" versiyonu iÃ§in label ekleme alanÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± benzersiz bir version label girer
-    And kullanÄ±cÄ± version label Add baÄŸlantÄ±sÄ±na tÄ±klar
-    Then Classify butonu gÃ¶rÃ¼ntÃ¼lenmelidir
-
-  @documents @regression @batch14
-  Scenario: Ä°ki label refresh sonrasÄ±nda birlikte korunmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± "v1.0.0" versiyonu iÃ§in label ekleme alanÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± benzersiz bir version label girer
-    And kullanÄ±cÄ± version label Add baÄŸlantÄ±sÄ±na tÄ±klar
-    When kullanÄ±cÄ± ikinci version labelÄ± ekler
-    And kullanÄ±cÄ± belge detay sayfasÄ±nÄ± yeniler
-    Then eklenen version label gÃ¶rÃ¼ntÃ¼lenmelidir
-    And ikinci version label gÃ¶rÃ¼ntÃ¼lenmelidir
-
-  @documents @regression @batch14
-  Scenario: Ä°lk label silinip refresh yapÄ±ldÄ±ÄŸÄ±nda ikinci label korunmalÄ±dÄ±r
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± "v1.0.0" versiyonu iÃ§in label ekleme alanÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± benzersiz bir version label girer
-    And kullanÄ±cÄ± version label Add baÄŸlantÄ±sÄ±na tÄ±klar
-    When kullanÄ±cÄ± ikinci version labelÄ± ekler
-    And kullanÄ±cÄ± eklenen version labelÄ± siler
-    And kullanÄ±cÄ± belge detay sayfasÄ±nÄ± yeniler
-    Then eklenen version label gÃ¶rÃ¼ntÃ¼lenmemelidir
-    And ikinci version label gÃ¶rÃ¼ntÃ¼lenmelidir
-
-  @documents @regression @batch14
-  Scenario: Patch ve eski versiyon farklÄ± label taÅŸÄ±yabilmelidir
-    Given admin kullanÄ±cÄ± benzersiz bir TXT belge yÃ¼klemiÅŸtir
-    When kullanÄ±cÄ± yeni versiyon sayfasÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± "Patch" versiyon tipini seÃ§er
-    And kullanÄ±cÄ± yeni versiyon dosyasÄ±nÄ± yÃ¼kler
-    And kullanÄ±cÄ± yeni versiyonu kaydeder
-    When kullanÄ±cÄ± "v1.0.0" versiyonuna benzersiz label ekler
-    Then eklenen label "v1.0.0" versiyonunda gÃ¶rÃ¼ntÃ¼lenmelidir
-    When kullanÄ±cÄ± "v1.0.1" versiyonu iÃ§in label ekleme alanÄ±nÄ± aÃ§ar
-    And kullanÄ±cÄ± ikinci benzersiz version label girer
-    And kullanÄ±cÄ± version label Add baÄŸlantÄ±sÄ±na tÄ±klar
-    Then ikinci version label gÃ¶rÃ¼ntÃ¼lenmelidir
+  Scenario: Patch ve eski versiyon farklı label taşıyabilmelidir
+    Given admin kullanıcı API ile oluşturulan benzersiz bir TXT belgenin detay sayfasındadır
+    When kullanıcı yeni versiyon sayfasını açar
+    And kullanıcı "Patch" versiyon tipini seçer
+    And kullanıcı yeni versiyon dosyasını yükler
+    And kullanıcı yeni versiyonu kaydeder
+    When kullanıcı "v1.0.0" versiyonuna benzersiz label ekler
+    Then eklenen label "v1.0.0" versiyonunda görüntülenmelidir
+    When kullanıcı "v1.0.1" versiyonu için label ekleme alanını açar
+    And kullanıcı ikinci benzersiz version label girer
+    And kullanıcı version label Add bağlantısına tıklar
+    Then ikinci version label görüntülenmelidir
  # =====================================================
 # BATCH 15 - DOCUMENT RENAME
 # PATCH /v1/documents/{id}/title
 # =====================================================
 
-@batch15 @documents @rename @endpoint_PATCH_v1_documents_id_title
+@batch15 @documents @rename @endpoint_PATCH_v1_documents_id_title @batch34
 Scenario: B15-01 Admin document detail sayfasında rename edit kontrolünü görebilir
   Given Batch 15 için yeni bir document oluşturulur
   Then document rename edit butonu görüntülenmelidir
+  And "Rename" işlemi açık belgede gerçekten çalışmalı ve sonucu API ile doğrulanmalıdır
 
-@batch15 @documents @rename
+@batch15 @documents @rename @batch34
 Scenario: B15-02 Rename edit kontrolü inline rename editorunu açar
   Given Batch 15 için yeni bir document oluşturulur
   When kullanıcı document rename editorunu açar
   Then document rename editoru görüntülenmelidir
+  And "Rename" işlemi açık belgede gerçekten çalışmalı ve sonucu API ile doğrulanmalıdır
 
 @batch15 @documents @rename
 Scenario: B15-03 Rename editoru mevcut document başlığını input içinde gösterir
@@ -2407,17 +2479,19 @@ Scenario: B15-03 Rename editoru mevcut document başlığını input içinde gö
   When kullanıcı document rename editorunu açar
   Then rename alanında mevcut document başlığı bulunmalıdır
 
-@batch15 @documents @rename
+@batch15 @documents @rename @batch34
 Scenario: B15-04 Rename editorunda confirm kontrolü bulunur
   Given Batch 15 için yeni bir document oluşturulur
   When kullanıcı document rename editorunu açar
   Then rename confirm butonu görüntülenmelidir
+  And "Rename" işlemi açık belgede gerçekten çalışmalı ve sonucu API ile doğrulanmalıdır
 
-@batch15 @documents @rename
+@batch15 @documents @rename @batch34
 Scenario: B15-05 Rename editorunda cancel kontrolü bulunur
   Given Batch 15 için yeni bir document oluşturulur
   When kullanıcı document rename editorunu açar
   Then rename cancel butonu görüntülenmelidir
+  And "Rename iptal" işlemi açık belgede gerçekten çalışmalı ve sonucu API ile doğrulanmalıdır
 
 @batch15 @documents @rename @endpoint_PATCH_v1_documents_id_title
 Scenario: B15-06 Admin document başlığını değiştirebilir
@@ -2460,3 +2534,122 @@ Scenario: B15-10 Rename edilen başlık refresh sonrasında kalıcıdır
   And kullanıcı document rename işlemini kaydeder
   And kullanıcı document detay sayfasını yeniler
   Then rename edilen document başlığı refresh sonrasında korunmalıdır
+ # =====================================================
+# BATCH 16 - DOCUMENT RENAME VALIDATION / EDGE CASES
+# PATCH /v1/documents/{id}/title
+# =====================================================
+
+  @batch16 @documents @rename @validation
+  Scenario: B16-01 Document başlığı boş bırakılamaz
+    Given Batch 16 için yeni bir document oluşturulur
+    When kullanıcı document rename editorunu açar
+    And kullanıcı document rename alanını boş bırakır
+    Then document rename işlemi boş başlıkla kaydedilememelidir
+
+  @batch16 @documents @rename @validation
+  Scenario: B16-02 Sadece boşluk içeren document başlığı kaydedilemez
+    Given Batch 16 için yeni bir document oluşturulur
+    When kullanıcı document rename editorunu açar
+    And kullanıcı document rename alanına sadece boşluk girer
+    Then document rename işlemi boşluk başlıkla kaydedilememelidir
+
+  @batch16 @documents @rename @validation
+  Scenario: B16-03 Rename iptal edildiğinde original başlık refresh sonrasında korunur
+    Given Batch 16 için yeni bir document oluşturulur
+    When kullanıcı document rename editorunu açar
+    And kullanıcı document başlığını Batch 16 için yeni benzersiz bir başlıkla değiştirir
+    And kullanıcı document rename işlemini iptal eder
+    And kullanıcı document detay sayfasını yeniler
+    Then Batch 16 original document başlığı görüntülenmelidir
+
+  @batch16 @documents @rename @validation
+  Scenario: B16-04 Document art arda iki kez yeniden adlandırılabilir
+    Given Batch 16 için yeni bir document oluşturulur
+    When kullanıcı document başlığını Batch 16 için birinci kez değiştirip kaydeder
+    And kullanıcı document başlığını Batch 16 için ikinci kez değiştirip kaydeder
+    Then document ikinci Batch 16 başlığı ile görüntülenmelidir
+
+  @batch16 @documents @rename @validation
+  Scenario: B16-05 İkinci rename sonrasında birinci rename başlığı artık görüntülenmez
+    Given Batch 16 için yeni bir document oluşturulur
+    When kullanıcı document başlığını Batch 16 için birinci kez değiştirip kaydeder
+    And kullanıcı document başlığını Batch 16 için ikinci kez değiştirip kaydeder
+    Then birinci Batch 16 rename başlığı artık görüntülenmemelidir
+    # =====================================================
+# BATCH 17 - VERSION CHANGE COMMENT
+# =====================================================
+
+  @batch17 @documents @version @comment @batch34
+  Scenario: B17-01 Yeni version oluştururken version comment girilebilir
+    Given Batch 17 için yeni bir document oluşturulur
+    When kullanıcı Batch 17 document için yeni version oluşturmayı açar
+    Then Version comment alanı görüntülenmelidir
+    And "Version comment" işlemi açık belgede gerçekten çalışmalı ve sonucu API ile doğrulanmalıdır
+
+  @batch17 @documents @version @comment
+  Scenario: B17-02 Version comment ile yeni version oluşturulabilir
+    Given Batch 17 için yeni bir document oluşturulur
+    When kullanıcı Batch 17 document için yeni version oluşturmayı açar
+    And kullanıcı benzersiz bir Batch 17 version comment girer
+    And kullanıcı Batch 17 yeni version işlemini kaydeder
+    Then Batch 17 version comment document detayında görüntülenmelidir
+
+  @batch17 @documents @version @comment
+  Scenario: B17-03 Version comment refresh sonrasında korunur
+    Given Batch 17 için yeni bir document oluşturulur
+    When kullanıcı Batch 17 document için yeni version oluşturmayı açar
+    And kullanıcı benzersiz bir Batch 17 version comment girer
+    And kullanıcı Batch 17 yeni version işlemini kaydeder
+    And kullanıcı document detay sayfasını yeniler
+    Then Batch 17 version comment document detayında görüntülenmelidir
+
+  @batch17 @documents @version @comment
+  Scenario: B17-04 Version comment yeni version history kaydında görüntülenir
+    Given Batch 17 için yeni bir document oluşturulur
+    When kullanıcı Batch 17 document için yeni version oluşturmayı açar
+    And kullanıcı benzersiz bir Batch 17 version comment girer
+    And kullanıcı Batch 17 yeni version işlemini kaydeder
+    Then Batch 17 yeni version history kaydı görüntülenmelidir
+    And Batch 17 version comment yeni version kaydında görüntülenmelidir
+
+  @batch17 @documents @version @comment
+  Scenario: B17-05 Version comment olmadan da yeni version oluşturulabilir
+    Given Batch 17 için yeni bir document oluşturulur
+    When kullanıcı Batch 17 document için yeni version oluşturmayı açar
+    And kullanıcı Version comment alanını boş bırakır
+    And kullanıcı Batch 17 yeni version işlemini kaydeder
+    Then Batch 17 yeni version başarıyla oluşturulmalıdır
+    # =====================================================
+# BATCH 18 - DOCUMENT RELATIONSHIPS
+# =====================================================
+
+  @batch18 @documents @relationships
+  Scenario: B18-01 Document detail sayfasında Relationships alanı görüntülenir
+    Given Batch 18 için yeni bir document oluşturulur
+    Then Relationships alanı görüntülenmelidir
+
+  @batch18 @documents @relationships
+  Scenario: B18-02 Admin Link document penceresini açabilir
+    Given Batch 18 için yeni bir document oluşturulur
+    When kullanıcı Link document işlemini açar
+    Then Link document penceresi görüntülenmelidir
+
+  @batch18 @documents @relationships
+  Scenario: B18-03 Link document penceresinde hedef document alanı görüntülenir
+    Given Batch 18 için yeni bir document oluşturulur
+    When kullanıcı Link document işlemini açar
+    Then Target document ID alanı görüntülenmelidir
+
+  @batch18 @documents @relationships
+  Scenario: B18-04 Link document varsayılan olarak latest version binding kullanır
+    Given Batch 18 için yeni bir document oluşturulur
+    When kullanıcı Link document işlemini açar
+    Then Float to latest seçili olmalıdır
+
+  @batch18 @documents @relationships
+  Scenario: B18-05 Specific version seçildiğinde Target version alanı görüntülenir
+    Given Batch 18 için kaynak ve hedef document oluşturulur
+    When kullanıcı kaynak document üzerinde Link document işlemini açar
+    And kullanıcı hedef document ID bilgisini girer
+    And kullanıcı Pin to specific version seçeneğini seçer
+    Then Target version alanı görüntülenmelidir
